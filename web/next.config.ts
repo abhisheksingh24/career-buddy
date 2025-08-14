@@ -1,13 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    turbo: {
-      resolveAlias: {
-        // ensure Node can't walk outside project for styles
-      },
-    },
-  },
+  // Prevent Turbopack/bundler from inlining these native/Node-expected libs
+  serverExternalPackages: ["pdf-parse", "mammoth"],
 };
 
 export default nextConfig;
