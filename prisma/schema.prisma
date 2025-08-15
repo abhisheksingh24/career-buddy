@@ -1,12 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// This is your Prisma schema file
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,32 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth.js models (Prisma Adapter)
-model User {
-  id            String   @id @default(cuid())
-  name          String?
-  email         String?  @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  resumes       Resume[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
+// Auth & User Management
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -63,27 +44,115 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Domain models
-model Resume {
-  id            String      @id @default(cuid())
-  userId        String
-  originalName  String
-  mimeType      String
-  storageKey    String      @unique // key in storage provider (stub for now)
-  parsedText    String?     @db.Text
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  analyses      Analysis[]
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+// Core User & Profile
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+  portfolios    Portfolio[]
+  applications  JobApplication[]
+  reviews       Review[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
-model Analysis {
-  id               String   @id @default(cuid())
-  resumeId         String
-  jobDescription   String   @db.Text
-  score            Int
-  missingKeywords  String[]
-  suggestionsJson  String   @db.Text // store AI suggestions as JSON
-  createdAt        DateTime @default(now())
-  resume           Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline    String?
+  bio         String?  @db.Text
+  location    String?
+  website     String?
+  linkedin    String?
+  github      String?
+  skills      String[]
+  experience  Json[]   // Structured experience data
+  education   Json[]   // Structured education data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Portfolio & Resume Management
+model Portfolio {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  isDefault   Boolean  @default(false)
+  resumes     Resume[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model Resume {
+  id          String   @id @default(cuid())
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  version     Int
+  name        String
+  content     Json     // Structured resume data
+  rawText     String   @db.Text
+  fileUrl     String?  // URL to stored file
+  fileType    String   // PDF, DOCX, etc.
+  isActive    Boolean  @default(true)
+  analyses    ResumeAnalysis[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([portfolioId, version])
+}
+
+// Job Applications & Tracking
+model JobApplication {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId    String?
+  jobTitle    String
+  company     String
+  location    String?
+  jobUrl      String?
+  description String?  @db.Text
+  status      String   // Applied, Interview, Offer, Rejected, etc.
+  notes       String?  @db.Text
+  appliedAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Analysis & AI Features
+model ResumeAnalysis {
+  id          String   @id @default(cuid())
+  resumeId    String
+  resume      Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobTitle    String?
+  jobDesc     String?  @db.Text
+  score       Float?
+  keywords    String[]
+  missing     String[]
+  suggestions Json?    // AI suggestions
+  createdAt   DateTime @default(now())
+}
+
+// Community Features (Phase 3)
+model Review {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetType  String   // Resume, Profile, etc.
+  targetId    String   // ID of the reviewed item
+  rating      Int
+  comment     String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, targetType, targetId])
 }
