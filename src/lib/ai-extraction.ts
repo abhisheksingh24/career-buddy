@@ -54,19 +54,23 @@ export async function extractSkillsFromText(
 
 Context: This is a ${context}${domainContext}.
 
-Return a JSON object with:
-- technical_skills: Hard skills, programming languages, methodologies, domain-specific technical knowledge
-- soft_skills: Communication, leadership, teamwork, problem-solving, etc.
-- tools: Software, platforms, frameworks, equipment
-- certifications: Degrees, certificates, licenses, professional qualifications
-- domain_keywords: Industry-specific terms and jargon
+Return a JSON object with EXACTLY this structure:
+{
+  "technical_skills": ["skill1", "skill2", "skill3"],
+  "soft_skills": ["skill1", "skill2", "skill3"], 
+  "tools": ["tool1", "tool2", "tool3"],
+  "certifications": ["cert1", "cert2", "cert3"],
+  "domain_keywords": ["keyword1", "keyword2", "keyword3"]
+}
 
-Guidelines:
-- Be comprehensive but precise
+CRITICAL REQUIREMENTS:
+- Each field must be an ARRAY of strings, not an object
+- Do NOT nest skills in categories or subcategories
+- Put all skills directly in the arrays
 - Normalize variations (e.g., "React.js" → "React", "JavaScript" and "JS" → "JavaScript")
 - Include both explicit mentions and implied skills
 - For ${context === "resume" ? "resumes" : "job descriptions"}, focus on ${context === "resume" ? "demonstrated capabilities" : "required qualifications"}
-- Return only the JSON object, no additional text`;
+- Return ONLY the JSON object, no additional text`;
 
   const userPrompt = `Extract skills from this ${context}:\n\n${text}`;
 
@@ -83,11 +87,16 @@ Guidelines:
     });
 
     const content = completion.choices?.[0]?.message?.content ?? "{}";
+    console.log("AI Response:", content); // Add this line
+
     const parsed = JSON.parse(content);
+    console.log("Parsed JSON:", parsed); // Add this line
+
     const validated = ExtractedSkillsSchema.safeParse(parsed);
 
     if (!validated.success) {
       console.error("Skill extraction validation failed:", validated.error);
+      console.error("AI returned:", parsed); // Add this line
       return getMockExtractedSkills(context, domain);
     }
 
@@ -128,18 +137,25 @@ export async function extractJobRequirements(
 
 Context: This is a job description${domainContext}.
 
-Return a JSON object with:
-- required_skills: Must-have skills explicitly stated as required or essential
-- preferred_skills: Nice-to-have skills, bonus qualifications, or preferred experience
-- experience_requirements: Years of experience, specific role requirements, education requirements
+Return a JSON object with EXACTLY this structure:
+{
+  "required_skills": ["skill1", "skill2", "skill3"],
+  "preferred_skills": ["skill1", "skill2", "skill3"],
+  "experience_requirements": ["requirement1", "requirement2", "requirement3"]
+}
 
-Guidelines:
+CRITICAL REQUIREMENTS:
+- Each field must be an ARRAY of strings, not an object
+- Do NOT nest requirements in categories
+- Put all requirements directly in the arrays
 - Distinguish between "required" and "preferred" carefully
 - Look for keywords like "must have", "required", "essential" vs "nice to have", "preferred", "bonus"
 - Normalize skill names (e.g., "React.js" → "React")
 - Include both technical and soft skills in appropriate categories
-- Extract experience requirements separately (e.g., "5+ years", "Bachelor's degree")
-- Return only the JSON object, no additional text`;
+- Extract experience requirements separately (e.g., "5+ years", "Bachelor's degree", "3+ years experience")
+- DO NOT put experience requirements (like "5+ years experience") in the skills arrays
+- Skills should be actual abilities, tools, or knowledge areas
+- Return ONLY the JSON object, no additional text`;
 
   const userPrompt = `Extract requirements from this job description:\n\n${jobDescription}`;
 
@@ -156,11 +172,16 @@ Guidelines:
     });
 
     const content = completion.choices?.[0]?.message?.content ?? "{}";
+    console.log("Job Requirements AI Response:", content); // Add this line
+
     const parsed = JSON.parse(content);
+    console.log("Job Requirements Parsed JSON:", parsed); // Add this line
+
     const validated = JobRequirementsSchema.safeParse(parsed);
 
     if (!validated.success) {
       console.error("Job requirements extraction validation failed:", validated.error);
+      console.error("AI returned:", parsed); // Add this line
       return getMockJobRequirements(domain);
     }
 
@@ -221,7 +242,7 @@ Return only the domain name, nothing else.`;
 }
 
 // Mock functions for development
- 
+
 function getMockExtractedSkills(
   _context: "resume" | "job_description",
   _domain?: string,
