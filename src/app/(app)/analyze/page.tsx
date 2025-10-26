@@ -1,26 +1,16 @@
 "use client";
 
-import { ResumeAnalysisResults } from "@/components/resume-analysis-results";
+import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-analysis-results";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { EnhancedAnalysisResult } from "@/lib/types/analysis";
 import { FileText, Upload, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 
-type AnalyzeResponse =
-  | {
-      score: number;
-      missingKeywords: string[];
-      suggestions: {
-        bullets: string[];
-        skills: string[];
-      };
-      jobTitle?: string;
-      company?: string;
-    }
-  | { error?: string }
-  | null;
+
+type AnalyzeResponse = EnhancedAnalysisResult | { error?: string } | null;
 
 export default function AnalyzePage() {
   const { data: session } = useSession();
@@ -28,6 +18,7 @@ export default function AnalyzePage() {
   const [jobDescription, setJobDescription] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
+  const [domain, setDomain] = useState("");
   const [result, setResult] = useState<AnalyzeResponse>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +61,7 @@ export default function AnalyzePage() {
           jobDescription,
           jobTitle: jobTitle || "Position",
           company: company || "Company",
+          domain: domain || undefined,
         }),
       });
       if (!res.ok) throw new Error("Failed to analyze resume");
@@ -133,6 +125,22 @@ export default function AnalyzePage() {
               <CardDescription>Enter the job details and description</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Job Domain{" "}
+                  <span className="text-xs text-gray-500 font-normal">
+                    (Optional - leave blank for auto-detection)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Software Engineering, Healthcare, Finance, Marketing"
+                  value={domain}
+                  onChange={(e) => setDomain(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Job Title</label>
@@ -189,14 +197,8 @@ export default function AnalyzePage() {
             </Alert>
           )}
 
-          {result && !error && "score" in result && (
-            <ResumeAnalysisResults
-              score={result.score}
-              missingKeywords={result.missingKeywords}
-              suggestions={result.suggestions}
-              jobTitle={result.jobTitle}
-              company={result.company}
-            />
+          {result && !error && "overallScore" in result && (
+            <EnhancedResumeAnalysisResults analysis={result} />
           )}
 
           {!result && !error && !isLoading && (

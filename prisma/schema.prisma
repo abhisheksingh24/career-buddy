@@ -139,6 +139,16 @@ model ResumeAnalysis {
   keywords    String[]
   missing     String[]
   suggestions Json?    // AI suggestions
+  
+  // Enhanced analysis fields
+  domain          String?  // Job domain (e.g., "Software Engineering")
+  atsScore        Float?   // Separate ATS optimization score
+  matchedSkills   Json?    // { skill: string, relevance: string }[]
+  experienceGaps  String[] // Missing experience areas
+  strengthAreas   String[] // What's already strong
+  improvementAreas String[] // What needs work
+  atsTips         String[] // ATS-specific recommendations
+  
   createdAt   DateTime @default(now())
 }
 

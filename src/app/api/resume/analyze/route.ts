@@ -1,7 +1,6 @@
-import { getSuggestions } from "@/lib/ai";
+import { analyzeResume } from "@/lib/analysis-engine";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { scoreMatch } from "@/lib/match";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
@@ -12,23 +11,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     jobDescription = "",
     jobTitle = "",
     company = "",
+    domain,
   } = body as {
     resumeText?: string;
     jobDescription?: string;
     jobTitle?: string;
     company?: string;
+    domain?: string;
   };
 
-  const { score, missingKeywords } = scoreMatch(resumeText, jobDescription);
-
-  // Get AI suggestions
-  let suggestions = null;
-  try {
-    suggestions = await getSuggestions({ resumeText, jobDescription });
-  } catch (error) {
-    console.error("Failed to get AI suggestions:", error);
-    // Continue without suggestions rather than failing the entire request
-  }
+  // Perform comprehensive analysis
+  const analysis = await analyzeResume({
+    resumeText,
+    jobDescription,
+    domain,
+    jobTitle,
+    company,
+  });
 
   // If user is signed in, persist Analysis with a placeholder Resume record
   const session = await getServerSession(authOptions);
@@ -71,20 +70,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     await prisma.resumeAnalysis.create({
       data: {
         resumeId: resume.id,
+        jobTitle,
         jobDesc: jobDescription,
-        score,
-        keywords: suggestions?.skills || [],
-        missing: missingKeywords,
-        suggestions: suggestions || {},
+        score: analysis.overallScore,
+        keywords: analysis.matchedSkills.map((s) => s.skill),
+        missing: analysis.missingSkills.map((s) => s.skill),
+        suggestions: { bullets: analysis.suggestedBullets },
+        // Enhanced analysis fields
+        domain: analysis.domain,
+        atsScore: analysis.atsScore,
+        matchedSkills: JSON.parse(JSON.stringify(analysis.matchedSkills)), // Convert to JSON
+        experienceGaps: analysis.experienceGaps,
+        strengthAreas: analysis.strengthAreas,
+        improvementAreas: analysis.improvementAreas,
+        atsTips: analysis.atsTips,
       },
     });
   }
 
-  return NextResponse.json({
-    score,
-    missingKeywords,
-    suggestions: suggestions || { bullets: [], skills: [] },
-    jobTitle,
-    company,
-  });
+  return NextResponse.json(analysis);
 }
