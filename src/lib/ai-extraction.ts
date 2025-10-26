@@ -63,13 +63,18 @@ Return a JSON object with EXACTLY this structure:
   "domain_keywords": ["keyword1", "keyword2", "keyword3"]
 }
 
-CRITICAL REQUIREMENTS:
+CRITICAL REQUIREMENTS - Normalization:
 - Each field must be an ARRAY of strings, not an object
 - Do NOT nest skills in categories or subcategories
 - Put all skills directly in the arrays
-- Normalize variations (e.g., "React.js" → "React", "JavaScript" and "JS" → "JavaScript")
+- NORMALIZE all variations to their canonical form:
+  * Remove version numbers: "HTML5" → "HTML", "CSS3" → "CSS"
+  * Expand common abbreviations: "JS" → "JavaScript", "TS" → "TypeScript"
+  * Use full names for certifications: "RN" → "Registered Nurse", "CPA" → "Certified Public Accountant"
+  * Standardize tool names: "React.js" / "ReactJS" → "React"
+  * Use industry-standard terminology for the ${context === "resume" ? "resume's" : "job's"} domain
+- If you see multiple variations of the same skill, list it only ONCE in its canonical form
 - Include both explicit mentions and implied skills
-- For ${context === "resume" ? "resumes" : "job descriptions"}, focus on ${context === "resume" ? "demonstrated capabilities" : "required qualifications"}
 - Return ONLY the JSON object, no additional text`;
 
   const userPrompt = `Extract skills from this ${context}:\n\n${text}`;
@@ -144,14 +149,17 @@ Return a JSON object with EXACTLY this structure:
   "experience_requirements": ["requirement1", "requirement2", "requirement3"]
 }
 
-CRITICAL REQUIREMENTS:
+CRITICAL REQUIREMENTS - Normalization:
 - Each field must be an ARRAY of strings, not an object
 - Do NOT nest requirements in categories
 - Put all requirements directly in the arrays
+- NORMALIZE all variations to their canonical form:
+  * Remove version numbers: "HTML5" → "HTML", "CSS3" → "CSS"
+  * Expand common abbreviations: "JS" → "JavaScript", "TS" → "TypeScript"
+  * Use full names for certifications: "RN" → "Registered Nurse", "CPA" → "Certified Public Accountant"
+  * Standardize tool names: "React.js" / "ReactJS" → "React"
 - Distinguish between "required" and "preferred" carefully
 - Look for keywords like "must have", "required", "essential" vs "nice to have", "preferred", "bonus"
-- Normalize skill names (e.g., "React.js" → "React")
-- Include both technical and soft skills in appropriate categories
 - Extract experience requirements separately (e.g., "5+ years", "Bachelor's degree", "3+ years experience")
 - DO NOT put experience requirements (like "5+ years experience") in the skills arrays
 - Skills should be actual abilities, tools, or knowledge areas

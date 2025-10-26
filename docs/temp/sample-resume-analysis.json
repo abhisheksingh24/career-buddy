@@ -1,0 +1,100 @@
+{
+    "overallScore": 33,
+    "atsScore": 80,
+    "domain": "Software Engineering",
+    "matchedSkills": [
+        {
+            "skill": "Java",
+            "relevance": "high",
+            "source": "resume"
+        },
+        {
+            "skill": "React",
+            "relevance": "high",
+            "source": "resume"
+        },
+        {
+            "skill": "communication",
+            "relevance": "high",
+            "source": "resume"
+        }
+    ],
+    "missingSkills": [
+        {
+            "skill": "HTML",
+            "priority": "critical",
+            "category": "technical"
+        },
+        {
+            "skill": "CSS",
+            "priority": "critical",
+            "category": "technical"
+        },
+        {
+            "skill": "RESTful APIs",
+            "priority": "critical",
+            "category": "technical"
+        },
+        {
+            "skill": "Backbone",
+            "priority": "nice-to-have",
+            "category": "technical"
+        },
+        {
+            "skill": "Underscore",
+            "priority": "nice-to-have",
+            "category": "technical"
+        },
+        {
+            "skill": "jQuery",
+            "priority": "nice-to-have",
+            "category": "technical"
+        }
+    ],
+    "relevantExperiences": [
+        "Led TypeScript migration and developed core classes for a React-based web app, showcasing technical leadership and project ownership.",
+        "Migrated a web app from Appsmith to React, improving loading speed, demonstrating capability in optimizing web applications.",
+        "Developed a Java-based rule engine during internship, providing foundational experience in backend development and integration."
+    ],
+    "experienceGaps": [
+        "Experience with HTML and CSS in a commercial setting.",
+        "Experience consuming RESTful APIs in projects.",
+        "Specific examples of architecting and deploying mid-to-large size web applications."
+    ],
+    "strengthAreas": [
+        "Strong experience in developing user-facing applications using React, demonstrating proficiency in modern JavaScript frameworks.",
+        "Leadership experience managing sub-teams and mentoring interns, showcasing ability to guide and empower team members.",
+        "Proven ability to engage with stakeholders and product managers to align on project requirements and priorities.",
+        "Experience in implementing CI/CD pipelines and DevOps practices, indicating a strong understanding of software lifecycle management.",
+        "Solid foundation in testing methodologies, including unit testing and integration testing, ensuring high code quality."
+    ],
+    "improvementAreas": [
+        "Enhance proficiency in HTML and CSS, as these are critical for the frontend development role at Highspot.",
+        "Gain experience with RESTful APIs to better align with the job requirements and improve the ability to consume backend services.",
+        "Consider adding more details on specific architectural decisions made during projects to demonstrate experience in building and deploying mid-to-large size applications.",
+        "Highlight any experience with cross-browser compatibility issues and solutions, as this is a key requirement for the role.",
+        "Include metrics or outcomes from projects to quantify achievements and demonstrate impact."
+    ],
+    "atsTips": [
+        "Add 'HTML' and 'CSS' to the skills section to match the job description requirements.",
+        "Include specific projects or experiences that demonstrate RESTful API consumption.",
+        "Use industry-standard terms like 'cross-browser compatibility' in the experience section.",
+        "Incorporate keywords from the job description, such as 'customer-facing product features' and 'frontend infrastructure improvements', throughout the resume.",
+        "Ensure that all relevant technologies (e.g., JavaScript, React) are prominently featured in the skills section."
+    ],
+    "suggestedBullets": [
+        "- Developed and optimized customer-facing features for a complex React-based web application, enhancing user experience and engagement.",
+        "- Spearheaded the migration of a web application from Appsmith to React, achieving a 2x improvement in loading speed and overall performance.",
+        "- Designed and implemented CI/CD pipelines using GitHub Actions, streamlining deployment processes and improving code integration efficiency.",
+        "- Collaborated with product managers and stakeholders to define project requirements, ensuring alignment and timely delivery of features.",
+        "- Led a team of developers and interns, providing mentorship and conducting code reviews to uphold high coding standards and best practices."
+    ],
+    "missingKeywords": [
+        "HTML",
+        "CSS",
+        "RESTful APIs",
+        "Backbone",
+        "Underscore",
+        "jQuery"
+    ]
+}

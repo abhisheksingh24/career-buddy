@@ -100,7 +100,7 @@ function getRelevanceLevel(similarity: number): "high" | "medium" | "low" {
 }
 
 /**
- * Match resume skills with job skills using semantic similarity
+ * Match resume skills with job skills using multi-level approach
  */
 export async function matchSkillsSemantically(
   resumeSkills: string[],
@@ -115,47 +115,177 @@ export async function matchSkillsSemantically(
   }
 
   try {
-    // Get embeddings for all skills
-    const [resumeEmbeddings, jobEmbeddings] = await Promise.all([
-      getBatchEmbeddings(resumeSkills),
-      getBatchEmbeddings(jobSkills),
+    // Level 1: Exact string matching (case-insensitive)
+    const exactMatches = findExactMatches(resumeSkills, jobSkills);
+
+    // Level 2: Fuzzy string matching (for typos and minor variations)
+    const fuzzyMatches = findFuzzyMatches(resumeSkills, jobSkills, exactMatches);
+
+    // Level 3: Semantic matching with embeddings (for synonyms)
+    const semanticMatches = await findSemanticMatches(resumeSkills, jobSkills, [
+      ...exactMatches,
+      ...fuzzyMatches,
     ]);
 
-    const matches: SkillMatchResult[] = [];
+    // Combine all matches and sort by relevance
+    const allMatches = [...exactMatches, ...fuzzyMatches, ...semanticMatches];
+    allMatches.sort((a, b) => b.similarity - a.similarity);
 
-    // Calculate similarity matrix and find best matches
-    for (let j = 0; j < jobSkills.length; j++) {
-      let bestMatch: SkillMatchResult | null = null;
-      let bestSimilarity = 0;
+    return allMatches;
+  } catch (error) {
+    console.error("Multi-level matching failed:", error);
+    return getMockSkillMatches(resumeSkills, jobSkills);
+  }
+}
 
-      for (let r = 0; r < resumeSkills.length; r++) {
-        const similarity = cosineSimilarity(resumeEmbeddings[r], jobEmbeddings[j]);
+// Level 1: Exact matching (domain-agnostic)
+function findExactMatches(resumeSkills: string[], jobSkills: string[]): SkillMatchResult[] {
+  const matches: SkillMatchResult[] = [];
+  const resumeSkillsLower = resumeSkills.map((s) => s.toLowerCase().trim());
+  const jobSkillsLower = jobSkills.map((s) => s.toLowerCase().trim());
 
-        if (similarity > bestSimilarity && similarity >= 0.4) {
-          // Minimum threshold
-          bestSimilarity = similarity;
-          bestMatch = {
-            resumeSkill: resumeSkills[r],
-            jobSkill: jobSkills[j],
-            similarity,
-            relevance: getRelevanceLevel(similarity),
-          };
-        }
+  for (let j = 0; j < jobSkills.length; j++) {
+    const jobSkillLower = jobSkillsLower[j];
+
+    for (let r = 0; r < resumeSkills.length; r++) {
+      const resumeSkillLower = resumeSkillsLower[r];
+
+      if (resumeSkillLower === jobSkillLower) {
+        matches.push({
+          resumeSkill: resumeSkills[r],
+          jobSkill: jobSkills[j],
+          similarity: 1.0,
+          relevance: "high",
+        });
+        break;
       }
+    }
+  }
 
-      if (bestMatch) {
-        matches.push(bestMatch);
+  return matches;
+}
+
+// Level 2: Fuzzy matching using Levenshtein distance (domain-agnostic)
+function findFuzzyMatches(
+  resumeSkills: string[],
+  jobSkills: string[],
+  existingMatches: SkillMatchResult[],
+): SkillMatchResult[] {
+  const matches: SkillMatchResult[] = [];
+  const matchedJobSkills = new Set(existingMatches.map((m) => m.jobSkill.toLowerCase()));
+  const matchedResumeSkills = new Set(existingMatches.map((m) => m.resumeSkill.toLowerCase()));
+
+  for (const jobSkill of jobSkills) {
+    if (matchedJobSkills.has(jobSkill.toLowerCase())) continue;
+
+    for (const resumeSkill of resumeSkills) {
+      if (matchedResumeSkills.has(resumeSkill.toLowerCase())) continue;
+
+      const similarity = calculateLevenshteinSimilarity(
+        resumeSkill.toLowerCase(),
+        jobSkill.toLowerCase(),
+      );
+
+      // Threshold: 0.8 = 80% similarity (catches typos and minor variations)
+      if (similarity >= 0.8) {
+        matches.push({
+          resumeSkill,
+          jobSkill,
+          similarity,
+          relevance: similarity >= 0.9 ? "high" : "medium",
+        });
+        matchedJobSkills.add(jobSkill.toLowerCase());
+        matchedResumeSkills.add(resumeSkill.toLowerCase());
+        break;
+      }
+    }
+  }
+
+  return matches;
+}
+
+// Level 3: Semantic matching with lowered threshold
+async function findSemanticMatches(
+  resumeSkills: string[],
+  jobSkills: string[],
+  existingMatches: SkillMatchResult[],
+): Promise<SkillMatchResult[]> {
+  const matchedJobSkills = new Set(existingMatches.map((m) => m.jobSkill.toLowerCase()));
+  const matchedResumeSkills = new Set(existingMatches.map((m) => m.resumeSkill.toLowerCase()));
+
+  const unmatchedResumeSkills = resumeSkills.filter(
+    (s) => !matchedResumeSkills.has(s.toLowerCase()),
+  );
+  const unmatchedJobSkills = jobSkills.filter((s) => !matchedJobSkills.has(s.toLowerCase()));
+
+  if (unmatchedResumeSkills.length === 0 || unmatchedJobSkills.length === 0) {
+    return [];
+  }
+
+  // Get embeddings for unmatched skills only
+  const [resumeEmbeddings, jobEmbeddings] = await Promise.all([
+    getBatchEmbeddings(unmatchedResumeSkills),
+    getBatchEmbeddings(unmatchedJobSkills),
+  ]);
+
+  const matches: SkillMatchResult[] = [];
+
+  for (let j = 0; j < unmatchedJobSkills.length; j++) {
+    let bestMatch: SkillMatchResult | null = null;
+    let bestSimilarity = 0;
+
+    for (let r = 0; r < unmatchedResumeSkills.length; r++) {
+      const similarity = cosineSimilarity(resumeEmbeddings[r], jobEmbeddings[j]);
+
+      // Lowered threshold from 0.4 to 0.3 for better coverage
+      if (similarity > bestSimilarity && similarity >= 0.3) {
+        bestSimilarity = similarity;
+        bestMatch = {
+          resumeSkill: unmatchedResumeSkills[r],
+          jobSkill: unmatchedJobSkills[j],
+          similarity,
+          relevance: getRelevanceLevel(similarity),
+        };
       }
     }
 
-    // Sort by similarity (highest first)
-    matches.sort((a, b) => b.similarity - a.similarity);
-
-    return matches;
-  } catch (error) {
-    console.error("Semantic matching failed:", error);
-    return getMockSkillMatches(resumeSkills, jobSkills);
+    if (bestMatch) {
+      matches.push(bestMatch);
+    }
   }
+
+  return matches;
+}
+
+// Levenshtein distance-based similarity (domain-agnostic)
+function calculateLevenshteinSimilarity(str1: string, str2: string): number {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const matrix: number[][] = [];
+
+  // Initialize matrix
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Calculate Levenshtein distance
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1, // deletion
+        matrix[i][j - 1] + 1, // insertion
+        matrix[i - 1][j - 1] + cost, // substitution
+      );
+    }
+  }
+
+  const distance = matrix[len1][len2];
+  const maxLen = Math.max(len1, len2);
+  return maxLen === 0 ? 1 : 1 - distance / maxLen;
 }
 
 /**
