@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import { AuthButtons } from "@/components/auth-buttons";
 import { Providers } from "@/components/providers";
@@ -30,13 +31,13 @@ export default function RootLayout({
         <Providers>
           <header className="w-full border-b">
             <div className="max-w-5xl mx-auto p-4 flex justify-between items-center">
-              <a className="font-semibold" href="/">Career Buddy</a>
+              <Link className="font-semibold" href="/">
+                Career Buddy
+              </Link>
               <AuthButtons />
             </div>
           </header>
-          <main className="max-w-5xl mx-auto w-full">
-            {children}
-          </main>
+          <main className="max-w-5xl mx-auto w-full">{children}</main>
         </Providers>
       </body>
     </html>

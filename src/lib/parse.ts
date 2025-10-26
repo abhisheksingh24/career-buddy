@@ -1,8 +1,10 @@
-export async function extractTextFromFile(file: File): Promise<{ text: string; mimeType: string; originalName: string }>{
+export async function extractTextFromFile(
+  file: File,
+): Promise<{ text: string; mimeType: string; originalName: string }> {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   const mimeType = file.type || "application/octet-stream";
-  const originalName = (file as any).name ?? "upload";
+  const originalName = (file as File & { name?: string }).name ?? "upload";
 
   if (mimeType === "application/pdf") {
     const { default: pdfParse } = await import("pdf-parse");
@@ -22,5 +24,3 @@ export async function extractTextFromFile(file: File): Promise<{ text: string; m
   // Fallback: treat as text
   return { text: buffer.toString("utf8"), mimeType, originalName };
 }
-
-

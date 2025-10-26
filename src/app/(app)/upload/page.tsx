@@ -4,7 +4,14 @@ import { useState } from "react";
 
 export default function UploadPage() {
   const [fileName, setFileName] = useState<string>("");
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{
+    status: number;
+    id?: string;
+    originalName?: string;
+    mimeType?: string;
+    length?: number;
+    error?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(formData: FormData) {
@@ -15,8 +22,11 @@ export default function UploadPage() {
       const text = await res.text();
       const maybe = text ? JSON.parse(text) : { error: "Empty response" };
       setResult({ status: res.status, ...maybe });
-    } catch (e: any) {
-      setResult({ error: String(e?.message ?? e) });
+    } catch (e: unknown) {
+      setResult({
+        status: 500,
+        error: e instanceof Error ? e.message : "Unknown error occurred",
+      });
     }
     setLoading(false);
   }
@@ -38,9 +48,10 @@ export default function UploadPage() {
       </form>
       {fileName && <p className="text-sm">Selected: {fileName}</p>}
       {result && (
-        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{JSON.stringify(result, null, 2)}</pre>
+        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">
+          {JSON.stringify(result, null, 2)}
+        </pre>
       )}
     </div>
   );
 }
-

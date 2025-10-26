@@ -15,8 +15,44 @@ function isAiEnabled(): boolean {
   );
 }
 
+function isMockMode(): boolean {
+  return (process.env.MOCK_AI_SUGGESTIONS ?? "false").toLowerCase() === "true";
+}
+
 export function aiEnabled(): boolean {
   return isAiEnabled();
+}
+
+function getMockSuggestions(_params: { resumeText: string; jobDescription: string }): Suggestions {
+  // Simulate some processing time
+  // const delay = Math.random() * 1000 + 500; // 500-1500ms
+
+  // Mock suggestions based on common patterns
+  const mockBullets = [
+    "Led development of scalable web applications using React and Node.js, resulting in 40% improved user engagement",
+    "Implemented CI/CD pipelines reducing deployment time by 60% and increasing team productivity",
+    "Collaborated with cross-functional teams to deliver 5+ high-impact features on schedule and within budget",
+  ];
+
+  const mockSkills = [
+    "TypeScript",
+    "Docker",
+    "AWS",
+    "GraphQL",
+    "Jest",
+    "Agile",
+    "Leadership",
+    "Problem Solving",
+  ];
+
+  // Add some randomness to make it feel more realistic
+  const selectedBullets = mockBullets.slice(0, Math.floor(Math.random() * 3) + 2);
+  const selectedSkills = mockSkills.slice(0, Math.floor(Math.random() * 5) + 3);
+
+  return {
+    bullets: selectedBullets,
+    skills: selectedSkills,
+  };
 }
 
 export async function getSuggestions(params: {
@@ -25,6 +61,11 @@ export async function getSuggestions(params: {
 }): Promise<Suggestions> {
   if (!isAiEnabled()) {
     return { bullets: [], skills: [] };
+  }
+
+  // Mock mode for development
+  if (isMockMode()) {
+    return getMockSuggestions(params);
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
