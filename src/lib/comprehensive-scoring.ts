@@ -14,11 +14,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 
 import { isAiEnabled, isMockMode } from "./ai";
-import {
-  ScoringWeights,
-  SkillMatchResult,
-  JobRequirements,
-} from "./types/analysis";
+import { ScoringWeights, SkillMatchResult, JobRequirements } from "./types/analysis";
 
 // Zod schemas for AI responses
 const ExperienceRelevanceSchema = z.object({
@@ -41,30 +37,27 @@ export function getWeightsForExperienceLevel(totalYears: number): ScoringWeights
   if (totalYears < 2) {
     // Entry-level: Education and achievements matter more
     return {
-      experienceRelevance: 0.2, // Less experience to evaluate
+      experienceMatch: 0.3, // Less experience to evaluate
       skills: 0.3, // Skills matter more
-      experienceDuration: 0.05, // Can't have much
       education: 0.3, // MUCH more important
-      achievements: 0.1, // Academic achievements matter
+      achievements: 0.05, // Academic achievements matter
       ats: 0.05,
     };
   } else if (totalYears >= 2 && totalYears < 6) {
     // Mid-level: Balanced approach
     return {
-      experienceRelevance: 0.35,
-      skills: 0.3,
-      experienceDuration: 0.15,
-      education: 0.15,
-      achievements: 0.05,
+      experienceMatch: 0.45, // Combined experience matters most
+      skills: 0.25, // Skills still important
+      education: 0.2, // Education matters
+      achievements: 0.05, // Nice bonus
       ats: 0.05,
     };
   } else {
     // Senior-level: Experience matters most
     return {
-      experienceRelevance: 0.4, // Experience quality is primary
+      experienceMatch: 0.5, // Experience quality is primary
       skills: 0.25, // Skills still important
-      experienceDuration: 0.15, // Duration matters
-      education: 0.1, // Less important for seniors
+      education: 0.15, // Less important for seniors
       achievements: 0.05, // Nice bonus
       ats: 0.05, // Least important
     };
@@ -231,7 +224,50 @@ function extractSection(text: string, sectionNames: string[]): string | null {
   return sectionContent.length > 0 ? sectionContent.join("\n") : null;
 }
 
-// 1. Experience Relevance Scoring (40% weight for senior)
+// 1. Integrated Experience Match Scoring (50% weight) - combines relevance + duration
+export async function scoreExperienceMatch(params: {
+  resumeText: string;
+  jobDescription: string;
+  domain: string;
+  requiredYears: number;
+}): Promise<number> {
+  // Step 1: Calculate relevance score (0-100)
+  const relevanceScore = await scoreExperienceRelevance(params);
+
+  // Step 2: Calculate duration score (0-100) with real-world logic
+  const actualYears = extractYearsOfExperience(params.resumeText);
+  const durationScore = calculateDurationScore(actualYears, params.requiredYears);
+
+  // Step 3: Combine with relevance weighting (70% relevance, 30% duration)
+  const experienceMatch = relevanceScore * 0.7 + durationScore * 0.3;
+
+  console.log(
+    `Experience Match: Relevance=${relevanceScore}, Duration=${durationScore}, Final=${Math.round(experienceMatch)}`,
+  );
+
+  return Math.round(experienceMatch);
+}
+
+// Real-world duration scoring logic
+function calculateDurationScore(actualYears: number, requiredYears: number): number {
+  const ratio = actualYears / requiredYears;
+
+  if (ratio >= 1.5) {
+    // More than 50% over requirement - diminishing returns
+    return Math.min(100, 80 + (ratio - 1.5) * 20);
+  } else if (ratio >= 0.8) {
+    // Within 20% of requirement - good range
+    return 60 + (ratio - 0.8) * 100; // 60-100 range
+  } else if (ratio >= 0.6) {
+    // 20-40% below requirement - acceptable gap
+    return 40 + (ratio - 0.6) * 100; // 40-60 range
+  } else {
+    // More than 40% below requirement - significant gap
+    return Math.max(0, ratio * 66.67); // 0-40 range
+  }
+}
+
+// 1. Experience Relevance Scoring (used by integrated scoring)
 export async function scoreExperienceRelevance(params: {
   resumeText: string;
   jobDescription: string;
@@ -336,27 +372,7 @@ export function calculateSkillsScore(
   return Math.round(finalScore);
 }
 
-// 3. Experience Duration Scoring (15% weight)
-export async function scoreExperienceDuration(params: {
-  resumeText: string;
-  requiredYears: number;
-}): Promise<number> {
-  const actualYears = extractYearsOfExperience(params.resumeText);
-
-  if (actualYears >= params.requiredYears) {
-    return 100; // Meets or exceeds requirement
-  } else if (actualYears >= params.requiredYears * 0.8) {
-    return 80; // Close to requirement
-  } else if (actualYears >= params.requiredYears * 0.6) {
-    return 60; // Somewhat below
-  } else if (actualYears >= params.requiredYears * 0.4) {
-    return 40; // Significantly below
-  } else {
-    return 20; // Far below requirement
-  }
-}
-
-// 4. Education Scoring (10% weight for senior, 30% for entry)
+// 3. Education Scoring (15% weight for mid-level, 30% for entry)
 export async function scoreEducation(params: {
   resumeText: string;
   jobDescription: string;

@@ -163,33 +163,33 @@ export function EnhancedResumeAnalysisResults({ analysis }: EnhancedResumeAnalys
                 Comprehensive Score Breakdown
               </CardTitle>
               <CardDescription>
-                Your resume scored across 6 key dimensions with dynamic weighting based on your
+                Your resume scored across 5 key dimensions with dynamic weighting based on your
                 experience level ({analysis.totalYearsExperience} years)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Experience Relevance */}
+              {/* Experience Match */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-semibold">Experience Relevance</span>
+                    <span className="text-sm font-semibold">Experience Match</span>
                     <Badge variant="outline" className="text-xs">
-                      {Math.round(analysis.weights.experienceRelevance * 100)}% weight
+                      {Math.round(analysis.weights.experienceMatch * 100)}% weight
                     </Badge>
                   </div>
                   <span
-                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.experienceRelevance)}`}
+                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.experienceMatch)}`}
                   >
-                    {analysis.scoreBreakdown.experienceRelevance}/100
+                    {analysis.scoreBreakdown.experienceMatch}/100
                   </span>
                 </div>
                 <Progress
-                  value={analysis.scoreBreakdown.experienceRelevance}
-                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.experienceRelevance)}`}
+                  value={analysis.scoreBreakdown.experienceMatch}
+                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.experienceMatch)}`}
                 />
                 <p className="text-xs text-gray-600">
-                  Quality and relevance of your past work experience
+                  Quality, relevance, and duration of your work experience
                 </p>
               </div>
 
@@ -215,31 +215,6 @@ export function EnhancedResumeAnalysisResults({ analysis }: EnhancedResumeAnalys
                 />
                 <p className="text-xs text-gray-600">
                   How well your skills align with job requirements (with AI inference)
-                </p>
-              </div>
-
-              {/* Experience Duration */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4 text-purple-600" />
-                    <span className="text-sm font-semibold">Experience Duration</span>
-                    <Badge variant="outline" className="text-xs">
-                      {Math.round(analysis.weights.experienceDuration * 100)}% weight
-                    </Badge>
-                  </div>
-                  <span
-                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.experienceDuration)}`}
-                  >
-                    {analysis.scoreBreakdown.experienceDuration}/100
-                  </span>
-                </div>
-                <Progress
-                  value={analysis.scoreBreakdown.experienceDuration}
-                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.experienceDuration)}`}
-                />
-                <p className="text-xs text-gray-600">
-                  Years of relevant experience vs. job requirements
                 </p>
               </div>
 

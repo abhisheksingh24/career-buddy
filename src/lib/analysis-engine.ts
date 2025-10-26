@@ -5,9 +5,8 @@
 
 import { extractSkillsFromText, extractJobRequirements, detectDomain } from "./ai-extraction";
 import {
-  scoreExperienceRelevance,
+  scoreExperienceMatch,
   calculateSkillsScore,
-  scoreExperienceDuration,
   scoreEducation,
   scoreAchievements,
   getWeightsForExperienceLevel,
@@ -209,20 +208,14 @@ export async function analyzeResume(params: {
     const matchedSkills = convertToSkillMatches(skillMatchResults);
     const missingSkills = identifyMissingSkills(jobRequirements, skillMatchResults);
 
-    // Step 6: Score all 6 dimensions
-    const [
-      experienceRelevanceScore,
-      experienceDurationScore,
-      educationScore,
-      achievementsScore,
-      atsScore,
-    ] = await Promise.all([
-      scoreExperienceRelevance({
+    // Step 6: Score all 5 dimensions (integrated experience)
+    const [experienceMatchScore, educationScore, achievementsScore, atsScore] = await Promise.all([
+      scoreExperienceMatch({
         resumeText: params.resumeText,
         jobDescription: params.jobDescription,
         domain,
-      }),
-      scoreExperienceDuration({ resumeText: params.resumeText, requiredYears: 3 }), // Default 3 years requirement
+        requiredYears: 3,
+      }), // Default 3 years requirement
       scoreEducation({
         resumeText: params.resumeText,
         jobDescription: params.jobDescription,
@@ -241,9 +234,8 @@ export async function analyzeResume(params: {
 
     // Step 8: Calculate weighted overall score
     const overallScore = Math.round(
-      experienceRelevanceScore * weights.experienceRelevance +
+      experienceMatchScore * weights.experienceMatch +
         skillsScore * weights.skills +
-        experienceDurationScore * weights.experienceDuration +
         educationScore * weights.education +
         achievementsScore * weights.achievements +
         atsScore * weights.ats,
@@ -251,9 +243,8 @@ export async function analyzeResume(params: {
 
     // Step 9: Create score breakdown
     const scoreBreakdown: ScoreBreakdown = {
-      experienceRelevance: experienceRelevanceScore,
+      experienceMatch: experienceMatchScore,
       skills: skillsScore,
-      experienceDuration: experienceDurationScore,
       education: educationScore,
       achievements: achievementsScore,
       ats: atsScore,
@@ -305,9 +296,8 @@ function getMockEnhancedAnalysis(params: {
 
   // Mock scores for each dimension
   const scoreBreakdown: ScoreBreakdown = {
-    experienceRelevance: 90, // High quality experience
+    experienceMatch: 88, // High quality experience (integrated)
     skills: 85, // Good skill match
-    experienceDuration: 100, // Meets requirements
     education: 85, // Good education
     achievements: 80, // Strong achievements
     ats: 76, // Decent ATS score
@@ -315,9 +305,8 @@ function getMockEnhancedAnalysis(params: {
 
   // Calculate weighted overall score
   const overallScore = Math.round(
-    scoreBreakdown.experienceRelevance * weights.experienceRelevance +
+    scoreBreakdown.experienceMatch * weights.experienceMatch +
       scoreBreakdown.skills * weights.skills +
-      scoreBreakdown.experienceDuration * weights.experienceDuration +
       scoreBreakdown.education * weights.education +
       scoreBreakdown.achievements * weights.achievements +
       scoreBreakdown.ats * weights.ats,

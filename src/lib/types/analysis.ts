@@ -47,18 +47,16 @@ export interface ComprehensiveFeedback {
 }
 
 export interface ScoreBreakdown {
-  experienceRelevance: number; // 0-100 (40% weight for senior, 20% for entry)
-  skills: number; // 0-100 (25% weight for senior, 30% for entry)
-  experienceDuration: number; // 0-100 (15% weight)
-  education: number; // 0-100 (10% weight for senior, 30% for entry)
-  achievements: number; // 0-100 (5% weight for senior, 10% for entry)
+  experienceMatch: number; // 0-100 (50% weight) - combines relevance + duration
+  skills: number; // 0-100 (25% weight)
+  education: number; // 0-100 (15% weight)
+  achievements: number; // 0-100 (5% weight)
   ats: number; // 0-100 (5% weight)
 }
 
 export interface ScoringWeights {
-  experienceRelevance: number;
+  experienceMatch: number;
   skills: number;
-  experienceDuration: number;
   education: number;
   achievements: number;
   ats: number;
