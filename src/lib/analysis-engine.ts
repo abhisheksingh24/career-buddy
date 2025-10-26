@@ -4,9 +4,23 @@
  */
 
 import { extractSkillsFromText, extractJobRequirements, detectDomain } from "./ai-extraction";
+import {
+  scoreExperienceRelevance,
+  calculateSkillsScore,
+  scoreExperienceDuration,
+  scoreEducation,
+  scoreAchievements,
+  getWeightsForExperienceLevel,
+  extractYearsOfExperience,
+} from "./comprehensive-scoring";
 import { generateComprehensiveFeedback } from "./feedback-generator";
 import { matchSkillsSemantically, matchSkillsSimple } from "./semantic-match";
-import type { EnhancedAnalysisResult, SkillMatch, SkillGap } from "./types/analysis";
+import type {
+  EnhancedAnalysisResult,
+  SkillMatch,
+  SkillGap,
+  ScoreBreakdown,
+} from "./types/analysis";
 
 function isMockMode(): boolean {
   return (process.env.MOCK_AI_SUGGESTIONS ?? "false").toLowerCase() === "true";
@@ -159,7 +173,7 @@ function categorizeSkill(skill: string): "technical" | "soft" | "certification" 
 }
 
 /**
- * Main analysis function
+ * Main analysis function with comprehensive multi-dimensional scoring
  */
 export async function analyzeResume(params: {
   resumeText: string;
@@ -187,18 +201,65 @@ export async function analyzeResume(params: {
       ? await matchSkillsSemantically(resumeSkills.all_skills, jobRequirements.all_required_skills)
       : matchSkillsSimple(resumeSkills.all_skills, jobRequirements.all_required_skills);
 
-    // Step 4: Calculate scores
-    const overallScore = calculateWeightedScore(
-      skillMatchResults,
-      jobRequirements.all_required_skills.length,
-    );
-    const atsScore = calculateATSScore(params.resumeText, jobRequirements);
+    // Step 4: Calculate total years of experience for dynamic weighting
+    const totalYearsExperience = extractYearsOfExperience(params.resumeText);
+    const weights = getWeightsForExperienceLevel(totalYearsExperience);
 
-    // Step 5: Convert matches and identify gaps
+    // Step 5: Convert matches and identify gaps first
     const matchedSkills = convertToSkillMatches(skillMatchResults);
     const missingSkills = identifyMissingSkills(jobRequirements, skillMatchResults);
 
-    // Step 6: Generate comprehensive feedback
+    // Step 6: Score all 6 dimensions
+    const [
+      experienceRelevanceScore,
+      experienceDurationScore,
+      educationScore,
+      achievementsScore,
+      atsScore,
+    ] = await Promise.all([
+      scoreExperienceRelevance({
+        resumeText: params.resumeText,
+        jobDescription: params.jobDescription,
+        domain,
+      }),
+      scoreExperienceDuration({ resumeText: params.resumeText, requiredYears: 3 }), // Default 3 years requirement
+      scoreEducation({
+        resumeText: params.resumeText,
+        jobDescription: params.jobDescription,
+        domain,
+      }),
+      scoreAchievements({
+        resumeText: params.resumeText,
+        jobDescription: params.jobDescription,
+        domain,
+      }),
+      Promise.resolve(calculateATSScore(params.resumeText, jobRequirements)),
+    ]);
+
+    // Step 7: Calculate skills score
+    const skillsScore = calculateSkillsScore(skillMatchResults, missingSkills);
+
+    // Step 8: Calculate weighted overall score
+    const overallScore = Math.round(
+      experienceRelevanceScore * weights.experienceRelevance +
+        skillsScore * weights.skills +
+        experienceDurationScore * weights.experienceDuration +
+        educationScore * weights.education +
+        achievementsScore * weights.achievements +
+        atsScore * weights.ats,
+    );
+
+    // Step 9: Create score breakdown
+    const scoreBreakdown: ScoreBreakdown = {
+      experienceRelevance: experienceRelevanceScore,
+      skills: skillsScore,
+      experienceDuration: experienceDurationScore,
+      education: educationScore,
+      achievements: achievementsScore,
+      ats: atsScore,
+    };
+
+    // Step 10: Generate comprehensive feedback
     const feedback = await generateComprehensiveFeedback({
       resumeText: params.resumeText,
       jobDescription: params.jobDescription,
@@ -211,6 +272,9 @@ export async function analyzeResume(params: {
       overallScore,
       atsScore,
       domain,
+      scoreBreakdown,
+      weights,
+      totalYearsExperience,
       matchedSkills,
       missingSkills,
       relevantExperiences: feedback.relevantExperiences,
@@ -236,11 +300,36 @@ function getMockEnhancedAnalysis(params: {
   domain?: string;
 }): EnhancedAnalysisResult {
   const domain = params.domain || "Software Engineering";
+  const totalYearsExperience = extractYearsOfExperience(params.resumeText);
+  const weights = getWeightsForExperienceLevel(totalYearsExperience);
+
+  // Mock scores for each dimension
+  const scoreBreakdown: ScoreBreakdown = {
+    experienceRelevance: 90, // High quality experience
+    skills: 85, // Good skill match
+    experienceDuration: 100, // Meets requirements
+    education: 85, // Good education
+    achievements: 80, // Strong achievements
+    ats: 76, // Decent ATS score
+  };
+
+  // Calculate weighted overall score
+  const overallScore = Math.round(
+    scoreBreakdown.experienceRelevance * weights.experienceRelevance +
+      scoreBreakdown.skills * weights.skills +
+      scoreBreakdown.experienceDuration * weights.experienceDuration +
+      scoreBreakdown.education * weights.education +
+      scoreBreakdown.achievements * weights.achievements +
+      scoreBreakdown.ats * weights.ats,
+  );
 
   return {
-    overallScore: 72,
-    atsScore: 85,
+    overallScore,
+    atsScore: scoreBreakdown.ats,
     domain,
+    scoreBreakdown,
+    weights,
+    totalYearsExperience,
     matchedSkills: [
       { skill: "React", relevance: "high", source: "resume" },
       { skill: "TypeScript", relevance: "high", source: "resume" },

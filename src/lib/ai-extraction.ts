@@ -74,8 +74,41 @@ CRITICAL REQUIREMENTS - Normalization:
   * Standardize tool names: "React.js" / "ReactJS" → "React"
   * Use industry-standard terminology for the ${context === "resume" ? "resume's" : "job's"} domain
 - If you see multiple variations of the same skill, list it only ONCE in its canonical form
-- Include both explicit mentions and implied skills
-- Return ONLY the JSON object, no additional text`;
+
+CRITICAL REQUIREMENTS - Skill Inference:
+You MUST infer foundational skills from advanced technologies mentioned. Examples:
+
+SOFTWARE DEVELOPMENT:
+- "React" → MUST include: "HTML", "CSS", "JavaScript"
+- "Angular" → MUST include: "HTML", "CSS", "JavaScript", "TypeScript"
+- "Vue.js" → MUST include: "HTML", "CSS", "JavaScript"
+- "Node.js" → MUST include: "JavaScript"
+- "Express.js" → MUST include: "JavaScript", "Node.js"
+- "FastAPI" → MUST include: "Python", "RESTful APIs"
+- "Django" → MUST include: "Python", "SQL"
+- "Spring Boot" → MUST include: "Java"
+- "Laravel" → MUST include: "PHP"
+
+TESTING & QUALITY:
+- "Jest" → MUST include: "JavaScript", "Unit Testing"
+- "Selenium" → MUST include: "Automated Testing", "Web Testing"
+- "Cypress" → MUST include: "JavaScript", "End-to-End Testing"
+- "Pytest" → MUST include: "Python", "Unit Testing"
+
+DEVOPS & INFRASTRUCTURE:
+- "Docker" → MUST include: "Containerization"
+- "Kubernetes" → MUST include: "Docker", "Containerization"
+- "AWS" → MUST include: "Cloud Computing"
+- "Jenkins" → MUST include: "CI/CD", "Automation"
+
+DATABASES:
+- "PostgreSQL" → MUST include: "SQL", "Database Management"
+- "MongoDB" → MUST include: "NoSQL", "Database Management"
+- "Redis" → MUST include: "Database Management"
+
+IMPORTANT: If someone mentions "React development" or "React-based web app", they MUST have HTML, CSS, and JavaScript skills. These are foundational requirements, not optional.
+
+Return ONLY the JSON object, no additional text`;
 
   const userPrompt = `Extract skills from this ${context}:\n\n${text}`;
 
@@ -106,7 +139,9 @@ CRITICAL REQUIREMENTS - Normalization:
     }
 
     const skills = validated.data;
-    return {
+
+    // Add all_skills field to the skills object
+    const skillsWithAll = {
       ...skills,
       all_skills: [
         ...skills.technical_skills,
@@ -114,6 +149,20 @@ CRITICAL REQUIREMENTS - Normalization:
         ...skills.tools,
         ...skills.certifications,
         ...skills.domain_keywords,
+      ],
+    };
+
+    // Post-process to ensure skill inference
+    const inferredSkills = inferMissingSkills(skillsWithAll);
+
+    return {
+      ...inferredSkills,
+      all_skills: [
+        ...inferredSkills.technical_skills,
+        ...inferredSkills.soft_skills,
+        ...inferredSkills.tools,
+        ...inferredSkills.certifications,
+        ...inferredSkills.domain_keywords,
       ],
     };
   } catch (error) {
@@ -247,6 +296,157 @@ Return only the domain name, nothing else.`;
     console.error("Domain detection failed:", error);
     return "General";
   }
+}
+
+/**
+ * Post-process skills to infer missing foundational skills
+ */
+function inferMissingSkills(skills: ExtractedSkills): ExtractedSkills {
+  const allSkills = [
+    ...skills.technical_skills,
+    ...skills.soft_skills,
+    ...skills.tools,
+    ...skills.certifications,
+    ...skills.domain_keywords,
+  ].map((s) => s.toLowerCase());
+
+  const inferredTechnicalSkills = [...skills.technical_skills];
+  const inferredSoftSkills = [...skills.soft_skills];
+  const inferredTools = [...skills.tools];
+
+  // React inference
+  if (allSkills.some((s) => s.includes("react"))) {
+    if (!allSkills.some((s) => s.includes("html"))) inferredTechnicalSkills.push("HTML");
+    if (!allSkills.some((s) => s.includes("css"))) inferredTechnicalSkills.push("CSS");
+    if (!allSkills.some((s) => s.includes("javascript")))
+      inferredTechnicalSkills.push("JavaScript");
+  }
+
+  // Angular inference
+  if (allSkills.some((s) => s.includes("angular"))) {
+    if (!allSkills.some((s) => s.includes("html"))) inferredTechnicalSkills.push("HTML");
+    if (!allSkills.some((s) => s.includes("css"))) inferredTechnicalSkills.push("CSS");
+    if (!allSkills.some((s) => s.includes("javascript")))
+      inferredTechnicalSkills.push("JavaScript");
+    if (!allSkills.some((s) => s.includes("typescript")))
+      inferredTechnicalSkills.push("TypeScript");
+  }
+
+  // Vue.js inference
+  if (allSkills.some((s) => s.includes("vue"))) {
+    if (!allSkills.some((s) => s.includes("html"))) inferredTechnicalSkills.push("HTML");
+    if (!allSkills.some((s) => s.includes("css"))) inferredTechnicalSkills.push("CSS");
+    if (!allSkills.some((s) => s.includes("javascript")))
+      inferredTechnicalSkills.push("JavaScript");
+  }
+
+  // Node.js inference
+  if (allSkills.some((s) => s.includes("node"))) {
+    if (!allSkills.some((s) => s.includes("javascript")))
+      inferredTechnicalSkills.push("JavaScript");
+  }
+
+  // FastAPI inference
+  if (allSkills.some((s) => s.includes("fastapi"))) {
+    if (!allSkills.some((s) => s.includes("python"))) inferredTechnicalSkills.push("Python");
+    if (!allSkills.some((s) => s.includes("restful") || s.includes("api")))
+      inferredTechnicalSkills.push("RESTful APIs");
+  }
+
+  // Django inference
+  if (allSkills.some((s) => s.includes("django"))) {
+    if (!allSkills.some((s) => s.includes("python"))) inferredTechnicalSkills.push("Python");
+    if (!allSkills.some((s) => s.includes("sql"))) inferredTechnicalSkills.push("SQL");
+  }
+
+  // Spring Boot inference
+  if (allSkills.some((s) => s.includes("spring"))) {
+    if (!allSkills.some((s) => s.includes("java"))) inferredTechnicalSkills.push("Java");
+  }
+
+  // Jest inference
+  if (allSkills.some((s) => s.includes("jest"))) {
+    if (!allSkills.some((s) => s.includes("javascript")))
+      inferredTechnicalSkills.push("JavaScript");
+    if (!allSkills.some((s) => s.includes("unit testing"))) inferredSoftSkills.push("Unit Testing");
+  }
+
+  // Selenium inference
+  if (allSkills.some((s) => s.includes("selenium"))) {
+    if (!allSkills.some((s) => s.includes("automated testing")))
+      inferredSoftSkills.push("Automated Testing");
+    if (!allSkills.some((s) => s.includes("web testing"))) inferredSoftSkills.push("Web Testing");
+  }
+
+  // Cypress inference
+  if (allSkills.some((s) => s.includes("cypress"))) {
+    if (!allSkills.some((s) => s.includes("javascript")))
+      inferredTechnicalSkills.push("JavaScript");
+    if (!allSkills.some((s) => s.includes("end-to-end testing")))
+      inferredSoftSkills.push("End-to-End Testing");
+  }
+
+  // Docker inference
+  if (allSkills.some((s) => s.includes("docker"))) {
+    if (!allSkills.some((s) => s.includes("containerization")))
+      inferredSoftSkills.push("Containerization");
+  }
+
+  // Kubernetes inference
+  if (allSkills.some((s) => s.includes("kubernetes"))) {
+    if (!allSkills.some((s) => s.includes("docker"))) inferredTools.push("Docker");
+    if (!allSkills.some((s) => s.includes("containerization")))
+      inferredSoftSkills.push("Containerization");
+  }
+
+  // AWS inference
+  if (allSkills.some((s) => s.includes("aws"))) {
+    if (!allSkills.some((s) => s.includes("cloud computing")))
+      inferredSoftSkills.push("Cloud Computing");
+  }
+
+  // Jenkins inference
+  if (allSkills.some((s) => s.includes("jenkins"))) {
+    if (!allSkills.some((s) => s.includes("ci/cd"))) inferredSoftSkills.push("CI/CD");
+    if (!allSkills.some((s) => s.includes("automation"))) inferredSoftSkills.push("Automation");
+  }
+
+  // PostgreSQL inference
+  if (allSkills.some((s) => s.includes("postgresql"))) {
+    if (!allSkills.some((s) => s.includes("sql"))) inferredTechnicalSkills.push("SQL");
+    if (!allSkills.some((s) => s.includes("database management")))
+      inferredSoftSkills.push("Database Management");
+  }
+
+  // MongoDB inference
+  if (allSkills.some((s) => s.includes("mongodb"))) {
+    if (!allSkills.some((s) => s.includes("nosql"))) inferredTechnicalSkills.push("NoSQL");
+    if (!allSkills.some((s) => s.includes("database management")))
+      inferredSoftSkills.push("Database Management");
+  }
+
+  // Redis inference
+  if (allSkills.some((s) => s.includes("redis"))) {
+    if (!allSkills.some((s) => s.includes("database management")))
+      inferredSoftSkills.push("Database Management");
+  }
+
+  const result = {
+    technical_skills: [...new Set(inferredTechnicalSkills)], // Remove duplicates
+    soft_skills: [...new Set(inferredSoftSkills)],
+    tools: [...new Set(inferredTools)],
+    certifications: skills.certifications,
+    domain_keywords: skills.domain_keywords,
+    all_skills: [
+      ...new Set(inferredTechnicalSkills),
+      ...new Set(inferredSoftSkills),
+      ...new Set(inferredTools),
+      ...skills.certifications,
+      ...skills.domain_keywords,
+    ],
+  };
+
+  return result;
 }
 
 // Mock functions for development

@@ -1,8 +1,30 @@
 {
-    "overallScore": 33,
-    "atsScore": 80,
+    "overallScore": 65,
+    "atsScore": 73,
     "domain": "Software Engineering",
+    "scoreBreakdown": {
+        "experienceRelevance": 88,
+        "skills": 40,
+        "experienceDuration": 20,
+        "education": 85,
+        "achievements": 85,
+        "ats": 73
+    },
+    "weights": {
+        "experienceRelevance": 0.4,
+        "skills": 0.25,
+        "experienceDuration": 0.15,
+        "education": 0.1,
+        "achievements": 0.05,
+        "ats": 0.05
+    },
+    "totalYearsExperience": null,
     "matchedSkills": [
+        {
+            "skill": "TypeScript",
+            "relevance": "high",
+            "source": "resume"
+        },
         {
             "skill": "Java",
             "relevance": "high",
@@ -14,7 +36,22 @@
             "source": "resume"
         },
         {
-            "skill": "communication",
+            "skill": "TypeScript",
+            "relevance": "high",
+            "source": "resume"
+        },
+        {
+            "skill": "React",
+            "relevance": "high",
+            "source": "resume"
+        },
+        {
+            "skill": "Storybook",
+            "relevance": "high",
+            "source": "resume"
+        },
+        {
+            "skill": "Jest",
             "relevance": "high",
             "source": "resume"
         }
@@ -31,70 +68,118 @@
             "category": "technical"
         },
         {
-            "skill": "RESTful APIs",
+            "skill": "ReSTful APIs",
             "priority": "critical",
             "category": "technical"
         },
         {
-            "skill": "Backbone",
+            "skill": "debugging",
+            "priority": "critical",
+            "category": "technical"
+        },
+        {
+            "skill": "high-performance code",
+            "priority": "critical",
+            "category": "technical"
+        },
+        {
+            "skill": "UI components",
+            "priority": "critical",
+            "category": "technical"
+        },
+        {
+            "skill": "performance tuning",
             "priority": "nice-to-have",
             "category": "technical"
         },
         {
-            "skill": "Underscore",
+            "skill": "benchmarking",
             "priority": "nice-to-have",
             "category": "technical"
         },
         {
-            "skill": "jQuery",
+            "skill": "Angular",
+            "priority": "nice-to-have",
+            "category": "technical"
+        },
+        {
+            "skill": "Ember",
+            "priority": "nice-to-have",
+            "category": "technical"
+        },
+        {
+            "skill": "NW.js",
+            "priority": "nice-to-have",
+            "category": "technical"
+        },
+        {
+            "skill": "Electron",
+            "priority": "nice-to-have",
+            "category": "technical"
+        },
+        {
+            "skill": "Sentry",
+            "priority": "nice-to-have",
+            "category": "technical"
+        },
+        {
+            "skill": "Cypress",
             "priority": "nice-to-have",
             "category": "technical"
         }
     ],
     "relevantExperiences": [
-        "Led TypeScript migration and developed core classes for a React-based web app, showcasing technical leadership and project ownership.",
-        "Migrated a web app from Appsmith to React, improving loading speed, demonstrating capability in optimizing web applications.",
-        "Developed a Java-based rule engine during internship, providing foundational experience in backend development and integration."
+        "Senior Software Developer at Schrodinger, where you led the TypeScript migration and developed a React-based web app, demonstrating strong technical skills.",
+        "Associate Developer at DE Shaw India, where you integrated a 3D Molecule Visualizer Tool into a React application, showcasing your ability to work on complex projects."
     ],
     "experienceGaps": [
-        "Experience with HTML and CSS in a commercial setting.",
-        "Experience consuming RESTful APIs in projects.",
-        "Specific examples of architecting and deploying mid-to-large size web applications."
+        "Experience with consuming ReSTful APIs.",
+        "Experience with debugging and performance tuning.",
+        "Experience with building high-performance, reusable UI components.",
+        "Familiarity with HTML and CSS in the context of web applications."
     ],
     "strengthAreas": [
-        "Strong experience in developing user-facing applications using React, demonstrating proficiency in modern JavaScript frameworks.",
-        "Leadership experience managing sub-teams and mentoring interns, showcasing ability to guide and empower team members.",
-        "Proven ability to engage with stakeholders and product managers to align on project requirements and priorities.",
-        "Experience in implementing CI/CD pipelines and DevOps practices, indicating a strong understanding of software lifecycle management.",
-        "Solid foundation in testing methodologies, including unit testing and integration testing, ensuring high code quality."
+        "Strong experience in developing applications using React and TypeScript, showcasing the ability to build modern web applications.",
+        "Proven leadership skills demonstrated by managing sub-teams and mentoring interns, which indicates strong communication and collaboration abilities.",
+        "Experience in integrating testing frameworks such as Selenium and Jest, highlighting a commitment to code quality and reliability.",
+        "Hands-on experience with CI/CD pipelines using GitHub Actions, which is essential for modern software development practices.",
+        "Ability to engage with stakeholders and product managers to align on requirements and priorities, showcasing strong interpersonal skills."
     ],
     "improvementAreas": [
-        "Enhance proficiency in HTML and CSS, as these are critical for the frontend development role at Highspot.",
-        "Gain experience with RESTful APIs to better align with the job requirements and improve the ability to consume backend services.",
-        "Consider adding more details on specific architectural decisions made during projects to demonstrate experience in building and deploying mid-to-large size applications.",
-        "Highlight any experience with cross-browser compatibility issues and solutions, as this is a key requirement for the role.",
-        "Include metrics or outcomes from projects to quantify achievements and demonstrate impact."
+        "Enhance knowledge and experience with HTML and CSS, as these are fundamental for web development roles.",
+        "Gain experience in consuming ReSTful APIs to align with job requirements and improve backend integration skills.",
+        "Develop skills in debugging and performance tuning to ensure high-quality and efficient code.",
+        "Consider contributing to open-source projects or personal projects that involve building reusable UI components to demonstrate practical experience.",
+        "Familiarize yourself with additional tools or frameworks mentioned in the job description, such as NW.js/Electron and Cypress.io for testing."
     ],
     "atsTips": [
-        "Add 'HTML' and 'CSS' to the skills section to match the job description requirements.",
-        "Include specific projects or experiences that demonstrate RESTful API consumption.",
-        "Use industry-standard terms like 'cross-browser compatibility' in the experience section.",
-        "Incorporate keywords from the job description, such as 'customer-facing product features' and 'frontend infrastructure improvements', throughout the resume.",
-        "Ensure that all relevant technologies (e.g., JavaScript, React) are prominently featured in the skills section."
+        "Add 'HTML' and 'CSS' to the skills section to ensure visibility to ATS.",
+        "Include specific metrics in your experience descriptions to quantify your achievements.",
+        "Use relevant keywords from the job description, such as 'ReSTful APIs' and 'debugging', throughout your resume.",
+        "Ensure that your job titles and dates are clearly formatted for better ATS readability.",
+        "Consider using bullet points that start with action verbs to enhance engagement and clarity."
     ],
     "suggestedBullets": [
-        "- Developed and optimized customer-facing features for a complex React-based web application, enhancing user experience and engagement.",
-        "- Spearheaded the migration of a web application from Appsmith to React, achieving a 2x improvement in loading speed and overall performance.",
-        "- Designed and implemented CI/CD pipelines using GitHub Actions, streamlining deployment processes and improving code integration efficiency.",
-        "- Collaborated with product managers and stakeholders to define project requirements, ensuring alignment and timely delivery of features.",
-        "- Led a team of developers and interns, providing mentorship and conducting code reviews to uphold high coding standards and best practices."
+        "- Developed and optimized a complex React-based web application, improving loading speed by 2x through effective migration strategies.",
+        "- Led a successful TypeScript migration project, enhancing code maintainability and performance across multiple components.",
+        "- Integrated WebSocket-based data feeds into React components, enabling real-time updates and improving user experience.",
+        "- Collaborated with cross-functional teams to gather requirements and align project goals, ensuring timely delivery of features.",
+        "- Enhanced test automation by implementing Selenium and Jest, achieving high code coverage and reliability in production."
     ],
     "missingKeywords": [
         "HTML",
         "CSS",
-        "RESTful APIs",
-        "Backbone",
-        "Underscore",
-        "jQuery"
+        "ReSTful APIs",
+        "debugging",
+        "high-performance code",
+        "UI components",
+        "performance tuning",
+        "benchmarking",
+        "Angular",
+        "Ember",
+        "NW.js",
+        "Electron",
+        "Sentry",
+        "Cypress"
     ]
 }

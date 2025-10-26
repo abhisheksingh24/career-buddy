@@ -99,8 +99,9 @@ export function EnhancedResumeAnalysisResults({ analysis }: EnhancedResumeAnalys
 
       {/* Tabbed Content */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="scoring">Scoring</TabsTrigger>
           <TabsTrigger value="skills">Skills</TabsTrigger>
           <TabsTrigger value="experience">Experience</TabsTrigger>
           <TabsTrigger value="ats">ATS Tips</TabsTrigger>
@@ -148,6 +149,206 @@ export function EnhancedResumeAnalysisResults({ analysis }: EnhancedResumeAnalys
                   </li>
                 ))}
               </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Comprehensive Scoring Tab */}
+        <TabsContent value="scoring" className="space-y-4">
+          {/* Score Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Comprehensive Score Breakdown
+              </CardTitle>
+              <CardDescription>
+                Your resume scored across 6 key dimensions with dynamic weighting based on your
+                experience level ({analysis.totalYearsExperience} years)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Experience Relevance */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-semibold">Experience Relevance</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round(analysis.weights.experienceRelevance * 100)}% weight
+                    </Badge>
+                  </div>
+                  <span
+                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.experienceRelevance)}`}
+                  >
+                    {analysis.scoreBreakdown.experienceRelevance}/100
+                  </span>
+                </div>
+                <Progress
+                  value={analysis.scoreBreakdown.experienceRelevance}
+                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.experienceRelevance)}`}
+                />
+                <p className="text-xs text-gray-600">
+                  Quality and relevance of your past work experience
+                </p>
+              </div>
+
+              {/* Skills Match */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-semibold">Skills Match</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round(analysis.weights.skills * 100)}% weight
+                    </Badge>
+                  </div>
+                  <span
+                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.skills)}`}
+                  >
+                    {analysis.scoreBreakdown.skills}/100
+                  </span>
+                </div>
+                <Progress
+                  value={analysis.scoreBreakdown.skills}
+                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.skills)}`}
+                />
+                <p className="text-xs text-gray-600">
+                  How well your skills align with job requirements (with AI inference)
+                </p>
+              </div>
+
+              {/* Experience Duration */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Award className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm font-semibold">Experience Duration</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round(analysis.weights.experienceDuration * 100)}% weight
+                    </Badge>
+                  </div>
+                  <span
+                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.experienceDuration)}`}
+                  >
+                    {analysis.scoreBreakdown.experienceDuration}/100
+                  </span>
+                </div>
+                <Progress
+                  value={analysis.scoreBreakdown.experienceDuration}
+                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.experienceDuration)}`}
+                />
+                <p className="text-xs text-gray-600">
+                  Years of relevant experience vs. job requirements
+                </p>
+              </div>
+
+              {/* Education */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="h-4 w-4 text-indigo-600" />
+                    <span className="text-sm font-semibold">Education</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round(analysis.weights.education * 100)}% weight
+                    </Badge>
+                  </div>
+                  <span
+                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.education)}`}
+                  >
+                    {analysis.scoreBreakdown.education}/100
+                  </span>
+                </div>
+                <Progress
+                  value={analysis.scoreBreakdown.education}
+                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.education)}`}
+                />
+                <p className="text-xs text-gray-600">
+                  Degree level, field of study, and academic performance
+                </p>
+              </div>
+
+              {/* Achievements */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-orange-600" />
+                    <span className="text-sm font-semibold">Achievements</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round(analysis.weights.achievements * 100)}% weight
+                    </Badge>
+                  </div>
+                  <span
+                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.achievements)}`}
+                  >
+                    {analysis.scoreBreakdown.achievements}/100
+                  </span>
+                </div>
+                <Progress
+                  value={analysis.scoreBreakdown.achievements}
+                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.achievements)}`}
+                />
+                <p className="text-xs text-gray-600">
+                  Awards, competitions, publications, and recognition
+                </p>
+              </div>
+
+              {/* ATS Optimization */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-semibold">ATS Optimization</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round(analysis.weights.ats * 100)}% weight
+                    </Badge>
+                  </div>
+                  <span
+                    className={`text-lg font-bold ${getScoreColor(analysis.scoreBreakdown.ats)}`}
+                  >
+                    {analysis.scoreBreakdown.ats}/100
+                  </span>
+                </div>
+                <Progress
+                  value={analysis.scoreBreakdown.ats}
+                  className={`h-2 ${getProgressColor(analysis.scoreBreakdown.ats)}`}
+                />
+                <p className="text-xs text-gray-600">
+                  Resume formatting and keyword optimization for ATS systems
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Weight Explanation */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 text-yellow-600" />
+                Dynamic Weighting Explanation
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-gray-600 space-y-2">
+                <p>
+                  <strong>Experience Level:</strong> {analysis.totalYearsExperience} years
+                </p>
+                <p>
+                  <strong>Weighting Strategy:</strong>{" "}
+                  {analysis.totalYearsExperience < 2
+                    ? "Entry-level candidates - Education and achievements matter more"
+                    : analysis.totalYearsExperience < 6
+                      ? "Mid-level candidates - Balanced approach across all dimensions"
+                      : "Senior-level candidates - Experience quality is most important"}
+                </p>
+                <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                  <p className="text-xs">
+                    💡 <strong>Why dynamic weighting?</strong> For entry-level roles, education and
+                    achievements are better predictors of potential. For senior roles, the quality
+                    and relevance of past experience matters most.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

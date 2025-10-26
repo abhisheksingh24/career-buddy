@@ -8,14 +8,14 @@ const SuggestionsSchema = z.object({
 
 export type Suggestions = z.infer<typeof SuggestionsSchema>;
 
-function isAiEnabled(): boolean {
+export function isAiEnabled(): boolean {
   return (
     Boolean(process.env.OPENAI_API_KEY) &&
     (process.env.ENABLE_AI_SUGGESTIONS ?? "true").toLowerCase() !== "false"
   );
 }
 
-function isMockMode(): boolean {
+export function isMockMode(): boolean {
   return (process.env.MOCK_AI_SUGGESTIONS ?? "false").toLowerCase() === "true";
 }
 
