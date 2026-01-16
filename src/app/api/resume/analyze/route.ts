@@ -1,6 +1,10 @@
+import { extractJobRequirements, extractSkillsFromText, detectDomain } from "@/lib/ai-extraction";
 import { analyzeResume } from "@/lib/analysis-engine";
 import { authOptions } from "@/lib/auth";
+import { transformToCategoryAnalysis } from "@/lib/category-transformer";
 import { prisma } from "@/lib/db";
+import { generateComprehensiveFeedback } from "@/lib/feedback-generator";
+import { matchSkillsSimple, matchSkillsSemantically } from "@/lib/semantic-match";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
@@ -29,8 +33,36 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     company,
   });
 
+  // Generate comprehensive feedback with category-structured data
+  // We need to extract skill matches and job requirements for feedback generation
+  const detectedDomain = analysis.domain || (await detectDomain(jobDescription));
+  const [resumeSkills, jobRequirements] = await Promise.all([
+    extractSkillsFromText(resumeText, "resume", detectedDomain),
+    extractJobRequirements(jobDescription, detectedDomain),
+  ]);
+
+  const isSemanticMatchingEnabled = () =>
+    (process.env.ENABLE_SEMANTIC_MATCHING ?? "true").toLowerCase() !== "false";
+
+  const skillMatchResults = isSemanticMatchingEnabled()
+    ? await matchSkillsSemantically(resumeSkills.all_skills, jobRequirements.all_required_skills)
+    : matchSkillsSimple(resumeSkills.all_skills, jobRequirements.all_required_skills);
+
+  const feedback = await generateComprehensiveFeedback({
+    resumeText,
+    jobDescription,
+    domain: detectedDomain,
+    skillMatches: skillMatchResults,
+    jobRequirements,
+  });
+
+  // Transform to category analysis
+  const categories = transformToCategoryAnalysis(feedback, analysis);
+
   // If user is signed in, persist Analysis with a placeholder Resume record
   const session = await getServerSession(authOptions);
+  let analysisId: string | null = null;
+
   if (session?.user?.id) {
     // Get or create a default portfolio for the user
     let portfolio = await prisma.portfolio.findFirst({
@@ -67,7 +99,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       },
     });
 
-    await prisma.resumeAnalysis.create({
+    const savedAnalysis = await prisma.resumeAnalysis.create({
       data: {
         resumeId: resume.id,
         jobTitle,
@@ -75,7 +107,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         score: analysis.overallScore,
         keywords: analysis.matchedSkills.map((s) => s.skill),
         missing: analysis.missingSkills.map((s) => s.skill),
-        suggestions: { bullets: analysis.suggestedBullets },
+        suggestions: {
+          bullets: analysis.suggestedBullets,
+          categories: categories, // Store category data in suggestions JSON field
+        },
         // Enhanced analysis fields
         domain: analysis.domain,
         atsScore: analysis.atsScore,
@@ -86,7 +121,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         atsTips: analysis.atsTips,
       },
     });
+
+    analysisId = savedAnalysis.id;
   }
 
-  return NextResponse.json(analysis);
+  // Return analysis with categories
+  return NextResponse.json({
+    ...analysis,
+    categories,
+    analysisId, // Include analysis ID if saved
+  });
 }

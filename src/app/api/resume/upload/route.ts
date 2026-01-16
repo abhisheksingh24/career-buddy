@@ -3,7 +3,9 @@ export const runtime = "nodejs";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { extractTextFromFile } from "@/lib/parse";
+import { writeFile, mkdir } from "fs/promises";
 import { getServerSession } from "next-auth";
+import { join } from "path";
 
 export async function POST(request: Request): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
@@ -30,6 +32,35 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
   const { text, mimeType, originalName } = parsed;
+
+  // Save file to storage
+  let filePath: string | null = null;
+  try {
+    // Only save PDF and DOCX files (not text-only resumes)
+    if (mimeType === "application/pdf" || mimeType.includes("wordprocessingml")) {
+      const uploadsDir = join(process.cwd(), "uploads", "resumes");
+      await mkdir(uploadsDir, { recursive: true });
+
+      // Create unique filename: userId_timestamp_originalName
+      const timestamp = Date.now();
+      const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, "_");
+      const fileName = `${session.user.id}_${timestamp}_${sanitizedName}`;
+      filePath = join(uploadsDir, fileName);
+
+      // Get file buffer
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Write file to disk
+      await writeFile(filePath, buffer);
+
+      // Store relative path in database (for easier migration to cloud storage later)
+      filePath = `resumes/${fileName}`;
+    }
+  } catch (error) {
+    console.error("Failed to save file:", error);
+    // Continue without file storage - text extraction still works
+  }
 
   // Get or create a default portfolio for the user
   let portfolio = await prisma.portfolio.findFirst({
@@ -61,9 +92,15 @@ export async function POST(request: Request): Promise<NextResponse> {
       content: {}, // Empty JSON for now - can be populated later with structured data
       rawText: text,
       fileType: mimeType,
-      fileUrl: `${session.user.id}::${Date.now()}::${originalName}`, // Using fileUrl instead of storageKey
+      fileUrl: filePath || `${session.user.id}::${Date.now()}::${originalName}`, // Store file path or placeholder
     },
   });
 
-  return NextResponse.json({ id: resume.id, originalName, mimeType, length: text.length });
+  return NextResponse.json({
+    id: resume.id,
+    originalName,
+    mimeType,
+    length: text.length,
+    fileUrl: resume.fileUrl,
+  });
 }

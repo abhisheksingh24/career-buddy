@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import { tokenize, scoreMatch } from "./match";
 
 describe("tokenize", () => {
@@ -22,5 +23,3 @@ describe("scoreMatch", () => {
     expect(r.missingKeywords).toContain("node");
   });
 });
-
-

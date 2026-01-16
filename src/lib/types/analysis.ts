@@ -37,13 +37,63 @@ export interface SkillMatchResult {
   relevance: "high" | "medium" | "low";
 }
 
+// Category-specific data structures
+export interface MatchOverviewData {
+  topStrengths: string[];
+  topImprovements: string[];
+  priorityActions: string[];
+}
+
+export interface RequiredSkillsData {
+  skillGaps: string[];
+  missingCriticalSkills: string[];
+}
+
+export interface WorkExperienceData {
+  durationAnalysis: string;
+  relevantExperiences: string[];
+  experienceGaps: string[];
+}
+
+export interface EducationCredentialsData {
+  educationMatch: string;
+  missingCredentials: string[];
+}
+
+export interface ImpactAchievementsData {
+  currentAchievements: string[];
+  missingMetrics: string[];
+}
+
+export interface AtsCompatibilityData {
+  atsIssues: string[];
+  missingKeywords: string[];
+  formattingProblems: string[];
+}
+
+export interface ProfessionalQualityData {
+  writingIssues: string[];
+  consistencyProblems: string[];
+  formattingConcerns: string[];
+}
+
 export interface ComprehensiveFeedback {
+  // Existing fields (kept for backward compatibility)
   strengthAreas: string[];
   improvementAreas: string[];
   experienceGaps: string[];
   relevantExperiences: string[];
   atsTips: string[];
   suggestedBullets: string[];
+
+  // New category-structured fields
+  matchOverview?: MatchOverviewData;
+  requiredSkills?: RequiredSkillsData;
+  workExperience?: WorkExperienceData;
+  educationCredentials?: EducationCredentialsData;
+  impactAchievements?: ImpactAchievementsData;
+  atsCompatibility?: AtsCompatibilityData;
+  professionalQuality?: ProfessionalQualityData;
 }
 
 export interface ScoreBreakdown {
@@ -93,4 +143,61 @@ export interface EnhancedAnalysisResult {
 
   // Legacy fields (for backward compatibility)
   missingKeywords: string[]; // Deprecated but kept for now
+}
+
+// Category Analysis Response Types
+export interface CategoryData {
+  score: number; // 0-100
+  actionItemsCount: number;
+}
+
+export interface MatchOverviewCategoryData extends CategoryData {
+  topStrengths: string[];
+  topImprovements: string[];
+  priorityActions: string[];
+}
+
+export interface RequiredSkillsCategoryData extends CategoryData {
+  matchedSkills: SkillMatch[];
+  missingSkills: SkillGap[];
+  skillGaps: string[];
+  missingCriticalSkills: string[];
+}
+
+export interface WorkExperienceCategoryData extends CategoryData {
+  durationAnalysis: string;
+  relevantExperiences: string[];
+  experienceGaps: string[];
+}
+
+export interface EducationCredentialsCategoryData extends CategoryData {
+  educationMatch: string;
+  missingCredentials: string[];
+}
+
+export interface ImpactAchievementsCategoryData extends CategoryData {
+  currentAchievements: string[];
+  missingMetrics: string[];
+}
+
+export interface AtsCompatibilityCategoryData extends CategoryData {
+  atsIssues: string[];
+  missingKeywords: string[];
+  formattingProblems: string[];
+}
+
+export interface ProfessionalQualityCategoryData extends CategoryData {
+  writingIssues: string[];
+  consistencyProblems: string[];
+  formattingConcerns: string[];
+}
+
+export interface CategoryAnalysisResponse {
+  overview: MatchOverviewCategoryData;
+  skills: RequiredSkillsCategoryData;
+  experience: WorkExperienceCategoryData;
+  education: EducationCredentialsCategoryData;
+  impact: ImpactAchievementsCategoryData;
+  ats: AtsCompatibilityCategoryData;
+  quality: ProfessionalQualityCategoryData;
 }

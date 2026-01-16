@@ -9,7 +9,6 @@ import { FileText, Upload, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 
-
 type AnalyzeResponse = EnhancedAnalysisResult | { error?: string } | null;
 
 export default function AnalyzePage() {
@@ -77,11 +76,18 @@ export default function AnalyzePage() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Resume Analysis</h1>
-        <p className="text-gray-600">
-          Analyze your resume against any job description to get matching scores and AI-powered
-          suggestions.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Resume Analysis</h1>
+            <p className="text-gray-600">
+              Analyze your resume against any job description to get matching scores and AI-powered
+              suggestions.
+            </p>
+          </div>
+          <Button variant="outline" asChild>
+            <a href="/analyze/interactive">Interactive View</a>
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
