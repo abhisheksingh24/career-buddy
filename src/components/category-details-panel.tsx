@@ -9,6 +9,7 @@ import type {
   RequiredSkillsCategoryData,
   EducationCredentialsCategoryData,
   EnhancedAnalysisResult,
+  ActionItem,
 } from "@/lib/types/analysis";
 import { cn } from "@/lib/utils";
 import {
@@ -20,7 +21,10 @@ import {
   FileCheck,
   FileText,
   AlertCircle,
+  CheckSquare,
 } from "lucide-react";
+
+import { ActionItemCard } from "./action-item-card";
 
 interface CategoryDetailsPanelProps {
   selectedCategory: Category | null;
@@ -297,6 +301,29 @@ export function CategoryDetailsPanel({
     );
   };
 
+  // Helper function to render action items
+  const renderActionItems = (actionItems: ActionItem[] | undefined) => {
+    if (!actionItems || actionItems.length === 0) {
+      return (
+        <p className="text-gray-500 text-sm italic">No action items available for this category.</p>
+      );
+    }
+
+    // Sort by priority: high -> medium -> low
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    const sortedItems = [...actionItems].sort(
+      (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
+    );
+
+    return (
+      <div className="space-y-3">
+        {sortedItems.map((item) => (
+          <ActionItemCard key={item.id} actionItem={item} />
+        ))}
+      </div>
+    );
+  };
+
   // Get full category data if available
   const getFullCategoryData = () => {
     if (!categoryData || !selectedCategory) return null;
@@ -533,6 +560,24 @@ export function CategoryDetailsPanel({
                     </CardContent>
                   </Card>
                 )}
+
+              {/* Action Items */}
+              {fullCategoryData.actionItems && fullCategoryData.actionItems.length > 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckSquare className="h-5 w-5 text-blue-600" />
+                      Action Items
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Prioritized improvements to boost your match score:
+                    </p>
+                    {renderActionItems(fullCategoryData.actionItems)}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -893,6 +938,24 @@ export function CategoryDetailsPanel({
                   })()}
                 </CardContent>
               </Card>
+
+              {/* Action Items */}
+              {fullCategoryData.actionItems && fullCategoryData.actionItems.length > 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckSquare className="h-5 w-5 text-blue-600" />
+                      Action Items
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Prioritized improvements to boost your skills score:
+                    </p>
+                    {renderActionItems(fullCategoryData.actionItems)}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -959,6 +1022,24 @@ export function CategoryDetailsPanel({
                       Here are improved bullet points that better highlight your experience:
                     </p>
                     {renderSuggestionsList(analysisResult.suggestedBullets)}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Items */}
+              {fullCategoryData.actionItems && fullCategoryData.actionItems.length > 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckSquare className="h-5 w-5 text-blue-600" />
+                      Action Items
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Prioritized improvements to boost your experience score:
+                    </p>
+                    {renderActionItems(fullCategoryData.actionItems)}
                   </CardContent>
                 </Card>
               )}
@@ -1034,6 +1115,24 @@ export function CategoryDetailsPanel({
                   })()}
                 </CardContent>
               </Card>
+
+              {/* Action Items */}
+              {fullCategoryData.actionItems && fullCategoryData.actionItems.length > 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckSquare className="h-5 w-5 text-blue-600" />
+                      Action Items
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Prioritized improvements to boost your education score:
+                    </p>
+                    {renderActionItems(fullCategoryData.actionItems)}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -1098,6 +1197,24 @@ export function CategoryDetailsPanel({
                   })()}
                 </CardContent>
               </Card>
+
+              {/* Action Items */}
+              {fullCategoryData.actionItems && fullCategoryData.actionItems.length > 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckSquare className="h-5 w-5 text-blue-600" />
+                      Action Items
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Prioritized improvements to boost your impact score:
+                    </p>
+                    {renderActionItems(fullCategoryData.actionItems)}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -1173,6 +1290,24 @@ export function CategoryDetailsPanel({
                       Follow these tips to improve your resume&apos;s ATS compatibility:
                     </p>
                     {renderSuggestionsList(analysisResult.atsTips)}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Items */}
+              {fullCategoryData.actionItems && fullCategoryData.actionItems.length > 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckSquare className="h-5 w-5 text-blue-600" />
+                      Action Items
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Prioritized improvements to boost your ATS score:
+                    </p>
+                    {renderActionItems(fullCategoryData.actionItems)}
                   </CardContent>
                 </Card>
               )}
@@ -1257,6 +1392,24 @@ export function CategoryDetailsPanel({
                   })()}
                 </CardContent>
               </Card>
+
+              {/* Action Items */}
+              {fullCategoryData.actionItems && fullCategoryData.actionItems.length > 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckSquare className="h-5 w-5 text-blue-600" />
+                      Action Items
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Prioritized improvements to boost your quality score:
+                    </p>
+                    {renderActionItems(fullCategoryData.actionItems)}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
         </div>

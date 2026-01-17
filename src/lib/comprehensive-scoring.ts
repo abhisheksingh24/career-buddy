@@ -444,7 +444,15 @@ Score the candidate's EDUCATION (0-100).`;
     const content = response.choices[0]?.message?.content;
     if (!content) throw new Error("No response from AI");
 
-    const parsed = JSON.parse(content);
+    // Strip markdown code blocks if present
+    let cleanedContent = content.trim();
+    if (cleanedContent.startsWith("```json")) {
+      cleanedContent = cleanedContent.replace(/^```json\s*/, "").replace(/\s*```$/, "");
+    } else if (cleanedContent.startsWith("```")) {
+      cleanedContent = cleanedContent.replace(/^```\s*/, "").replace(/\s*```$/, "");
+    }
+
+    const parsed = JSON.parse(cleanedContent);
     const validated = EducationScoreSchema.parse(parsed);
 
     return validated.score;

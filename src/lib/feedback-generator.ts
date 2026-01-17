@@ -8,6 +8,48 @@ import { z } from "zod";
 
 import type { ComprehensiveFeedback, SkillMatchResult, JobRequirements } from "./types/analysis";
 
+// Category name mapping: full names -> short names
+const CATEGORY_NAME_MAP: Record<
+  string,
+  "overview" | "skills" | "experience" | "education" | "impact" | "ats" | "quality"
+> = {
+  matchOverview: "overview",
+  requiredSkills: "skills",
+  workExperience: "experience",
+  educationCredentials: "education",
+  impactAchievements: "impact",
+  atsCompatibility: "ats",
+  professionalQuality: "quality",
+  // Also accept short names directly
+  overview: "overview",
+  skills: "skills",
+  experience: "experience",
+  education: "education",
+  impact: "impact",
+  ats: "ats",
+  quality: "quality",
+};
+
+// Action Item Schema with category name normalization
+const ActionItemSchema = z.object({
+  id: z.string(),
+  category: z
+    .string()
+    .transform((val) => {
+      const normalized = CATEGORY_NAME_MAP[val];
+      if (!normalized) {
+        console.warn(`Unknown category name "${val}", defaulting to "overview"`);
+        return "overview";
+      }
+      return normalized;
+    })
+    .pipe(z.enum(["overview", "skills", "experience", "education", "impact", "ats", "quality"])),
+  title: z.string().min(5).max(100),
+  description: z.string().min(20).max(500),
+  priority: z.enum(["high", "medium", "low"]),
+  estimatedImpact: z.number().min(0).max(100),
+});
+
 const ComprehensiveFeedbackSchema = z.object({
   // Legacy fields (required for backward compatibility)
   strengthAreas: z.array(z.string()).min(3).max(5),
@@ -15,7 +57,29 @@ const ComprehensiveFeedbackSchema = z.object({
   experienceGaps: z.array(z.string()),
   relevantExperiences: z.array(z.string()),
   atsTips: z.array(z.string()).min(5).max(7),
-  suggestedBullets: z.array(z.string()).min(5).max(8),
+  suggestedBullets: z
+    .array(z.unknown()) // Accept any type first
+    .min(5)
+    .max(8)
+    .transform((arr) =>
+      arr.map((item) => {
+        if (typeof item === "string") return item;
+        if (typeof item === "object" && item !== null) {
+          // Try common property names
+          const obj = item as Record<string, unknown>;
+          return (
+            (typeof obj.bullet === "string" ? obj.bullet : null) ||
+            (typeof obj.text === "string" ? obj.text : null) ||
+            (typeof obj.content === "string" ? obj.content : null) ||
+            (typeof obj.suggestion === "string" ? obj.suggestion : null) ||
+            (typeof obj.point === "string" ? obj.point : null) ||
+            (typeof obj.value === "string" ? obj.value : null) ||
+            JSON.stringify(item)
+          );
+        }
+        return String(item);
+      }),
+    ),
 
   // New category-structured fields (optional for backward compatibility)
   matchOverview: z
@@ -23,12 +87,24 @@ const ComprehensiveFeedbackSchema = z.object({
       topStrengths: z.array(z.string()).min(3).max(5),
       topImprovements: z.array(z.string()).min(3).max(5),
       priorityActions: z.array(z.string()).min(3).max(5),
+      actionItems: z
+        .array(ActionItemSchema)
+        .refine((arr) => arr.length === 0 || (arr.length >= 3 && arr.length <= 7), {
+          message: "Action items array must be empty or contain 3-7 items",
+        })
+        .optional(),
     })
     .optional(),
   requiredSkills: z
     .object({
       skillGaps: z.array(z.string()),
       missingCriticalSkills: z.array(z.string()),
+      actionItems: z
+        .array(ActionItemSchema)
+        .refine((arr) => arr.length === 0 || (arr.length >= 3 && arr.length <= 7), {
+          message: "Action items array must be empty or contain 3-7 items",
+        })
+        .optional(),
     })
     .optional(),
   workExperience: z
@@ -36,18 +112,36 @@ const ComprehensiveFeedbackSchema = z.object({
       durationAnalysis: z.string(),
       relevantExperiences: z.array(z.string()),
       experienceGaps: z.array(z.string()),
+      actionItems: z
+        .array(ActionItemSchema)
+        .refine((arr) => arr.length === 0 || (arr.length >= 3 && arr.length <= 7), {
+          message: "Action items array must be empty or contain 3-7 items",
+        })
+        .optional(),
     })
     .optional(),
   educationCredentials: z
     .object({
       educationMatch: z.string(),
       missingCredentials: z.array(z.string()),
+      actionItems: z
+        .array(ActionItemSchema)
+        .refine((arr) => arr.length === 0 || (arr.length >= 3 && arr.length <= 7), {
+          message: "Action items array must be empty or contain 3-7 items",
+        })
+        .optional(),
     })
     .optional(),
   impactAchievements: z
     .object({
       currentAchievements: z.array(z.string()),
       missingMetrics: z.array(z.string()),
+      actionItems: z
+        .array(ActionItemSchema)
+        .refine((arr) => arr.length === 0 || (arr.length >= 3 && arr.length <= 7), {
+          message: "Action items array must be empty or contain 3-7 items",
+        })
+        .optional(),
     })
     .optional(),
   atsCompatibility: z
@@ -55,6 +149,12 @@ const ComprehensiveFeedbackSchema = z.object({
       atsIssues: z.array(z.string()),
       missingKeywords: z.array(z.string()),
       formattingProblems: z.array(z.string()),
+      actionItems: z
+        .array(ActionItemSchema)
+        .refine((arr) => arr.length === 0 || (arr.length >= 3 && arr.length <= 7), {
+          message: "Action items array must be empty or contain 3-7 items",
+        })
+        .optional(),
     })
     .optional(),
   professionalQuality: z
@@ -62,6 +162,12 @@ const ComprehensiveFeedbackSchema = z.object({
       writingIssues: z.array(z.string()),
       consistencyProblems: z.array(z.string()),
       formattingConcerns: z.array(z.string()),
+      actionItems: z
+        .array(ActionItemSchema)
+        .refine((arr) => arr.length === 0 || (arr.length >= 3 && arr.length <= 7), {
+          message: "Action items array must be empty or contain 3-7 items",
+        })
+        .optional(),
     })
     .optional(),
 });
@@ -113,6 +219,60 @@ export async function generateComprehensiveFeedback(params: {
 
 Your goal is to help the candidate improve their resume to better match the job requirements while being honest and encouraging.
 
+⚠️⚠️⚠️ CRITICAL REQUIREMENT - ACTION ITEMS (READ THIS FIRST) ⚠️⚠️⚠️
+YOU MUST GENERATE ACTION ITEMS FOR EVERY CATEGORY. THIS IS THE MOST IMPORTANT REQUIREMENT.
+Each category object MUST include an "actionItems" array with 3-7 structured action items.
+NEVER return empty arrays [] for actionItems - always generate at least 3 action items per category.
+If you skip action items, the response will be invalid and unusable.
+
+Action Item Structure (REQUIRED in every category):
+{
+  "id": "categoryId-index" (e.g., "overview-0", "skills-1", "experience-2"),
+  "category": "overview" | "skills" | "experience" | "education" | "impact" | "ats" | "quality",
+  ⚠️ CRITICAL: Use ONLY these short category names: "overview", "skills", "experience", "education", "impact", "ats", "quality"
+  ⚠️ DO NOT use full names like "matchOverview", "requiredSkills", "workExperience", etc.
+  "title": "Short, actionable title (5-100 chars)" (e.g., "Add Python to skills section"),
+  "description": "Detailed explanation (20-500 chars)" explaining why this matters and how to do it,
+  "priority": "high" | "medium" | "low",
+  "estimatedImpact": number (0-100, represents estimated score improvement percentage)
+}
+
+Category Name Mapping (for reference):
+- matchOverview → use "overview"
+- requiredSkills → use "skills"
+- workExperience → use "experience"
+- educationCredentials → use "education"
+- impactAchievements → use "impact"
+- atsCompatibility → use "ats"
+- professionalQuality → use "quality"
+
+Priority Guidelines:
+- "high": Critical gaps, missing required skills, major formatting issues that block ATS parsing
+- "medium": Important improvements, missing preferred skills, moderate issues affecting match
+- "low": Nice-to-have improvements, minor optimizations, polish items
+
+Impact Constraint (CRITICAL):
+- For each category, calculate the current score gap: (100 - categoryScore)
+- The SUM of all estimatedImpact values for action items in that category MUST NOT exceed this gap
+- Example: If category score is 80%, max total impact = 20%. Distribute across 3-7 items.
+- If category score is 95%, max total impact = 5%. Generate fewer, smaller-impact items.
+- Scale impact estimates proportionally to ensure total never exceeds remaining gap
+
+Action Item Quality Guidelines:
+- Titles must be specific and actionable (e.g., "Add Python to skills section" not "Improve skills")
+- Descriptions should explain WHY it matters and HOW to do it
+- Focus on immediate, implementable improvements
+- Reference specific resume content when possible
+- Generate 3-7 items per category based on gaps (more gaps = more items)
+
+Examples of Good Action Items:
+- Good: { "id": "skills-0", "title": "Add Python to technical skills section", "description": "Python is explicitly required in the job description. Adding it will improve ATS keyword matching and demonstrate required technical competency.", "priority": "high", "estimatedImpact": 8 }
+- Bad: { "id": "skills-0", "title": "Improve skills", "description": "Add more skills", "priority": "high", "estimatedImpact": 50 } (too vague, impact too high)
+
+REMINDER: Every category object MUST have an actionItems array with 3-7 items. This is non-negotiable. Prioritize generating action items above all other fields.
+
+---
+
 IMPORTANT - Experience Analysis Guidelines:
 1. Look for the "Experience", "Work History", or "Employment" section in the resume
 2. Find employment date ranges (e.g., "Jan 2018 - Present", "2019-2021", "2020-2022")
@@ -140,43 +300,52 @@ LEGACY FIELDS (keep for backward compatibility):
 6. suggestedBullets: 5-8 rewritten bullet points that better match the JD (use STAR method, include metrics)
 
 NEW CATEGORY-STRUCTURED FIELDS:
+⚠️ CRITICAL: Each category object MUST include an "actionItems" array with 3-7 structured action items (see Action Item Structure at the top of this prompt).
+
 1. matchOverview: {
      topStrengths: 3-5 key strengths most relevant to the job match
      topImprovements: 3-5 most critical areas to improve for better job match
      priorityActions: 3-5 highest priority actions the candidate should take immediately
+     actionItems: [REQUIRED - 3-7 action items as defined at top of prompt]
    }
 
 2. requiredSkills: {
      skillGaps: List of skill gaps with priority levels (e.g., "Missing: Python (critical)", "Limited: AWS (important)")
      missingCriticalSkills: List of critical skills explicitly mentioned in job description but missing from resume
+     actionItems: [REQUIRED - 3-7 action items as defined at top of prompt]
    }
 
 3. workExperience: {
      durationAnalysis: Brief analysis of work experience duration and relevance (1-2 sentences)
      relevantExperiences: Specific work experiences that align well with the role
      experienceGaps: Specific types of experience missing (e.g., "No leadership experience", "No cloud platform experience")
+     actionItems: [REQUIRED - 3-7 action items as defined at top of prompt]
    }
 
 4. educationCredentials: {
      educationMatch: Brief assessment of how education aligns with job requirements (1-2 sentences)
      missingCredentials: List of required credentials, certifications, or degrees missing
+     actionItems: [REQUIRED - 3-7 action items as defined at top of prompt]
    }
 
 5. impactAchievements: {
      currentAchievements: List of current quantified achievements from the resume
      missingMetrics: Areas where the candidate could add more quantifiable metrics
+     actionItems: [REQUIRED - 3-7 action items as defined at top of prompt]
    }
 
 6. atsCompatibility: {
      atsIssues: Specific ATS parsing or compatibility issues identified
      missingKeywords: Important keywords from job description missing from resume
      formattingProblems: Specific formatting issues that could affect ATS parsing
+     actionItems: [REQUIRED - 3-7 action items as defined at top of prompt]
    }
 
 7. professionalQuality: {
      writingIssues: Specific writing clarity, grammar, or style issues
      consistencyProblems: Inconsistencies in formatting, dates, or terminology
      formattingConcerns: Formatting issues that affect readability or professionalism
+     actionItems: [REQUIRED - 3-7 action items as defined at top of prompt]
    }
 
 Guidelines:
@@ -185,6 +354,9 @@ Guidelines:
 - Focus on immediate, actionable improvements
 - Use industry-standard terminology for ${params.domain}
 - All category fields should be populated with relevant, specific feedback
+- ⚠️ FINAL REMINDER: Action items are MANDATORY for every category. Generate 3-7 items per category.
+- If a category has a low score (< 80), generate more action items (5-7)
+- If a category has a high score (>= 80), generate fewer but still valuable items (3-5)
 - Return only valid JSON, no additional text`;
 
   const userPrompt = `Resume:
@@ -220,17 +392,51 @@ Provide comprehensive feedback in JSON format.`;
         { role: "user", content: userPrompt },
       ],
       temperature: 0.3,
-      max_tokens: 1500,
+      max_tokens: 4000, // Significantly increased to ensure action items are included
       response_format: { type: "json_object" },
     });
 
     const content = completion.choices?.[0]?.message?.content ?? "{}";
-    const parsed = JSON.parse(content);
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch (parseError) {
+      console.error("Failed to parse AI response as JSON:", parseError);
+      console.error("Raw content:", content.substring(0, 500));
+      return getMockComprehensiveFeedback(params.domain);
+    }
+
     const validated = ComprehensiveFeedbackSchema.safeParse(parsed);
 
     if (!validated.success) {
       console.error("Feedback generation validation failed:", validated.error);
       return getMockComprehensiveFeedback(params.domain);
+    }
+
+    // Log if action items are missing or empty
+    const categories = [
+      validated.data.matchOverview,
+      validated.data.requiredSkills,
+      validated.data.workExperience,
+      validated.data.educationCredentials,
+      validated.data.impactAchievements,
+      validated.data.atsCompatibility,
+      validated.data.professionalQuality,
+    ];
+    const hasActionItems = categories.some(
+      (category) => category?.actionItems && category.actionItems.length > 0,
+    );
+    if (!hasActionItems) {
+      console.warn("Warning: No action items generated in feedback response. Categories checked:", {
+        matchOverview: validated.data.matchOverview?.actionItems?.length ?? 0,
+        requiredSkills: validated.data.requiredSkills?.actionItems?.length ?? 0,
+        workExperience: validated.data.workExperience?.actionItems?.length ?? 0,
+        educationCredentials: validated.data.educationCredentials?.actionItems?.length ?? 0,
+        impactAchievements: validated.data.impactAchievements?.actionItems?.length ?? 0,
+        atsCompatibility: validated.data.atsCompatibility?.actionItems?.length ?? 0,
+        professionalQuality: validated.data.professionalQuality?.actionItems?.length ?? 0,
+      });
     }
 
     return validated.data;
@@ -297,6 +503,35 @@ function getMockComprehensiveFeedback(domain: string): ComprehensiveFeedback {
           "Add HR keywords and terminology to skills section",
           "Rewrite experience bullets to emphasize HR-relevant skills",
         ],
+        actionItems: [
+          {
+            id: "overview-0",
+            category: "overview",
+            title: "Add HR certification to credentials section",
+            description:
+              "Pursue SHRM or PHR certification to demonstrate commitment to HR field and improve match score significantly.",
+            priority: "high",
+            estimatedImpact: 12,
+          },
+          {
+            id: "overview-1",
+            category: "overview",
+            title: "Rewrite experience bullets with HR-focused language",
+            description:
+              "Reframe software development experience to emphasize transferable HR skills like team management and process improvement.",
+            priority: "high",
+            estimatedImpact: 10,
+          },
+          {
+            id: "overview-2",
+            category: "overview",
+            title: "Add HR keywords to skills section",
+            description:
+              "Include terms like 'Employee Relations', 'Performance Management', and 'HRIS' to improve ATS matching.",
+            priority: "medium",
+            estimatedImpact: 8,
+          },
+        ],
       },
       requiredSkills: {
         skillGaps: [
@@ -308,6 +543,35 @@ function getMockComprehensiveFeedback(domain: string): ComprehensiveFeedback {
           "HRIS systems",
           "Compensation and benefits administration",
           "Performance management systems",
+        ],
+        actionItems: [
+          {
+            id: "skills-0",
+            category: "skills",
+            title: "Add HRIS systems to technical skills",
+            description:
+              "Include HRIS (Human Resources Information Systems) in your skills section as it's a critical requirement for this role.",
+            priority: "high",
+            estimatedImpact: 15,
+          },
+          {
+            id: "skills-1",
+            category: "skills",
+            title: "Highlight compensation and benefits knowledge",
+            description:
+              "Add compensation and benefits administration to your skills, even if through coursework or training.",
+            priority: "high",
+            estimatedImpact: 12,
+          },
+          {
+            id: "skills-2",
+            category: "skills",
+            title: "Emphasize employee relations experience",
+            description:
+              "Reframe existing team management experience to highlight employee relations aspects.",
+            priority: "medium",
+            estimatedImpact: 8,
+          },
         ],
       },
       workExperience: {
@@ -610,12 +874,14 @@ function getMockComprehensiveFeedback(domain: string): ComprehensiveFeedback {
     relevantExperiences: response.relevantExperiences,
     atsTips: response.atsTips,
     suggestedBullets: response.suggestedBullets,
-    matchOverview: response.matchOverview,
-    requiredSkills: response.requiredSkills,
-    workExperience: response.workExperience,
-    educationCredentials: response.educationCredentials,
-    impactAchievements: response.impactAchievements,
-    atsCompatibility: response.atsCompatibility,
-    professionalQuality: response.professionalQuality,
+    matchOverview: response.matchOverview as ComprehensiveFeedback["matchOverview"],
+    requiredSkills: response.requiredSkills as ComprehensiveFeedback["requiredSkills"],
+    workExperience: response.workExperience as ComprehensiveFeedback["workExperience"],
+    educationCredentials:
+      response.educationCredentials as ComprehensiveFeedback["educationCredentials"],
+    impactAchievements: response.impactAchievements as ComprehensiveFeedback["impactAchievements"],
+    atsCompatibility: response.atsCompatibility as ComprehensiveFeedback["atsCompatibility"],
+    professionalQuality:
+      response.professionalQuality as ComprehensiveFeedback["professionalQuality"],
   };
 }

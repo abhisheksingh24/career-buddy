@@ -42,39 +42,46 @@ export interface MatchOverviewData {
   topStrengths: string[];
   topImprovements: string[];
   priorityActions: string[];
+  actionItems?: ActionItem[];
 }
 
 export interface RequiredSkillsData {
   skillGaps: string[];
   missingCriticalSkills: string[];
+  actionItems?: ActionItem[];
 }
 
 export interface WorkExperienceData {
   durationAnalysis: string;
   relevantExperiences: string[];
   experienceGaps: string[];
+  actionItems?: ActionItem[];
 }
 
 export interface EducationCredentialsData {
   educationMatch: string;
   missingCredentials: string[];
+  actionItems?: ActionItem[];
 }
 
 export interface ImpactAchievementsData {
   currentAchievements: string[];
   missingMetrics: string[];
+  actionItems?: ActionItem[];
 }
 
 export interface AtsCompatibilityData {
   atsIssues: string[];
   missingKeywords: string[];
   formattingProblems: string[];
+  actionItems?: ActionItem[];
 }
 
 export interface ProfessionalQualityData {
   writingIssues: string[];
   consistencyProblems: string[];
   formattingConcerns: string[];
+  actionItems?: ActionItem[];
 }
 
 export interface ComprehensiveFeedback {
@@ -145,16 +152,37 @@ export interface EnhancedAnalysisResult {
   missingKeywords: string[]; // Deprecated but kept for now
 }
 
+// Action Item Types
+export type CategoryId =
+  | "overview"
+  | "skills"
+  | "experience"
+  | "education"
+  | "impact"
+  | "ats"
+  | "quality";
+
+export interface ActionItem {
+  id: string; // Unique identifier (e.g., "skills-0", "experience-2")
+  category: CategoryId; // Which category this belongs to
+  title: string; // Short, actionable title (e.g., "Add Python to skills section")
+  description: string; // Detailed explanation
+  priority: "high" | "medium" | "low"; // AI-assigned priority
+  estimatedImpact: number; // Estimated score improvement (0-100, but constrained to not exceed remaining score gap)
+}
+
 // Category Analysis Response Types
 export interface CategoryData {
   score: number; // 0-100
   actionItemsCount: number;
+  actionItems: ActionItem[]; // Structured action items for this category
 }
 
 export interface MatchOverviewCategoryData extends CategoryData {
   topStrengths: string[];
   topImprovements: string[];
   priorityActions: string[];
+  // actionItems inherited from CategoryData
 }
 
 export interface RequiredSkillsCategoryData extends CategoryData {
