@@ -317,7 +317,7 @@ If you prefer to run steps manually:
     - Supabase: `postgresql://<USER>:<PASSWORD>@db.<PROJECT-REF>.supabase.co:5432/postgres?sslmode=require`
     - General: `postgresql://[user]:[password]@[host]:[port]/[database]`
   - **Important:** `DATABASE_URL` must match the `POSTGRES_*` variables above. The `docker-compose.yml` file reads `POSTGRES_*` variables to configure the database container, while Prisma uses `DATABASE_URL` to connect. They serve as a single source of truth when kept in sync.
-  - **📖 For detailed explanation**: See [`docs/DATABASE_URL_EXPLAINED.md`](docs/DATABASE_URL_EXPLAINED.md)
+  - **Details**: see the comments in `.env.example`
 - `NEXTAUTH_URL` - Base URL of your application (e.g., `http://localhost:3000`)
 - `NEXTAUTH_SECRET` - Secret key for NextAuth (generate with `openssl rand -base64 32`)
 

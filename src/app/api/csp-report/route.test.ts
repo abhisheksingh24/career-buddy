@@ -7,14 +7,28 @@ const post = (body: string) =>
 
 describe("POST /api/csp-report", () => {
   it("accepts a legacy report and logs only known fields", async () => {
-    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const res = await post(
-      JSON.stringify({ "csp-report": { "blocked-uri": "inline", evil: "x", "line-number": 3 } }),
+      JSON.stringify({
+        "csp-report": {
+          "blocked-uri": "https://cdn.example/x.js?token=secret#frag",
+          "violated-directive": "script-src-elem",
+          evil: "x",
+          "line-number": 3,
+        },
+      }),
     );
     expect(res.status).toBe(204);
     const logged = String(spy.mock.calls[0][0]);
     expect(logged).toContain("csp-violation");
-    expect(logged).toContain("blocked-uri");
+    expect(logged).not.toContain("redacted");
+    const meta = JSON.parse(logged).metadata;
+    expect(meta).toEqual({
+      blockedUri: "https://cdn.example/x.js",
+      directive: "script-src-elem",
+      lineNumber: 3,
+    });
+    expect(logged).not.toContain("secret");
     expect(logged).not.toContain("evil");
     spy.mockRestore();
   });

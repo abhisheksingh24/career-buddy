@@ -30,7 +30,7 @@ flowchart LR
 | AI                   | OpenAI calls with mock fallback                                               | `src/lib/ai*.ts`, `semantic-match.ts`, `feedback-generator.ts` |
 | UI                   | shadcn-style primitives and analysis panels                                   | `src/components/**`                                            |
 
-Existing narrative docs: `docs/API.md`, `docs/PROJECT_STRUCTURE.md`, `docs/ONBOARDING.md`, `docs/INTERACTIVE_RESUME_ANALYSIS_PLAN.md`.
+Narrative docs: [API](api.md), [project structure](project-structure.md), [development setup](../development.md), [interactive analysis UI plan](../ux/interactive-analysis-plan.md).
 
 ## Data model
 
@@ -49,9 +49,9 @@ erDiagram
 ## Cross-cutting concerns
 
 - Auth: NextAuth, Google only, database sessions; each API route checks the session itself (no middleware).
-- Logging: `src/lib/logger.ts`.
+- Logging: `src/lib/logger.ts` is the single sink for server code (ADR 0017). `log` redacts free-text metadata; `logError` keeps only error class, code and status. `logger.test.ts` fails on any direct `console.*` in `src/lib` or `src/app/api`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
-- CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check`, `security` and `quality` (axe accessibility and a first-load JS budget, no database; `playwright.config.ts`, `e2e/`, `scripts/perf-budget.mjs`; ADR 0012). Dependabot covers npm and Actions with a 7-day cooldown.
+- CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check`, `security`, `audit`, `licences` (ADR 0013) and `quality` (axe accessibility and a first-load JS budget, no database; `playwright.config.ts`, `e2e/`, `scripts/perf-budget.mjs`; ADR 0012). Dependabot covers npm and Actions with a 7-day cooldown.
 
 - Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`, refuses `NODE_ENV=production` (it sets a public dev auth secret), and keeps state private to `INSTANCE_ID` (default `port-$PORT`, sanitised to `[a-z0-9_]`, max 40 chars). Database: `career_buddy_<id>` on the local Postgres, derived from `DATABASE_URL` (env, `.env`, or the `.env.example` default; parsed by `scripts/instance-db.sh`, which accepts only host `localhost` or `127.0.0.1` and rejects `host=`/`hostaddr=`/socket query parameters; tested in `scripts/instance-db.test.ts`), created and migrated by `prisma migrate deploy` at start. Uploads: `UPLOADS_DIR` (default `uploads/<id>/`, read by `src/lib/uploads.ts`). Tear-down: `psql -h localhost -U postgres -c "DROP DATABASE \"career_buddy_<id>\""` and `rm -rf uploads/<id>`. OpenAI calls build their token/temperature parameters through `completionParams` (`src/lib/openai-params.ts`), which supports o-series and gpt-5 models (`max_completion_tokens`, no `temperature`).
 

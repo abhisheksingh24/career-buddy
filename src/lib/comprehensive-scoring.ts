@@ -14,6 +14,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 
 import { isAiEnabled, isMockMode } from "./ai";
+import { logError } from "./logger";
 import { ScoringWeights, SkillMatchResult, JobRequirements } from "./types/analysis";
 
 // Zod schemas for AI responses
@@ -74,11 +75,8 @@ export function extractYearsOfExperience(resumeText: string): number {
   ]);
 
   if (!experienceSection) {
-    console.log("No experience section found");
     return 0;
   }
-
-  console.log("Experience section found:", experienceSection.substring(0, 200) + "...");
 
   // Look for date patterns - enhanced to handle month names
   const datePatterns = [
@@ -127,8 +125,6 @@ export function extractYearsOfExperience(resumeText: string): number {
   for (const pattern of datePatterns) {
     let match;
     while ((match = pattern.exec(experienceSection)) !== null) {
-      console.log("Date match found:", match[0]);
-
       if (
         match[2] &&
         match[2].toLowerCase() !== "present" &&
@@ -142,7 +138,6 @@ export function extractYearsOfExperience(resumeText: string): number {
           const durationYears =
             endDate.year - startDate.year + (endDate.month - startDate.month) / 12;
           years.push(Math.max(0, durationYears));
-          console.log(`Duration: ${durationYears.toFixed(2)} years (${match[1]} to ${match[2]})`);
         }
       } else if (match[1]) {
         // One date + Present/Current
@@ -152,7 +147,6 @@ export function extractYearsOfExperience(resumeText: string): number {
           const durationYears =
             currentYear - startDate.year + (currentMonth - startDate.month) / 12;
           years.push(Math.max(0, durationYears));
-          console.log(`Duration: ${durationYears.toFixed(2)} years (${match[1]} to Present)`);
         }
       }
     }
@@ -160,8 +154,6 @@ export function extractYearsOfExperience(resumeText: string): number {
 
   // Sum all years (handles multiple jobs)
   const totalYears = years.reduce((sum, year) => sum + year, 0);
-
-  console.log("Total years calculated:", totalYears);
 
   // Cap at reasonable maximum (e.g., 20 years)
   return Math.min(totalYears, 20);
@@ -240,10 +232,6 @@ export async function scoreExperienceMatch(params: {
 
   // Step 3: Combine with relevance weighting (70% relevance, 30% duration)
   const experienceMatch = relevanceScore * 0.7 + durationScore * 0.3;
-
-  console.log(
-    `Experience Match: Relevance=${relevanceScore}, Duration=${durationScore}, Final=${Math.round(experienceMatch)}`,
-  );
 
   return Math.round(experienceMatch);
 }
@@ -342,7 +330,7 @@ Score the candidate's EXPERIENCE RELEVANCE (0-100) based on task complexity, imp
 
     return validated.score;
   } catch (error) {
-    console.error("Experience relevance scoring failed:", error);
+    logError("Experience relevance scoring failed", error);
     return getMockExperienceRelevanceScore(params.domain);
   }
 }
@@ -457,7 +445,7 @@ Score the candidate's EDUCATION (0-100).`;
 
     return validated.score;
   } catch (error) {
-    console.error("Education scoring failed:", error);
+    logError("Education scoring failed", error);
     return getMockEducationScore(params.domain);
   }
 }
@@ -538,7 +526,7 @@ Score the candidate's ACHIEVEMENTS (0-100).`;
 
     return validated.score;
   } catch (error) {
-    console.error("Achievements scoring failed:", error);
+    logError("Achievements scoring failed", error);
     return getMockAchievementsScore(params.domain);
   }
 }
