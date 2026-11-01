@@ -20,9 +20,14 @@ removing `unsafe-inline` needs a nonce on each one (#96).
   bars) cannot carry nonces, and attribute styles cannot execute script.
 - The root layout awaits `connection()`, so every page renders per request.
   Cost: no static HTML, so the first-load budget script cannot read built HTML
-  and must use the route bundle stats for dynamic routes (done in #106 / #37).
+  and reads every page from the route bundle stats plus the build manifest's
+  polyfills (budgets unchanged).
 - Violations go to `/api/csp-report` (via `report-uri` and
-  `Reporting-Endpoints`/`report-to`), which logs trimmed fields only.
+  `Reporting-Endpoints`/`report-to`), which logs trimmed fields only. Browsers
+  send reports without cookies, so it cannot use `guard()`. It is the one
+  documented exception: it calls `publicGuard()` (`src/lib/api-guard.ts`), which
+  caps the body at 8 kB and applies one shared limit of 60 reports a minute
+  (in memory per instance, ADR 0015); `api-guard.test.ts` requires it.
 - Rejected: hash-based CSP (Next's inline script content changes per page),
   and keeping static pages with `unsafe-inline` (defeats the point).
 

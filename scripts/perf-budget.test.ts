@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   gzipBytes,
   overBudget,
+  polyfillScripts,
   scriptsFromHtml,
   scriptsFromRouteStats,
   sharedExtras,
@@ -19,6 +20,15 @@ describe("scriptsFromRouteStats", () => {
     ]);
     expect(m.get("/a")).toEqual(["/_next/static/chunks/a.js", "/_next/static/chunks/b.js"]);
     expect(m.get("/b")).toEqual([]);
+  });
+});
+
+describe("polyfillScripts", () => {
+  it("maps the manifest's polyfills to /_next URLs", () => {
+    expect(polyfillScripts({ polyfillFiles: ["static/chunks/p.js"] })).toEqual([
+      "/_next/static/chunks/p.js",
+    ]);
+    expect(polyfillScripts({})).toEqual([]);
   });
 });
 

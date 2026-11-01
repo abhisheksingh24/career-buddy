@@ -1,6 +1,6 @@
 # API Overview (MVP)
 
-All routes are Next.js App Router handlers under `src/app/api`. Every handler (except NextAuth's own) calls `guard()` from `src/lib/api-guard.ts` first: 401 without a session, 429 with `Retry-After` when a rate limit is exceeded (ADR 0015).
+All routes are Next.js App Router handlers under `src/app/api`. Every handler (except NextAuth's own) calls `guard()` from `src/lib/api-guard.ts` first: 401 without a session, 429 with `Retry-After` when a rate limit is exceeded (ADR 0015). The one exception is `/api/csp-report`, which browsers call without a session: it uses `publicGuard()` (body cap and one shared rate limit) instead, and the guard test enforces that.
 
 ## Auth
 
