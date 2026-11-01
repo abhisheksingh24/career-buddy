@@ -5,9 +5,7 @@ This document explains the organization of our codebase.
 ```
 career-buddy/
 ├── docs/                      # Documentation
-│   ├── API.md                # API documentation
-│   ├── ONBOARDING.md         # Onboarding guide
-│   └── PROJECT_STRUCTURE.md  # This file
+│   └── ...                   # see docs/architecture, docs/ux, docs/decisions
 │
 ├── prisma/                   # Database schema and migrations
 │   ├── schema.prisma        # Database models

@@ -1,4 +1,4 @@
-# Career Buddy - Intern Onboarding Guide
+# Development setup and workflow
 
 Welcome to Career Buddy! 👋 This guide will help you set up your development environment and understand our development workflow. If you get stuck at any point, don't hesitate to ask for help!
 
