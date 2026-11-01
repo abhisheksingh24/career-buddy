@@ -7,7 +7,7 @@ import {
   type CategoryId,
 } from "@/components/category-navigation";
 import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-layout";
-import { RateLimitNotice } from "@/components/rate-limit-alert";
+import { RateLimitNotice } from "@/components/rate-limit-notice";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

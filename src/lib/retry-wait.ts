@@ -21,8 +21,10 @@ export function secondsLeft(deadline: number, now: number): number {
 
 /**
  * Brings the rate-limit alert and its button (one wrapper element) into view if
- * off screen (for example on a phone, where the form is taller than the screen). Does nothing when it is
- * already visible. Respects reduced motion by jumping instead of animating.
+ * they are off screen, for example on a phone where the form is taller than the
+ * screen. Does nothing when already visible. Respects reduced motion by jumping
+ * instead of animating. The wrapper's scroll margin keeps the button off the
+ * screen edge.
  */
 export function revealAlert(
   el: Pick<HTMLElement, "scrollIntoView"> | null,

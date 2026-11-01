@@ -19,7 +19,7 @@ export function RateLimitNotice({ active, children }: { active: boolean; childre
     revealAlert(ref.current, reduced);
   }, [active]);
   return (
-    <div ref={ref} className="space-y-4">
+    <div ref={ref} className="scroll-mb-6 space-y-4">
       {active && (
         <Alert variant="destructive" role="status">
           <AlertCircle className="h-4 w-4" />

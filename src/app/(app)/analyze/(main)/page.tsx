@@ -1,7 +1,7 @@
 "use client";
 
 import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-analysis-results";
-import { RateLimitNotice } from "@/components/rate-limit-alert";
+import { RateLimitNotice } from "@/components/rate-limit-notice";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
