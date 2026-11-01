@@ -9,7 +9,9 @@ cd "$(git rev-parse --show-toplevel)"
 
 if [ -L node_modules ] || [ ! -x node_modules/.bin/lint-staged ] || [ ! -d node_modules/eslint-config-next ]; then
   echo "pre-commit: node_modules missing or shared; running npm ci (one-off)..." >&2
-  [ -L node_modules ] && rm node_modules
+  if [ -L node_modules ]; then
+    rm node_modules
+  fi
   npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
 fi
 
