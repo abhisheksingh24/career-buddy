@@ -1,7 +1,5 @@
 "use client";
 
-import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
-import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import { CategoryDetailsPanel } from "@/components/category-details-panel";
 import {
   CategoryNavigation,
@@ -14,7 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
+import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
+import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import {
   TrendingUp,
   Target,

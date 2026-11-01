@@ -2,6 +2,8 @@
 
 All routes are Next.js App Router handlers under `src/app/api`. Every handler (except NextAuth's own) calls `guard()` from `src/lib/api-guard.ts` first: 401 without a session, 429 with `Retry-After` when a rate limit is exceeded (ADR 0015). Only the analyze and suggest routes are rate limited (`AI_RATE_LIMIT`, 10 calls a minute per user, in memory per server instance); JSON bodies are read with `readJson()`, which returns 400 for missing, invalid or over-200 kB bodies. Handled errors are `{ error: string }`; the analyze and suggest routes have no try/catch, so an unexpected failure there is an unhandled 500 without that shape.
 
+On a 429 the analyze pages (`/analyze` and `/analyze/interactive`) read `Retry-After` with `parseRetryAfter()` (`src/lib/retry-wait.ts`), show a rate-limit message, and disable the analyze button with a live countdown until the wait ends (`src/lib/use-retry-countdown.ts`).
+
 ## Auth
 
 - GET /api/auth/session: returns current session
