@@ -1,25 +1,26 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-import pluginImport from "eslint-plugin-import";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 import pluginUnusedImports from "eslint-plugin-unused-imports";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+// eslint-config-next 16 ships flat configs and already registers the
+// `import` plugin, so only `unused-imports` is added here.
+const eslintConfig = defineConfig([
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     plugins: {
-      import: pluginImport,
       "unused-imports": pluginUnusedImports,
     },
     rules: {
       "unused-imports/no-unused-imports": "warn",
+      // New in the Next 16 / typescript-eslint / react-hooks 7 rule sets; the
+      // existing code predates them. Kept as warnings so the upgrade does not
+      // bundle a refactor (see ADR 0008).
+      "@typescript-eslint/no-this-alias": "warn",
+      "react-hooks/immutability": "warn",
+      "react-hooks/static-components": "warn",
+      "react-hooks/set-state-in-effect": "warn",
       "import/order": [
         "warn",
         {
@@ -30,6 +31,7 @@ const eslintConfig = [
       ],
     },
   },
-];
+  globalIgnores([".next/**", "node_modules/**", "out/**", "build/**", "next-env.d.ts"]),
+]);
 
 export default eslintConfig;
