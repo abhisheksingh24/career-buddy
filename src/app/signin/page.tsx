@@ -1,4 +1,3 @@
-
 import { SignInCard } from "@/components/sign-in-card";
 import { authOptions } from "@/lib/auth";
 import { safeCallbackUrl } from "@/lib/callback-url";

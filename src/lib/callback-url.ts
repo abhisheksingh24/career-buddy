@@ -8,7 +8,7 @@ export function safeCallbackUrl(raw: string | string[] | undefined | null): stri
   if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
     return DEFAULT_DESTINATION;
   }
-   
+
   if (/[\u0000-\u001f]/.test(value)) return DEFAULT_DESTINATION;
   try {
     // Must still resolve to this origin.

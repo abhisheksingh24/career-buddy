@@ -23,7 +23,10 @@ export function AuthButtons() {
   }
 
   return (
-    <button className="px-3 py-1.5 rounded bg-gray-900 text-white" onClick={() => signIn()}>
+    <button
+      className="px-3 py-1.5 rounded bg-gray-900 text-white"
+      onClick={() => signIn(undefined, { callbackUrl: pathname })}
+    >
       Sign in
     </button>
   );

@@ -7,7 +7,6 @@ import { Check } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
-
 const BENEFITS = ["See how well it fits", "Get suggestions to improve", "Tailor it to one job"];
 
 function GoogleLogo() {
@@ -54,7 +53,6 @@ export function SignInCard({ callbackUrl, hasError }: { callbackUrl: string; has
     <div className="mx-auto w-full max-w-sm p-4 sm:py-12">
       <Card>
         <CardHeader>
-          <p className="text-sm font-medium text-muted-foreground">Career Buddy</p>
           <h1 className="text-2xl leading-tight font-semibold">
             Get your resume scored and tailored to the role you want
           </h1>
