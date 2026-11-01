@@ -8,6 +8,8 @@ import type { EnhancedAnalysisResult } from "@/lib/types/analysis";
 import { FileText, Upload, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
+import { useRetryCountdown } from "@/lib/use-retry-countdown";
 
 type AnalyzeResponse = EnhancedAnalysisResult | { error?: string } | null;
 
@@ -22,6 +24,7 @@ export default function AnalyzePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userResume, setUserResume] = useState<string | null>(null);
+  const { remaining, start } = useRetryCountdown();
 
   // Fetch user's resume on component mount
   useEffect(() => {
@@ -63,6 +66,14 @@ export default function AnalyzePage() {
           domain: domain || undefined,
         }),
       });
+      if (res.status === 429) {
+        const wait = parseRetryAfter(res.headers.get("Retry-After"));
+        if (wait) {
+          start(wait);
+          setResult(null);
+          return;
+        }
+      }
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to analyze resume");
@@ -189,16 +200,27 @@ export default function AnalyzePage() {
 
           <Button
             onClick={run}
-            disabled={isLoading || !resumeText || !jobDescription}
+            disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
             className="w-full"
             size="lg"
           >
-            {isLoading ? "Analyzing..." : "Analyze Resume"}
+            {isLoading
+              ? "Analyzing..."
+              : remaining > 0
+                ? `Try again in ${remaining}s`
+                : "Analyze Resume"}
           </Button>
         </div>
 
         {/* Results Section */}
         <div className="space-y-4">
+          {remaining > 0 && (
+            <Alert variant="destructive" role="status">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{rateLimitMessage(remaining)}</AlertDescription>
+            </Alert>
+          )}
+
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -210,7 +232,7 @@ export default function AnalyzePage() {
             <EnhancedResumeAnalysisResults analysis={result} />
           )}
 
-          {!result && !error && !isLoading && (
+          {!result && !error && !isLoading && remaining === 0 && (
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center text-gray-500">

@@ -1,5 +1,7 @@
 "use client";
 
+import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
+import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import { CategoryDetailsPanel } from "@/components/category-details-panel";
 import {
   CategoryNavigation,
@@ -96,6 +98,7 @@ type AnalysisResponse = EnhancedAnalysisResult & {
 };
 
 export default function InteractiveAnalyzePage() {
+  const { remaining, start } = useRetryCountdown();
   const { data: session } = useSession();
 
   // Input form state
@@ -223,6 +226,13 @@ export default function InteractiveAnalyzePage() {
         }),
       });
 
+      if (response.status === 429) {
+        const wait = parseRetryAfter(response.headers.get("Retry-After"));
+        if (wait) {
+          start(wait);
+          return;
+        }
+      }
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to analyze resume");
@@ -437,10 +447,16 @@ export default function InteractiveAnalyzePage() {
                 </Alert>
               )}
 
+              {remaining > 0 && (
+                <Alert variant="destructive" role="status">
+                  <AlertDescription>{rateLimitMessage(remaining)}</AlertDescription>
+                </Alert>
+              )}
+
               {/* Start Analysis Button */}
               <Button
                 onClick={handleStartAnalysis}
-                disabled={isLoading || !resumeText || !jobDescription}
+                disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
                 className="w-full"
                 size="lg"
               >
@@ -449,6 +465,8 @@ export default function InteractiveAnalyzePage() {
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Analyzing...
                   </>
+                ) : remaining > 0 ? (
+                  `Try again in ${remaining}s`
                 ) : (
                   "Start Analysis"
                 )}
