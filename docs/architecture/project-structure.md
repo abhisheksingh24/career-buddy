@@ -4,51 +4,42 @@ This document explains the organization of our codebase.
 
 ```
 career-buddy/
-├── docs/                      # Documentation
-│   └── ...                   # see docs/architecture, docs/ux, docs/decisions
-│
-├── prisma/                   # Database schema and migrations
-│   ├── schema.prisma        # Database models
-│   └── migrations/          # Database migrations
-│
+├── docs/                    # architecture, ux, decisions, quality, research, design
+├── e2e/                     # Playwright accessibility checks
+├── prisma/                  # schema.prisma and migrations/
+├── public/                  # static assets
+├── scripts/                 # instance.sh, perf-budget.mjs
 ├── src/
-│   ├── app/                 # Next.js app directory
-│   │   ├── (app)/          # Protected routes (require auth)
-│   │   │   ├── analyze/    # Resume analysis page
-│   │   │   ├── dashboard/  # User dashboard
-│   │   │   ├── profile/    # User profile
-│   │   │   └── upload/     # Resume upload
-│   │   ├── api/           # API routes
-│   │   │   ├── auth/      # Authentication endpoints
-│   │   │   ├── profile/   # Profile management
-│   │   │   └── resume/    # Resume operations
-│   │   ├── layout.tsx     # Root layout
-│   │   └── page.tsx       # Home page
-│   │
-│   ├── components/         # Reusable React components
-│   │   ├── auth-buttons.tsx
-│   │   ├── providers.tsx
-│   │   └── suggestions-list.tsx
-│   │
-│   ├── lib/               # Utility functions and services
-│   │   ├── ai.ts         # OpenAI integration
-│   │   ├── auth.ts       # Authentication setup
-│   │   ├── db.ts         # Database client
-│   │   ├── logger.ts     # Logging utility
-│   │   ├── match.ts      # Resume matching logic
-│   │   └── parse.ts      # Resume parsing
-│   │
-│   └── types/            # TypeScript type definitions
-│
-├── public/               # Static assets
-│
-├── .env.example         # Example environment variables
-├── .env.local          # Local environment variables (git-ignored)
-├── docker-compose.yml   # Docker configuration
-├── next.config.ts      # Next.js configuration
-├── package.json        # Project dependencies
-├── README.md           # Project overview
-└── tsconfig.json       # TypeScript configuration
+│   ├── app/
+│   │   ├── (app)/           # signed-in pages
+│   │   │   ├── analyze/     # page.tsx and interactive/page.tsx
+│   │   │   ├── dashboard/
+│   │   │   ├── profile/
+│   │   │   └── upload/
+│   │   ├── api/
+│   │   │   ├── auth/[...nextauth]/
+│   │   │   ├── profile/
+│   │   │   └── resume/      # [id]/file, active, analysis/[id]/categories,
+│   │   │                    # analyze, suggest, upload
+│   │   ├── layout.tsx
+│   │   └── page.tsx         # home
+│   ├── components/          # feature components (analysis results, category
+│   │   │                    # panels, PDF viewer, suggestions, auth buttons)
+│   │   └── ui/              # shadcn primitives (alert, badge, button, card,
+│   │                        # progress, skeleton, tabs)
+│   ├── lib/                 # scoring and analysis (analysis-engine, match,
+│   │   │                    # semantic-match, comprehensive-scoring,
+│   │   │                    # category-*, feedback-generator), AI (ai,
+│   │   │                    # ai-extraction, openai-params), parse, uploads,
+│   │   │                    # auth, db, logger, security-headers, schemas
+│   │   └── types/           # analysis types
+│   └── types/               # next-auth.d.ts
+├── .env.example             # placeholders only; copy to .env
+├── docker-compose.yml       # postgres and pgAdmin
+├── Makefile
+├── next.config.ts
+├── package.json
+└── tsconfig.json
 ```
 
 ## Key Directories and Files
@@ -78,7 +69,7 @@ Utility functions, services, and business logic.
 
 ### `/src/types`
 
-TypeScript type definitions and interfaces.
+Ambient type declarations (NextAuth session augmentation). Shared analysis types live in `src/lib/types`.
 
 ## File Naming Conventions
 
@@ -89,7 +80,7 @@ TypeScript type definitions and interfaces.
    - Example: `parseResume.ts`
 
 3. **Pages**: `page.tsx` within directories
-   - Example: `src/app/dashboard/page.tsx`
+   - Example: `src/app/(app)/dashboard/page.tsx`
 
 4. **API Routes**: `route.ts` within directories
    - Example: `src/app/api/resume/analyze/route.ts`
