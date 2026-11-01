@@ -63,7 +63,10 @@ export default function AnalyzePage() {
           domain: domain || undefined,
         }),
       });
-      if (!res.ok) throw new Error("Failed to analyze resume");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to analyze resume");
+      }
       setResult(await res.json());
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

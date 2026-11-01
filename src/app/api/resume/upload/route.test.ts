@@ -1,8 +1,11 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { create } = vi.hoisted(() => ({ create: vi.fn() }));
-vi.mock("next-auth", () => ({ getServerSession: vi.fn(async () => ({ user: { id: "u1" } })) }));
+const { create, getServerSession } = vi.hoisted(() => ({
+  create: vi.fn(),
+  getServerSession: vi.fn(),
+}));
+vi.mock("next-auth", () => ({ getServerSession }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/parse", () => ({ extractText: vi.fn(async () => "parsed text") }));
 vi.mock("@/lib/db", () => ({
@@ -30,6 +33,17 @@ describe("POST /api/resume/upload", () => {
   beforeEach(() => {
     create.mockReset();
     create.mockResolvedValue({ id: "r1" });
+    getServerSession.mockReset();
+    getServerSession.mockResolvedValue({ user: { id: "u1" } });
+  });
+
+  it("returns 401 before reading the body or touching the database when signed out", async () => {
+    getServerSession.mockResolvedValue(null);
+    const formData = vi.fn();
+    const res = await POST({ headers: new Headers(), formData } as unknown as Request);
+    expect(res.status).toBe(401);
+    expect(formData).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
   });
 
   it("rejects files over the limit with 413 and a clear message", async () => {

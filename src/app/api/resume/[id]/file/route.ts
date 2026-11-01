@@ -1,11 +1,10 @@
-import { authOptions } from "@/lib/auth";
+import { guard } from "@/lib/api-guard";
 import { contentDisposition } from "@/lib/content-disposition";
 import { prisma } from "@/lib/db";
 import { logError } from "@/lib/logger";
 import { uploadsRoot } from "@/lib/uploads";
 import { readFile } from "fs/promises";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { resolve, sep } from "path";
 
 export async function GET(
@@ -15,10 +14,9 @@ export async function GET(
   // Await params in Next.js 15
   const { id } = await params;
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
 
   try {
     // Fetch resume from database
@@ -38,7 +36,7 @@ export async function GET(
     }
 
     // Verify user owns the resume
-    if (resume.portfolio.userId !== session.user.id) {
+    if (resume.portfolio.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

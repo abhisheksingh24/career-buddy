@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 export const runtime = "nodejs";
-import { authOptions } from "@/lib/auth";
+import { guard } from "@/lib/api-guard";
 import { prisma } from "@/lib/db";
 import { logError } from "@/lib/logger";
 import { extractText } from "@/lib/parse";
@@ -13,13 +13,11 @@ import {
   UNSUPPORTED_MESSAGE,
   detectKind,
 } from "@/lib/upload-validation";
-import { getServerSession } from "next-auth";
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
 
   // Reject oversized bodies before buffering them.
   const declared = Number(request.headers.get("content-length"));
@@ -60,13 +58,13 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   // Get or create a default portfolio for the user
   let portfolio = await prisma.portfolio.findFirst({
-    where: { userId: session.user.id, isDefault: true },
+    where: { userId, isDefault: true },
   });
 
   if (!portfolio) {
     portfolio = await prisma.portfolio.create({
       data: {
-        userId: session.user.id,
+        userId,
         name: "Default Portfolio",
         isDefault: true,
       },

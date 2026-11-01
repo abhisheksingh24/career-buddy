@@ -1,16 +1,22 @@
 import { extractJobRequirements, extractSkillsFromText, detectDomain } from "@/lib/ai-extraction";
 import { analyzeResume } from "@/lib/analysis-engine";
-import { authOptions } from "@/lib/auth";
+import { AI_RATE_LIMIT, guard, readJson } from "@/lib/api-guard";
 import { transformToCategoryAnalysis } from "@/lib/category-transformer";
 import { prisma } from "@/lib/db";
 import { generateComprehensiveFeedback } from "@/lib/feedback-generator";
 import { matchSkillsSimple, matchSkillsSemantically } from "@/lib/semantic-match";
 import type { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const body = await req.json().catch(() => ({}));
+  const auth = await guard({ rateLimit: AI_RATE_LIMIT });
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
+
+  const body = await readJson(req);
+  if (body === null) {
+    return NextResponse.json({ error: "Invalid or too large request" }, { status: 400 });
+  }
   const {
     resumeText = "",
     jobDescription = "",
@@ -60,71 +66,68 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Transform to category analysis
   const categories = transformToCategoryAnalysis(feedback, analysis);
 
-  // If user is signed in, persist Analysis with a placeholder Resume record
-  const session = await getServerSession(authOptions);
+  // Persist the analysis with a placeholder Resume record
   let analysisId: string | null = null;
 
-  if (session?.user?.id) {
-    // Get or create a default portfolio for the user
-    let portfolio = await prisma.portfolio.findFirst({
-      where: { userId: session.user.id, isDefault: true },
-    });
+  // Get or create a default portfolio for the user
+  let portfolio = await prisma.portfolio.findFirst({
+    where: { userId, isDefault: true },
+  });
 
-    if (!portfolio) {
-      portfolio = await prisma.portfolio.create({
-        data: {
-          userId: session.user.id,
-          name: "Default Portfolio",
-          isDefault: true,
-        },
-      });
-    }
-
-    // Get the next version number for this portfolio
-    const lastResume = await prisma.resume.findFirst({
-      where: { portfolioId: portfolio.id },
-      orderBy: { version: "desc" },
-    });
-    const nextVersion = (lastResume?.version || 0) + 1;
-
-    // Create a placeholder resume for pasted text analysis
-    const resume = await prisma.resume.create({
+  if (!portfolio) {
+    portfolio = await prisma.portfolio.create({
       data: {
-        portfolioId: portfolio.id,
-        version: nextVersion,
-        name: "pasted-resume",
-        content: {}, // Empty JSON for now
-        rawText: resumeText,
-        fileType: "text/plain",
-        fileUrl: `${session.user.id}::placeholder::${Date.now()}`,
+        userId,
+        name: "Default Portfolio",
+        isDefault: true,
       },
     });
-
-    const savedAnalysis = await prisma.resumeAnalysis.create({
-      data: {
-        resumeId: resume.id,
-        jobTitle,
-        jobDesc: jobDescription,
-        score: analysis.overallScore,
-        keywords: analysis.matchedSkills.map((s) => s.skill),
-        missing: analysis.missingSkills.map((s) => s.skill),
-        suggestions: {
-          bullets: analysis.suggestedBullets,
-          categories: JSON.parse(JSON.stringify(categories)) as Prisma.InputJsonValue, // Store category data in suggestions JSON field
-        },
-        // Enhanced analysis fields
-        domain: analysis.domain,
-        atsScore: analysis.atsScore,
-        matchedSkills: JSON.parse(JSON.stringify(analysis.matchedSkills)), // Convert to JSON
-        experienceGaps: analysis.experienceGaps,
-        strengthAreas: analysis.strengthAreas,
-        improvementAreas: analysis.improvementAreas,
-        atsTips: analysis.atsTips,
-      },
-    });
-
-    analysisId = savedAnalysis.id;
   }
+
+  // Get the next version number for this portfolio
+  const lastResume = await prisma.resume.findFirst({
+    where: { portfolioId: portfolio.id },
+    orderBy: { version: "desc" },
+  });
+  const nextVersion = (lastResume?.version || 0) + 1;
+
+  // Create a placeholder resume for pasted text analysis
+  const resume = await prisma.resume.create({
+    data: {
+      portfolioId: portfolio.id,
+      version: nextVersion,
+      name: "pasted-resume",
+      content: {}, // Empty JSON for now
+      rawText: resumeText,
+      fileType: "text/plain",
+      fileUrl: `${userId}::placeholder::${Date.now()}`,
+    },
+  });
+
+  const savedAnalysis = await prisma.resumeAnalysis.create({
+    data: {
+      resumeId: resume.id,
+      jobTitle,
+      jobDesc: jobDescription,
+      score: analysis.overallScore,
+      keywords: analysis.matchedSkills.map((s) => s.skill),
+      missing: analysis.missingSkills.map((s) => s.skill),
+      suggestions: {
+        bullets: analysis.suggestedBullets,
+        categories: JSON.parse(JSON.stringify(categories)) as Prisma.InputJsonValue, // Store category data in suggestions JSON field
+      },
+      // Enhanced analysis fields
+      domain: analysis.domain,
+      atsScore: analysis.atsScore,
+      matchedSkills: JSON.parse(JSON.stringify(analysis.matchedSkills)), // Convert to JSON
+      experienceGaps: analysis.experienceGaps,
+      strengthAreas: analysis.strengthAreas,
+      improvementAreas: analysis.improvementAreas,
+      atsTips: analysis.atsTips,
+    },
+  });
+
+  analysisId = savedAnalysis.id;
 
   // Return analysis with categories
   return NextResponse.json({

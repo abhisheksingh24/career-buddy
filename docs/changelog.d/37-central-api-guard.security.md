@@ -1,0 +1,1 @@
+Signed-out requests to the analyze and suggest routes are now refused (401) before any OpenAI call, and every API route uses one shared guard that a test enforces. Analyze and suggest are limited to 10 calls a minute per user, with a clear "too quickly, wait N seconds" message, and oversized request bodies are refused.
