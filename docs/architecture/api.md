@@ -26,7 +26,7 @@ All routes are Next.js App Router handlers under `src/app/api`. Every handler (e
 
 - GET /api/resume/active
   - Session required (401). Returns the latest-version resume in the user's default portfolio: `{ id, name, rawText, fileType, createdAt }`
-  - 404 `{ error }` when there is no default portfolio or no resume; 500 on failure
+  - `null` (200) when there is no default portfolio or no resume, so pages load without a failed request; 500 on failure
 
 - GET /api/resume/[id]/file
   - Session required (401); 404 if the resume does not exist, 403 if it belongs to another user

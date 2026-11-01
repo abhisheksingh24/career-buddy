@@ -7,7 +7,7 @@ import { ReactNode, useState } from "react";
 interface InteractiveAnalysisLayoutProps {
   jobTitle?: string;
   company?: string;
-  overallScore?: number;
+  overallScore?: number | null;
   children: {
     leftPanel: ReactNode;
     centerPanel: ReactNode;
@@ -18,7 +18,7 @@ interface InteractiveAnalysisLayoutProps {
 export function InteractiveAnalysisLayout({
   jobTitle = "Position",
   company = "Company",
-  overallScore = 0,
+  overallScore = null,
   children,
 }: InteractiveAnalysisLayoutProps) {
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
@@ -38,18 +38,22 @@ export function InteractiveAnalysisLayout({
         <div className="flex items-center justify-between px-4 md:px-6 py-3">
           <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
             <div className="min-w-0">
-              <h2 className="text-base md:text-lg font-semibold truncate">
-                {jobTitle} @ {company}
-              </h2>
+              <h1 className="text-base md:text-lg font-semibold truncate">
+                {overallScore === null ? "Interactive Resume Analysis" : `${jobTitle} @ ${company}`}
+              </h1>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <TrendingUp className="h-4 w-4 text-gray-500" />
               <span className="text-xs md:text-sm text-gray-600 hidden sm:inline">
                 Overall Match:
               </span>
-              <span className={`text-base md:text-lg font-bold ${getScoreColor(overallScore)}`}>
-                {overallScore}%
-              </span>
+              {overallScore === null ? (
+                <span className="text-sm text-gray-500">Not analysed yet</span>
+              ) : (
+                <span className={`text-base md:text-lg font-bold ${getScoreColor(overallScore)}`}>
+                  {overallScore}%
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
