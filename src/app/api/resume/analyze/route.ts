@@ -5,6 +5,7 @@ import { transformToCategoryAnalysis } from "@/lib/category-transformer";
 import { prisma } from "@/lib/db";
 import { generateComprehensiveFeedback } from "@/lib/feedback-generator";
 import { matchSkillsSimple, matchSkillsSemantically } from "@/lib/semantic-match";
+import type { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         missing: analysis.missingSkills.map((s) => s.skill),
         suggestions: {
           bullets: analysis.suggestedBullets,
-          categories: categories, // Store category data in suggestions JSON field
+          categories: JSON.parse(JSON.stringify(categories)) as Prisma.InputJsonValue, // Store category data in suggestions JSON field
         },
         // Enhanced analysis fields
         domain: analysis.domain,

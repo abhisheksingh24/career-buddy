@@ -7,7 +7,6 @@ import {
   type CategoryId,
 } from "@/components/category-navigation";
 import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-layout";
-import { ResumePDFViewer } from "@/components/resume-pdf-viewer";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,8 +25,15 @@ import {
   ChevronUp,
   AlertCircle,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+
+// pdf.js needs browser globals (DOMMatrix), so render the viewer on the client only.
+const ResumePDFViewer = dynamic(
+  () => import("@/components/resume-pdf-viewer").then((m) => m.ResumePDFViewer),
+  { ssr: false },
+);
 
 // Placeholder category data - will be replaced with real data in later iterations
 const placeholderCategories: Category[] = [
