@@ -1,0 +1,1 @@
+Every response now carries security headers (no framing, no MIME sniffing, strict referrer, camera/microphone/location off, HSTS in production) and a Content Security Policy. The policy is report-only for now: it reports violations in the browser console but does not block anything yet.
