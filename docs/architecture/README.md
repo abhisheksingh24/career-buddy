@@ -49,7 +49,7 @@ erDiagram
 ## Cross-cutting concerns
 
 - Auth: NextAuth, Google only, database sessions; each API route checks the session itself (no middleware).
-- Logging: `src/lib/logger.ts`.
+- Logging: `src/lib/logger.ts` is the single sink for server code (ADR 0017). `log` redacts free-text metadata; `logError` keeps only error class, code and status. `logger.test.ts` fails on any direct `console.*` in `src/lib` or `src/app/api`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
 - CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check`, `security` and `quality` (axe accessibility and a first-load JS budget, no database; `playwright.config.ts`, `e2e/`, `scripts/perf-budget.mjs`; ADR 0012). Dependabot covers npm and Actions with a 7-day cooldown.
 

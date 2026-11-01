@@ -1,11 +1,12 @@
+import { logError } from "@/lib/logger";
 import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { extractTextFromFile } from "@/lib/parse";
+import { uploadsRoot } from "@/lib/uploads";
 import { writeFile, mkdir } from "fs/promises";
 import { getServerSession } from "next-auth";
-import { uploadsRoot } from "@/lib/uploads";
 import { join } from "path";
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -59,7 +60,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       filePath = `resumes/${fileName}`;
     }
   } catch (error) {
-    console.error("Failed to save file:", error);
+    logError("Failed to save file", error);
     // Continue without file storage - text extraction still works
   }
 
