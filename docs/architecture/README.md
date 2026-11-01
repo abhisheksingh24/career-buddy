@@ -47,7 +47,7 @@ erDiagram
 
 ## Cross-cutting concerns
 
-- Auth: NextAuth, Google only, database sessions; every API route calls `guard()` from `src/lib/api-guard.ts` first, which returns the user id or a 401 (and a 429 for per-user rate limits, `src/lib/rate-limit.ts`, in memory per instance). `src/app/api/api-guard.test.ts` fails if a route (other than NextAuth) does not call it. See ADR 0015.
+- Auth: NextAuth, Google only, database sessions; the sign-in screen is our own page at `/signin` (`pages.signIn`; `src/components/sign-in-card.tsx`), which only honours same-site `callbackUrl` paths (`src/lib/callback-url.ts`) and falls back to the Dashboard; every API route calls `guard()` from `src/lib/api-guard.ts` first, which returns the user id or a 401 (and a 429 for per-user rate limits, `src/lib/rate-limit.ts`, in memory per instance). `src/app/api/api-guard.test.ts` fails if a route (other than NextAuth) does not call it. See ADR 0015.
 - Logging: `src/lib/logger.ts` is the single sink for server code (ADR 0017). `log` redacts free-text metadata; `logError` keeps only error class, code and status. `logger.test.ts` fails on any direct `console.*` in `src/lib` or `src/app/api`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
 - CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check`, `security`, `audit`, `licences` (ADR 0013) and `quality` (axe accessibility and a first-load JS budget, no database; `playwright.config.ts`, `e2e/`, `scripts/perf-budget.mjs`; ADR 0012). Dependabot covers npm and Actions with a 7-day cooldown.
