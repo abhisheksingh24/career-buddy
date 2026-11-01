@@ -4,15 +4,25 @@
 
 <!-- Filled during onboarding, in the owner's own language. -->
 
-**What it is:**
+**What it is:** A resume and job-search companion for job seekers. Today it scores an uploaded resume against a job description and suggests improvements. The goal is a polished end-to-end app: build your resume in the UI, get it scored (including ATS) with suggestions that are accurate and useful, and tailor it to a role easily.
 
-**Who it's for:**
+**Who it's for:** All job seekers. The owner is the first user. The plan is to make it public as soon as it is production-ready and secure.
 
 **What they most want to do:**
 
-**Where they use it:**
+1. Build a base resume in the UI.
+2. See how relevant a job is and how good a fit they are.
+3. Tailor the resume to a specific role.
+4. Score the resume and get suggestions to improve it, including ATS.
+5. Later: scrape for jobs, track applications, and (distant future) build a community.
 
-**What a good first version looks like:**
+**Where they use it:** Phone and laptop.
+
+**What would make them stop using it:** Inaccurate scores or suggestions that are not useful.
+
+**What a good first version looks like:** A polished end-to-end application that lets you build your resume via the UI, suggests improvements, scores it, and helps you tailor it to a role easily.
+
+**Reference:** The owner started a different take at `~/projects/resume` with more structured architecture choices; borrow from it where it helps. Direction after setup is to be discussed in detail with the owner.
 
 ## Engineering
 
