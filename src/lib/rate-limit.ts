@@ -3,7 +3,7 @@
  *
  * State lives in this process only. That is correct for one instance; with
  * several instances each keeps its own counts, so the effective limit is
- * multiplied (ADR 0012). Move to a shared store before scaling out.
+ * multiplied (ADR 0013). Move to a shared store before scaling out.
  */
 export type RateLimitResult = { ok: true } | { ok: false; retryAfterSeconds: number };
 

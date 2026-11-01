@@ -1,4 +1,4 @@
-# 0012. Central API guard and in-memory rate limit
+# 0013. Central API guard and in-memory rate limit
 
 Status: Accepted
 Date: 2026-11-01
