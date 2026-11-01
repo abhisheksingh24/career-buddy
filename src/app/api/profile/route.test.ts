@@ -54,4 +54,23 @@ describe("profile route", () => {
   it("still rejects a malformed link", async () => {
     expect((await PUT(put({ website: "not a url" }))).status).toBe(400);
   });
+
+  it.each([
+    ["headline", { headline: "x".repeat(201) }],
+    ["bio", { bio: "x".repeat(2001) }],
+    ["location", { location: "x".repeat(201) }],
+    ["a skill", { skills: ["x".repeat(51)] }],
+    ["skill count", { skills: Array.from({ length: 51 }, (_, i) => `s${i}`) }],
+    ["a url", { website: "https://a.com/" + "x".repeat(2048) }],
+  ])("rejects an over-long %s with 400", async (_n, body) => {
+    expect((await PUT(put(body))).status).toBe(400);
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("accepts values at the caps", async () => {
+    const res = await PUT(
+      put({ headline: "x".repeat(200), bio: "x".repeat(2000), skills: ["x".repeat(50)] }),
+    );
+    expect(res.status).toBe(200);
+  });
 });
