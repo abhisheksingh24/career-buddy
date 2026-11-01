@@ -1,9 +1,11 @@
+import OpenAI from "openai";
+
+import { logError } from "./logger";
 /**
  * Semantic Matching using OpenAI Embeddings
  * Enables domain-agnostic skill matching through semantic similarity
  */
 
-import OpenAI from "openai";
 
 import type { SkillMatchResult } from "./types/analysis";
 
@@ -36,7 +38,7 @@ export async function getEmbedding(text: string): Promise<number[]> {
     });
     return response.data[0].embedding;
   } catch (error) {
-    console.error("Embedding generation failed:", error);
+    logError("Embedding generation failed", error);
     throw error;
   }
 }
@@ -57,7 +59,7 @@ export async function getBatchEmbeddings(texts: string[]): Promise<number[][]> {
     });
     return response.data.map((item) => item.embedding);
   } catch (error) {
-    console.error("Batch embedding generation failed:", error);
+    logError("Batch embedding generation failed", error);
     throw error;
   }
 }
@@ -133,7 +135,7 @@ export async function matchSkillsSemantically(
 
     return allMatches;
   } catch (error) {
-    console.error("Multi-level matching failed:", error);
+    logError("Multi-level matching failed", error);
     return getMockSkillMatches(resumeSkills, jobSkills);
   }
 }

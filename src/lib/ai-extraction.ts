@@ -6,6 +6,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { logError } from "./logger";
 import { completionParams } from "./openai-params";
 import type { ExtractedSkills, JobRequirements } from "./types/analysis";
 
@@ -125,16 +126,13 @@ Return ONLY the JSON object, no additional text`;
     });
 
     const content = completion.choices?.[0]?.message?.content ?? "{}";
-    console.log("AI Response:", content); // Add this line
 
     const parsed = JSON.parse(content);
-    console.log("Parsed JSON:", parsed); // Add this line
 
     const validated = ExtractedSkillsSchema.safeParse(parsed);
 
     if (!validated.success) {
-      console.error("Skill extraction validation failed:", validated.error);
-      console.error("AI returned:", parsed); // Add this line
+      logError("Skill extraction validation failed", validated.error);
       return getMockExtractedSkills(context, domain);
     }
 
@@ -166,7 +164,7 @@ Return ONLY the JSON object, no additional text`;
       ],
     };
   } catch (error) {
-    console.error("Skill extraction failed:", error);
+    logError("Skill extraction failed", error);
     return getMockExtractedSkills(context, domain);
   }
 }
@@ -228,16 +226,13 @@ CRITICAL REQUIREMENTS - Normalization:
     });
 
     const content = completion.choices?.[0]?.message?.content ?? "{}";
-    console.log("Job Requirements AI Response:", content); // Add this line
 
     const parsed = JSON.parse(content);
-    console.log("Job Requirements Parsed JSON:", parsed); // Add this line
 
     const validated = JobRequirementsSchema.safeParse(parsed);
 
     if (!validated.success) {
-      console.error("Job requirements extraction validation failed:", validated.error);
-      console.error("AI returned:", parsed); // Add this line
+      logError("Job requirements extraction validation failed", validated.error);
       return getMockJobRequirements(domain);
     }
 
@@ -247,7 +242,7 @@ CRITICAL REQUIREMENTS - Normalization:
       all_required_skills: [...requirements.required_skills, ...requirements.preferred_skills],
     };
   } catch (error) {
-    console.error("Job requirements extraction failed:", error);
+    logError("Job requirements extraction failed", error);
     return getMockJobRequirements(domain);
   }
 }
@@ -291,7 +286,7 @@ Return only the domain name, nothing else.`;
     const domain = completion.choices?.[0]?.message?.content?.trim() ?? "General";
     return domain;
   } catch (error) {
-    console.error("Domain detection failed:", error);
+    logError("Domain detection failed", error);
     return "General";
   }
 }

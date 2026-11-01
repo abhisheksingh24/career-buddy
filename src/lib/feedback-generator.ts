@@ -6,6 +6,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { log, logError } from "./logger";
 import { completionParams } from "./openai-params";
 import type { ComprehensiveFeedback, SkillMatchResult, JobRequirements } from "./types/analysis";
 
@@ -39,7 +40,7 @@ export const ActionItemSchema = z.object({
     .transform((val) => {
       const normalized = CATEGORY_NAME_MAP[val];
       if (!normalized) {
-        console.warn(`Unknown category name "${val}", defaulting to "overview"`);
+        log("warn", "Unknown category name, defaulting to overview");
         return "overview";
       }
       return normalized;
@@ -402,15 +403,14 @@ Provide comprehensive feedback in JSON format.`;
     try {
       parsed = JSON.parse(content);
     } catch (parseError) {
-      console.error("Failed to parse AI response as JSON:", parseError);
-      console.error("Raw content:", content.substring(0, 500));
+      logError("Failed to parse AI response as JSON", parseError);
       return getMockComprehensiveFeedback(params.domain);
     }
 
     const validated = ComprehensiveFeedbackSchema.safeParse(parsed);
 
     if (!validated.success) {
-      console.error("Feedback generation validation failed:", validated.error);
+      logError("Feedback generation validation failed", validated.error);
       return getMockComprehensiveFeedback(params.domain);
     }
 
@@ -428,7 +428,7 @@ Provide comprehensive feedback in JSON format.`;
       (category) => category?.actionItems && category.actionItems.length > 0,
     );
     if (!hasActionItems) {
-      console.warn("Warning: No action items generated in feedback response. Categories checked:", {
+      log("warn", "No action items generated in feedback response", {
         matchOverview: validated.data.matchOverview?.actionItems?.length ?? 0,
         requiredSkills: validated.data.requiredSkills?.actionItems?.length ?? 0,
         workExperience: validated.data.workExperience?.actionItems?.length ?? 0,
@@ -441,7 +441,7 @@ Provide comprehensive feedback in JSON format.`;
 
     return validated.data;
   } catch (error) {
-    console.error("Feedback generation failed:", error);
+    logError("Feedback generation failed", error);
     return getMockComprehensiveFeedback(params.domain);
   }
 }

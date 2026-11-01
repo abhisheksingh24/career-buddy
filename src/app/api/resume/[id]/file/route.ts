@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { contentDisposition } from "@/lib/content-disposition";
 import { prisma } from "@/lib/db";
+import { logError } from "@/lib/logger";
 import { uploadsRoot } from "@/lib/uploads";
 import { readFile } from "fs/promises";
 import { NextResponse } from "next/server";
@@ -81,11 +82,11 @@ export async function GET(
         },
       });
     } catch (fileError) {
-      console.error("Failed to read file:", fileError);
+      logError("Failed to read file", fileError);
       return NextResponse.json({ error: "File not found on server" }, { status: 404 });
     }
   } catch (error) {
-    console.error("Failed to serve resume file:", error);
+    logError("Failed to serve resume file", error);
     return NextResponse.json({ error: "Failed to serve file" }, { status: 500 });
   }
 }
