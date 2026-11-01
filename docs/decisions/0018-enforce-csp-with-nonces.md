@@ -26,8 +26,13 @@ removing `unsafe-inline` needs a nonce on each one (#96).
   `Reporting-Endpoints`/`report-to`), which logs trimmed fields only. Browsers
   send reports without cookies, so it cannot use `guard()`. It is the one
   documented exception: it calls `publicGuard()` (`src/lib/api-guard.ts`), which
-  caps the body at 8 kB and applies one shared limit of 60 reports a minute
-  (in memory per instance, ADR 0015); `api-guard.test.ts` requires it.
+  refuses a declared Content-Length over 8 kB and applies one shared limit of 60 reports a minute
+  (in memory per instance, ADR 0015); `api-guard.test.ts` requires it. The
+  route then reads the body with `readBodyLimited()` (8 kB), so chunked bodies
+  without a length are cut off too and get 413.
+- Zod's JIT probes for eval with `new Function`, which would be a real
+  `script-src` violation on every load. The profile page no longer imports zod
+  (type only), and `profile-schema.ts` sets `z.config({ jitless: true })`.
 - Rejected: hash-based CSP (Next's inline script content changes per page),
   and keeping static pages with `unsafe-inline` (defeats the point).
 

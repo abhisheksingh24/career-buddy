@@ -44,8 +44,9 @@ export async function guard(options: GuardOptions = {}): Promise<GuardResult> {
  * signed out because the caller is a browser, not a user (today only
  * `/api/csp-report`). With no user to count, it applies one shared limit to the
  * whole endpoint (a forwarded address header is spoofable, so it is not used)
- * and refuses oversized bodies before they are read. Returns the response to
- * send when refused, or null to continue. The limiter is in memory per
+ * and refuses a body whose declared Content-Length is over the cap. A chunked body has no declared
+ * length, so the route must also read it with `readBodyLimited()`. Returns the
+ * response to send when refused, or null to continue. The limiter is in memory per
  * instance (ADR 0015).
  */
 export function publicGuard(

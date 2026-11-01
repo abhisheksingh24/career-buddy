@@ -1,5 +1,6 @@
 import { publicGuard } from "@/lib/api-guard";
 import { log } from "@/lib/logger";
+import { readBodyLimited } from "@/lib/read-limited-body";
 
 // Receives CSP violation reports (report-uri and Reporting API). Public by
 // design: browsers send it without cookies. Input is untrusted, so it is
@@ -62,8 +63,10 @@ export async function POST(request: Request) {
     maxBytes: MAX_BYTES,
   });
   if (refused) return refused;
-  const text = await request.text();
-  if (text.length > MAX_BYTES) return new Response(null, { status: 413 });
+  // Bounded read: stops at the cap even for chunked bodies with no length.
+  const bytes = await readBodyLimited(request, MAX_BYTES);
+  if (!bytes) return new Response(null, { status: 413 });
+  const text = new TextDecoder().decode(bytes);
 
   let parsed: unknown;
   try {
