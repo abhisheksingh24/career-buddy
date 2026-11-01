@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "./auth";
 import { rateLimit } from "./rate-limit";
+import { readBodyLimited } from "./read-limited-body";
 
 export type GuardOptions = {
   /** Per-user limit: `limit` calls per `windowMs`, counted under `bucket`. */
@@ -46,13 +47,23 @@ export const SIGNIN_RATE_LIMIT = { bucket: "signin", limit: 20, windowMs: 60_000
 export const MAX_PROFILE_BYTES = 50_000;
 
 /**
- * Best-effort client address for limiting anonymous calls. Behind a proxy this
- * is the first X-Forwarded-For entry, which a client can spoof unless the proxy
- * overwrites it; a missing header shares one "unknown" bucket (stricter, not looser).
+ * Client address for limiting anonymous calls, or null when it cannot be known
+ * safely. Forwarding headers are client-controlled unless a proxy we run sets
+ * them, so they are read only when `TRUSTED_PROXY=true`. Then the entry the
+ * proxy appended is used: the Nth from the right, N = `TRUSTED_PROXY_HOPS`
+ * (default 1), never the first (which the client writes). `X-Real-IP` is the
+ * fallback. Untrusted: null, and the caller skips per-address limiting rather
+ * than sharing one bucket that a single client could fill (ADR 0022).
  */
-export function clientKey(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return fwd || req.headers.get("x-real-ip")?.trim() || "unknown";
+export function clientKey(req: Request): string | null {
+  if (process.env.TRUSTED_PROXY !== "true") return null;
+  const hops = Math.max(1, Math.floor(Number(process.env.TRUSTED_PROXY_HOPS)) || 1);
+  const entries = (req.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
+  const fwd = entries.length >= hops ? entries[entries.length - hops] : undefined;
+  return fwd || req.headers.get("x-real-ip")?.trim() || null;
 }
 
 /** 429 response for a refused rate-limit check. */
@@ -72,10 +83,12 @@ export const MAX_JSON_BYTES = 200_000;
 export async function readJson(req: Request, maxBytes = MAX_JSON_BYTES): Promise<unknown | null> {
   const declared = Number(req.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > maxBytes) return null;
-  const text = await req.text().catch(() => "");
-  if (!text || new TextEncoder().encode(text).length > maxBytes) return null;
+  // Count bytes as they arrive so a chunked body with no Content-Length is
+  // never buffered past the cap.
+  const bytes = await readBodyLimited(req, maxBytes).catch(() => null);
+  if (!bytes || bytes.byteLength === 0) return null;
   try {
-    return JSON.parse(text);
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
     return null;
   }

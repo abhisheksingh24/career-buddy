@@ -1,24 +1,25 @@
 # API Overview (MVP)
 
-All routes are Next.js App Router handlers under `src/app/api`. Every handler (except NextAuth's own) calls `guard()` from `src/lib/api-guard.ts` first: 401 without a session, 429 with `Retry-After` when a rate limit is exceeded (ADR 0015). Only the analyze and suggest routes are rate limited (`AI_RATE_LIMIT`, 10 calls a minute per user, in memory per server instance); JSON bodies are read with `readJson()`, which returns 400 for missing, invalid or over-200 kB bodies. Handled errors are `{ error: string }`; the analyze and suggest routes have no try/catch, so an unexpected failure there is an unhandled 500 without that shape.
+All routes are Next.js App Router handlers under `src/app/api`. Every handler (except NextAuth's own) calls `guard()` from `src/lib/api-guard.ts` first: 401 without a session, 429 with `Retry-After` when a rate limit is exceeded (ADR 0015). Rate limits (in memory per server instance, ADR 0015): analyze and suggest 10 a minute per user, upload 10 a minute, profile writes 30 a minute, sign-in POSTs 20 a minute per client address, and the sign-in one applies only when `TRUSTED_PROXY=true` (ADR 0022). JSON bodies are read with `readJson()`, which counts bytes while streaming and returns 400 for missing, invalid or oversized bodies (200 kB; profile 50 kB). Handled errors are `{ error: string }`; the analyze and suggest routes have no try/catch, so an unexpected failure there is an unhandled 500 without that shape.
 
 ## Auth
 
 - GET /api/auth/session: returns current session
 - GET/POST /api/auth/[...nextauth]: NextAuth handlers (Google enabled)
+  - POST only: 20 a minute per client address (429 `{ error }` with `Retry-After`), keyed on the proxy-appended `X-Forwarded-For` entry and only when `TRUSTED_PROXY=true`; otherwise not limited. GET (session reads, OAuth callback) is never limited
 
 ## Profile
 
 - GET /api/profile
   - Session required (401). Returns the user's `Profile` with its `user` record, or 404 `{ error }` if none exists yet
 - PUT /api/profile
-  - Session required (401). JSON validated by `profileSchema` (`src/lib/profile-schema.ts`); creates or updates the profile
+  - Session required (401); 30 writes a minute per user (429 with `Retry-After`); body max 50 kB (400). JSON validated by `profileSchema` (`src/lib/profile-schema.ts`); creates or updates the profile
   - Response: the saved `Profile`; 400 `{ error: <validation issues> }`; 500 `{ error }`
 
 ## Resume
 
 - POST /api/resume/upload
-  - Session required (401); declared request over about 5 MB + 64 kB, or file over 5 MB: 413
+  - Session required (401); 10 uploads a minute per user (429 with `Retry-After`); declared request over about 5 MB + 64 kB, or file over 5 MB: 413
   - multipart/form-data: `file` (.pdf, .docx, .txt, .md). The type is decided from the file's bytes and name, not the client Content-Type: DOCX needs a `.docx` name (a zip without it gives 415); text needs `.txt` or `.md` and no NUL bytes
   - 400 `{ error: "No file" }` when the form or `file` is missing; 415 when the type is unsupported; 422 when the text cannot be extracted (fixed message, never the parser's)
   - Stores a `Resume` in the user's default portfolio (created on first use); PDF and DOCX bytes are kept in the database (ADR 0014)

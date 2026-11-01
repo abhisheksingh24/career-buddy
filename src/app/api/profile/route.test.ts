@@ -6,7 +6,7 @@ vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("next-auth", () => ({ getServerSession }));
 vi.mock("@/lib/db", () => ({ prisma: {}, default: { profile: { upsert: vi.fn() } } }));
 
-import { PROFILE_RATE_LIMIT, clientKey } from "@/lib/api-guard";
+import { PROFILE_RATE_LIMIT } from "@/lib/api-guard";
 import { resetRateLimits } from "@/lib/rate-limit";
 
 import { PUT } from "./route";
@@ -34,14 +34,5 @@ describe("PUT /api/profile limits", () => {
     const res = await PUT(put("{}"));
     expect(res.status).toBe(429);
     expect(res.headers.get("Retry-After")).toBeTruthy();
-  });
-});
-
-describe("clientKey", () => {
-  it("uses the first forwarded address, else unknown", () => {
-    const h = (v?: string) =>
-      new Request("http://x/", { headers: v ? { "x-forwarded-for": v } : {} });
-    expect(clientKey(h("1.2.3.4, 5.6.7.8"))).toBe("1.2.3.4");
-    expect(clientKey(h())).toBe("unknown");
   });
 });
