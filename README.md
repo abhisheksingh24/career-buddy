@@ -204,7 +204,7 @@ If any command fails, install the missing prerequisite using the installation co
    ENABLE_AI_SUGGESTIONS=true
 
    # pgAdmin (optional - defaults provided in docker-compose.yml)
-   PGADMIN_DEFAULT_EMAIL=admin@career-buddy.local
+   PGADMIN_DEFAULT_EMAIL=admin@example.com
    PGADMIN_DEFAULT_PASSWORD=admin
    ```
 
@@ -277,7 +277,7 @@ If you prefer to run steps manually:
 ### Database Management
 
 - **pgAdmin**: http://localhost:8080
-  - Email: `admin@career-buddy.local`
+  - Email: `admin@example.com`
   - Password: `admin`
   - Add server: Host `postgres`, Port `5432`, Database `career_buddy`, User `postgres`, Password `postgres`
 

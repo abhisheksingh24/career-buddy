@@ -125,7 +125,7 @@ Before you begin, ensure you have the following installed on your machine:
 2. **Database Management**
    - Access pgAdmin at [http://localhost:5050](http://localhost:5050)
    - Login credentials:
-     - Email: admin@careerbuddy.local
+     - Email: admin@example.com
      - Password: admin_password
    - To connect to the database:
      - Host: postgres

@@ -1,0 +1,40 @@
+name: ci
+
+# Lint, typecheck, tests and build on every PR and on main (conventions §10).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install
+        timeout-minutes: 10
+        run: npm ci && npx prisma generate
+      - name: Lint
+        timeout-minutes: 5
+        run: npm run lint
+      - name: Typecheck
+        timeout-minutes: 5
+        run: npx tsc --noEmit
+      - name: Test
+        timeout-minutes: 5
+        run: npx vitest run --maxWorkers=2
+      - name: Build
+        timeout-minutes: 10
+        run: npm run build

@@ -51,6 +51,8 @@ erDiagram
 - Auth: NextAuth, Google only, database sessions; each API route checks the session itself (no middleware).
 - Logging: `src/lib/logger.ts`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
+- CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check` and `security`. Dependabot covers npm and Actions with a 7-day cooldown.
+- Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`; database name per instance is still open (#44).
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
 - Node: `^20.19 || ^22.13 || >=24` (`engines`, `.nvmrc`), required by jsdom for tests.
