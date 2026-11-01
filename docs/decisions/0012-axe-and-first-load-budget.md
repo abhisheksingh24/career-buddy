@@ -24,7 +24,7 @@ or `services:`.
 - **Performance:** `scripts/perf-budget.mjs` sums the gzipped JS each
   page loads at start and fails over a per-page budget (values in the profile).
   Prerendered pages are read from the built HTML. Server-rendered pages (the
-  sign-in-guarded `/analyze` routes, #37) have no HTML, so they are read from
+  sign-in-guarded dynamic `/upload` and `/analyze` routes, #37) have no HTML, so they are read from
   Next's `.next/diagnostics/route-bundle-stats.json`, plus the shared scripts
   Next leaves out of that list, so both kinds are measured the same way. A
   missing build file, a route without stats, or a page without a budget fails
