@@ -1,6 +1,6 @@
 # API Overview (MVP)
 
-All routes are Next.js App Router handlers under `src/app/api`. Every handler (except NextAuth's own) calls `guard()` from `src/lib/api-guard.ts` first: 401 without a session, 429 with `Retry-After` when a rate limit is exceeded (ADR 0015). Only the analyze and suggest routes are rate limited (`AI_RATE_LIMIT`, 10 calls a minute per user, in memory per server instance); JSON bodies are read with `readJson()`, which returns 400 for missing, invalid or over-200 kB bodies. Errors are `{ error: string }`.
+All routes are Next.js App Router handlers under `src/app/api`. Every handler (except NextAuth's own) calls `guard()` from `src/lib/api-guard.ts` first: 401 without a session, 429 with `Retry-After` when a rate limit is exceeded (ADR 0015). Only the analyze and suggest routes are rate limited (`AI_RATE_LIMIT`, 10 calls a minute per user, in memory per server instance); JSON bodies are read with `readJson()`, which returns 400 for missing, invalid or over-200 kB bodies. Handled errors are `{ error: string }`; the analyze and suggest routes have no try/catch, so an unexpected failure there is an unhandled 500 without that shape.
 
 ## Auth
 
@@ -19,7 +19,7 @@ All routes are Next.js App Router handlers under `src/app/api`. Every handler (e
 
 - POST /api/resume/upload
   - Session required (401); declared request over about 5 MB + 64 kB, or file over 5 MB: 413
-  - multipart/form-data: `file` (.pdf, .docx, .txt, .md). The type is decided from the file's bytes and name, not the client Content-Type
+  - multipart/form-data: `file` (.pdf, .docx, .txt, .md). The type is decided from the file's bytes and name, not the client Content-Type: DOCX needs a `.docx` name (a zip without it gives 415); text needs `.txt` or `.md` and no NUL bytes
   - 400 `{ error: "No file" }` when the form or `file` is missing; 415 when the type is unsupported; 422 when the text cannot be extracted (fixed message, never the parser's)
   - Stores a `Resume` in the user's default portfolio (created on first use); PDF and DOCX bytes are kept in the database (ADR 0014)
   - Response: `{ id, originalName, mimeType, length }` (`length` is the extracted text length)
@@ -48,7 +48,7 @@ All routes are Next.js App Router handlers under `src/app/api`. Every handler (e
 - POST /api/resume/suggest
   - Session required (401); 10 calls a minute per user (429); body max 200 kB (400)
   - JSON: `{ resumeText: string, jobDescription: string }`
-  - Response: `{ suggestions: string[], skills: string[] }`; when AI is disabled (no OpenAI key or `ENABLE_AI_SUGGESTIONS=false`): `{ suggestions: [], disabled: true }`. `MOCK_AI_SUGGESTIONS=true` returns canned suggestions
+  - Response: `{ suggestions: string[], skills: string[] }`; when AI is disabled (no OpenAI key or `ENABLE_AI_SUGGESTIONS=false`): `{ suggestions: [], disabled: true }`. `MOCK_AI_SUGGESTIONS=true` returns canned suggestions only when `OPENAI_API_KEY` is set and `ENABLE_AI_SUGGESTIONS` is not `false`; the AI-enabled check runs before the mock check, so with no key the response is still `disabled: true`
 
 ## Models
 
