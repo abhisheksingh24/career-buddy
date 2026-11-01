@@ -28,7 +28,7 @@ How to run Career Buddy locally. Every command here comes from `package.json`,
    Set `NEXTAUTH_SECRET` (generate with `openssl rand -base64 32`). `NEXTAUTH_URL`
    is `http://localhost:3000` by default. `GOOGLE_CLIENT_ID` and
    `GOOGLE_CLIENT_SECRET` are needed to sign in (Google is the only provider).
-   `MOCK_AI_SUGGESTIONS=true` (the example default) runs without an OpenAI key.
+   `MOCK_AI_SUGGESTIONS=true` (the example default) makes AI calls return canned data instead of calling OpenAI, but the suggest feature still reports AI as disabled unless `OPENAI_API_KEY` is set to any placeholder value (and `ENABLE_AI_SUGGESTIONS` is not `false`).
 
 3. Start the database and apply migrations:
 

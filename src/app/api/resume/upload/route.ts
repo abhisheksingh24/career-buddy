@@ -4,6 +4,7 @@ import { guard } from "@/lib/api-guard";
 import { prisma } from "@/lib/db";
 import { logError } from "@/lib/logger";
 import { extractText } from "@/lib/parse";
+import { readBodyLimited } from "@/lib/read-limited-body";
 import {
   MAX_REQUEST_BYTES,
   MAX_UPLOAD_BYTES,
@@ -25,9 +26,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: TOO_LARGE_MESSAGE }, { status: 413 });
   }
 
+  // Content-Length can be absent (chunked) or wrong, so count the bytes as they
+  // arrive and stop at the cap instead of buffering the whole body first.
   let formData: FormData;
   try {
-    formData = await request.formData();
+    const body = await readBodyLimited(request, MAX_REQUEST_BYTES);
+    if (!body) return NextResponse.json({ error: TOO_LARGE_MESSAGE }, { status: 413 });
+    formData = await new Response(body, {
+      headers: { "content-type": request.headers.get("content-type") ?? "" },
+    }).formData();
   } catch {
     return NextResponse.json({ error: "No file" }, { status: 400 });
   }
