@@ -20,14 +20,14 @@ flowchart LR
 
 ## Components
 
-| Component               | Purpose                                                                       | Where                                                          |
-| ----------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Pages                   | Dashboard, profile, upload, analyze, interactive analysis                     | `src/app/(app)/*`                                              |
-| API routes              | auth, profile, resume upload/active/file/analyze/suggest, analysis categories | `src/app/api/**`                                               |
-| Parsing + upload checks | text from PDF/DOCX/TXT; size limit (5 MB) and content-based type detection    | `src/lib/parse.ts`, `src/lib/upload-validation.ts`             |
-| Scoring and feedback    | skill matching, semantic matching, comprehensive scoring, category transform  | `src/lib/*.ts`                                                 |
-| AI                      | OpenAI calls with mock fallback                                               | `src/lib/ai*.ts`, `semantic-match.ts`, `feedback-generator.ts` |
-| UI                      | shadcn-style primitives and analysis panels                                   | `src/components/**`                                            |
+| Component               | Purpose                                                                              | Where                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Pages                   | Dashboard, profile, upload, analyze, interactive analysis                            | `src/app/(app)/*`                                                                  |
+| API routes              | auth, profile, resume upload/active/file/analyze/suggest, analysis categories        | `src/app/api/**`                                                                   |
+| Parsing + upload checks | text from PDF/DOCX/TXT; size limit (5 MB, streamed) and content-based type detection | `src/lib/parse.ts`, `src/lib/upload-validation.ts`, `src/lib/read-limited-body.ts` |
+| Scoring and feedback    | skill matching, semantic matching, comprehensive scoring, category transform         | `src/lib/*.ts`                                                                     |
+| AI                      | OpenAI calls with mock fallback                                                      | `src/lib/ai*.ts`, `semantic-match.ts`, `feedback-generator.ts`                     |
+| UI                      | shadcn-style primitives and analysis panels                                          | `src/components/**`                                                                |
 
 Narrative docs: [API](api.md), [project structure](project-structure.md), [development setup](../development.md), [interactive analysis UI plan](../ux/interactive-analysis-plan.md).
 
