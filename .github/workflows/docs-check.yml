@@ -1,0 +1,46 @@
+name: docs-check
+
+# build-easy docs rule: a PR that changes code must also update CHANGELOG.md
+# (or a docs/changelog.d/ fragment) and docs/. The Reviewer checks accuracy; this checks presence.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: docs-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-updated:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Require docs alongside code changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          if echo "$LABELS" | grep -q '"docs:not-needed"'; then
+            echo "Skipped: docs:not-needed label present."; exit 0
+          fi
+          changed=$(git diff --name-only "$BASE_SHA"...HEAD)
+          code=$(echo "$changed" | grep -vE '^(docs/|\.harness/|\.github/|CHANGELOG\.md$|README\.md$|CLAUDE\.md$)' || true)
+          [ -z "$code" ] && { echo "No code changes."; exit 0; }
+          # Dependency-only PRs (Dependabot, dependency tasks) change just manifests and lockfiles.
+          manifests='(^|/)(package\.json|package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml|bun\.lockb?|requirements[^/]*\.txt|poetry\.lock|uv\.lock|Pipfile(\.lock)?|Cargo\.(toml|lock)|go\.(mod|sum)|Gemfile(\.lock)?|composer\.(json|lock)|Podfile\.lock)$'
+          if [ -z "$(echo "$code" | grep -vE "$manifests")" ]; then
+            echo "Dependency manifests and lockfiles only."; exit 0
+          fi
+          fail=0
+          frag=$(echo "$changed" | grep -E '^(CHANGELOG\.md|docs/changelog\.d/[^/]+\.md)$' | grep -vx 'docs/changelog.d/README.md' || true)
+          [ -n "$frag" ] || { echo "::error::Code changed but no changelog fragment was added in docs/changelog.d/ (or CHANGELOG.md updated)."; fail=1; }
+          # A fragment is not architecture or decision docs.
+          echo "$changed" | grep '^docs/' | grep -qv '^docs/changelog\.d/' || { echo "::error::Code changed but nothing under docs/ was updated (architecture or decisions)."; fail=1; }
+          exit $fail
