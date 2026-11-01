@@ -8,7 +8,7 @@ and names the issue.
 
 ## Risk
 
-- **Data held:** Resume files (PDF/DOCX) and extracted resume text, pasted job descriptions, profile details, analysis results, and Google account identity (name, email, avatar). All of it is on the server: PostgreSQL (Docker locally, Supabase intended for production) and files in `./uploads/resumes/` on the app host's disk (ADR 0005). Resume text and job descriptions are also sent to OpenAI when AI is enabled (ADR 0004). Nothing is held on the device beyond the session cookie.
+- **Data held:** Resume files (PDF/DOCX) and extracted resume text, pasted job descriptions, profile details, analysis results, and Google account identity (name, email, avatar). All of it is on the server: PostgreSQL (Docker locally, Supabase intended for production) and uploaded files as `bytea` in the same database (ADR 0014). Resume text and job descriptions are also sent to OpenAI when AI is enabled (ADR 0004). Nothing is held on the device beyond the session cookie.
 - **Accounts:** Google sign-in only, through NextAuth v4 with database sessions (ADR 0003). No passwords are stored by us.
 - **ASVS level:** L2, because there are accounts and personal data (resumes) stored off the device. The product does not yet meet L2: see the open risks in `threat-model.md`.
 - **MASVS:** not applicable, web only. Revisit if a native app is built.
@@ -30,10 +30,10 @@ and names the issue.
 
 ## Project rules
 
-- Resumes are personal data. No resume text, job description or file name is written to logs (all server logging goes through `src/lib/logger.ts`, ADR 0017), and no resume content appears in error responses (the upload route currently echoes a parser message; tracked in #36).
+- Resumes are personal data. No resume text, job description or file name is written to logs (all server logging goes through `src/lib/logger.ts`, ADR 0017), and no resume content appears in error responses (the upload route returns fixed messages).
 - Every route that reads or writes user data checks the session on the server and scopes queries to the signed-in user. Every route calls the shared `guard()` (`src/lib/api-guard.ts`), enforced by a test (ADR 0015).
 - Anything that spends money (OpenAI calls) is authenticated and rate limited per user through `guard()` (ADR 0015). Mock mode (`MOCK_AI_SUGGESTIONS=true`) is used for development and demos.
-- Uploaded files are served only through an owner-checked route, never from a public path (ADR 0005).
+- Uploaded files are served only through an owner-checked route, never from a public path (ADR 0014).
 
 ## Not applicable yet
 

@@ -1,0 +1,1 @@
+Resume uploads are now limited to 5 MB and to PDF, DOCX or plain text (checked by content, not just the declared type). Files are stored in the database instead of on local disk, so uploads work on serverless hosting and stay separate per instance. Unreadable files get a fixed, friendly message instead of the parser's error.
