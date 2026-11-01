@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { logError } from "@/lib/logger";
 import { extractText } from "@/lib/parse";
 import {
   MAX_REQUEST_BYTES,
@@ -51,7 +52,8 @@ export async function POST(request: Request): Promise<NextResponse> {
   let text: string;
   try {
     text = await extractText(buffer, kind);
-  } catch {
+  } catch (error) {
+    logError("Resume text extraction failed", error, { kind });
     // Parser messages can echo file content; return a fixed message instead.
     return NextResponse.json({ error: UNREADABLE_MESSAGE }, { status: 422 });
   }
