@@ -1,0 +1,63 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>#48 Build my base resume (mockup, fake data)</title><style>
+:root{--bg:#faf9f7;--card:#fff;--ink:#1f2a2c;--mute:#5d6b6e;--line:#e4e1db;--teal:#0f766e;--teal-bg:#e3f2f0;--amber:#8a5a00;--amber-bg:#fdf1d8;--rust:#9a3b2a;--rust-bg:#f9e6e1;--r:12px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+.bar{background:#eceae4;padding:8px 12px;font-size:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line)}
+.bar b{margin-right:4px}.bar button{min-height:44px;padding:0 12px;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;cursor:pointer}
+.bar button[aria-pressed=true]{background:var(--teal);color:#fff;border-color:var(--teal)}
+main{max-width:720px;margin:0 auto;padding:20px 16px 96px}h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:20px 0 8px}
+.mute{color:var(--mute);font-size:15px;margin:0 0 12px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:0 0 12px}
+.btn{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;cursor:pointer}.btn.p{background:var(--teal);border-color:var(--teal);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap}.chip{display:inline-block;border-radius:99px;padding:2px 10px;font-size:14px}
+.ok{background:var(--teal-bg);color:var(--teal)}.warn{background:var(--amber-bg);color:var(--amber)}.bad{background:var(--rust-bg);color:var(--rust)}
+textarea{width:100%;min-height:200px;border:1px solid var(--line);border-radius:var(--r);padding:12px;font:inherit}select{min-height:44px;font:inherit;border-radius:8px;border:1px solid var(--line);padding:0 8px;max-width:100%}
+.prog{height:6px;background:var(--line);border-radius:9px;margin:6px 0 16px}.prog i{display:block;height:100%;background:var(--teal);border-radius:9px}
+.stick{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px 16px}.stick div{max-width:720px;margin:0 auto;display:flex;gap:8px;justify-content:space-between}
+.score{font-size:64px;font-weight:700;line-height:1}.hide{display:none}del{background:var(--rust-bg)}ins{background:var(--teal-bg);text-decoration:none}
+a.lnk{color:var(--teal)}
+</style></head><body>
+<div class="bar"><b>Show:</b>
+<button data-b="s" data-t="s1" aria-pressed="true" onclick="show('s','s1')">1 Notes</button>
+<button data-b="s" data-t="s1w" aria-pressed="false" onclick="show('s','s1w')">Working</button>
+<button data-b="s" data-t="s1e" aria-pressed="false" onclick="show('s','s1e')">Failed</button>
+<button data-b="s" data-t="s2" aria-pressed="false" onclick="show('s','s2')">2 Placement</button>
+<button data-b="s" data-t="s3" aria-pressed="false" onclick="show('s','s3')">3 Check</button>
+<button data-b="s" data-t="done" aria-pressed="false" onclick="show('s','done')">Result</button>
+<button data-b="s" data-t="empty" aria-pressed="false" onclick="show('s','empty')">No resume yet</button></div>
+<main>
+<section id="empty" data-g="s" class="hide"><h1>Your resume</h1><p class="mute">You don't have a base resume yet.</p>
+<div class="card"><button class="btn p" onclick="show('s','s1')">Write your notes</button> <button class="btn">Upload a resume instead</button></div></section>
+
+<section id="s1" data-g="s"><p class="mute">Step 1 of 3</p><div class="prog"><i style="width:33%"></i></div>
+<h1>Tell us about your work</h1><p class="mute">Rough notes are fine. We'll organise them.</p>
+<textarea aria-label="Your notes">Acme Corp, backend dev, 2021 to now. Built billing API, cut errors a lot. Python, Postgres, AWS. Side project: recipe app in React. BSc CS, Leeds, 2020.</textarea>
+<p class="mute">Jobs, projects, skills, education. Paste or type.</p>
+<div class="stick"><div><button class="btn">Upload a resume instead</button><button class="btn p" onclick="show('s','s1w');setTimeout(()=>show('s','s2'),1200)">Continue</button></div></div></section>
+
+<section id="s1w" data-g="s" class="hide"><p class="mute">Step 1 of 3</p><div class="prog"><i style="width:33%"></i></div>
+<h1>Organising your notes</h1><p class="mute" role="status">This can take a moment. Your notes are saved.</p><div class="card">Reading jobs... <span class="chip ok">done</span><br>Reading skills... <span class="chip warn">working</span></div><button class="btn">Cancel</button></section>
+
+<section id="s1e" data-g="s" class="hide"><p class="mute">Step 1 of 3</p><h1>Tell us about your work</h1>
+<div class="card" role="alert"><b>Couldn't organise your notes.</b><br>Check your connection and try again. Your notes are still here.<div class="row" style="margin-top:8px"><button class="btn p">Try again</button></div></div>
+<textarea aria-label="Your notes">Acme Corp, backend dev, 2021 to now...</textarea></section>
+
+<section id="s2" data-g="s" class="hide"><p class="mute">Step 2 of 3</p><div class="prog"><i style="width:66%"></i></div>
+<h1>Does this look right?</h1><p class="mute">Change a section only if we got it wrong.</p>
+<div class="card"><b>Built billing API, cut errors a lot</b><div class="row" style="margin-top:8px;align-items:center"><label>Goes in <select><option>Experience: Acme Corp</option><option>Projects</option><option>Skills</option></select></label><span class="chip ok">Matched</span></div></div>
+<div class="card"><b>Recipe app in React</b><div class="row" style="margin-top:8px"><label>Goes in <select><option>Projects</option><option>Experience</option></select></label></div></div>
+<div class="card"><b>Python, Postgres, AWS</b><div class="row" style="margin-top:8px"><label>Goes in <select><option>Skills</option></select></label><span class="chip ok">Matched</span></div></div>
+<div class="card"><b>"cut errors a lot"</b><div style="margin-top:8px"><span class="chip warn">Missing a number</span> <p class="mute">By how much? Leave blank to skip.</p><label>Errors cut by <input style="min-height:44px;width:90px;font:inherit" placeholder="e.g. 40%"></label></div></div>
+<div class="stick"><div><button class="btn" onclick="show('s','s1')">Back</button><button class="btn p" onclick="show('s','s3')">Looks right</button></div></div></section>
+
+<section id="s3" data-g="s" class="hide"><p class="mute">Step 3 of 3</p><div class="prog"><i style="width:100%"></i></div>
+<h1>Check your resume</h1><p class="mute">Filled in for you from your notes.</p>
+<div class="card"><b>Acme Corp</b> <span class="mute">Backend developer, 2021 to now</span><ul><li>Built a billing API and cut errors by 40%</li></ul></div>
+<div class="card"><b>Recipe app</b><ul><li>Built with React</li></ul></div>
+<div class="card"><b>Skills</b> Python, Postgres, AWS</div>
+<div class="card"><b>Leeds</b> BSc Computer Science, 2020</div>
+<div class="stick"><div><button class="btn" onclick="show('s','s2')">Back</button><button class="btn p" onclick="show('s','done')">Save my resume</button></div></div></section>
+
+<section id="done" data-g="s" class="hide"><h1>Your resume</h1><p class="mute">Saved. Last changed today.</p>
+<div class="card"><b>Acme Corp</b><ul><li>Built a billing API and cut errors by 40%</li></ul><b>Skills</b> Python, Postgres, AWS</div>
+<div class="row"><button class="btn p">Add more notes</button><button class="btn">See score</button><button class="btn">Delete resume</button></div>
+<p class="mute">Adding notes later: new items show as <ins>added</ins> next to what's already there. Nothing is replaced until you confirm.</p></section>
+</main><script>function show(g,id){document.querySelectorAll("[data-g=\""+g+"\"]").forEach(e=>e.classList.toggle("hide",e.id!==id));document.querySelectorAll("[data-b=\""+g+"\"]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===id))}</script></body></html>
