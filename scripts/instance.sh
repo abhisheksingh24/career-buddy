@@ -7,9 +7,13 @@
 #   database  career_buddy_<INSTANCE_ID> on the local Postgres (docker-compose),
 #             created by `prisma migrate deploy` if missing, then migrated.
 #   uploads   ./uploads/<INSTANCE_ID>/ (via UPLOADS_DIR).
-# Tear down: DROP DATABASE "career_buddy_<id>" and rm -rf uploads/<id>
+# Tear down: psql -c 'DROP DATABASE "career_buddy_<id>"'  and rm -rf uploads/<id>
 # (see docs/architecture/README.md).
 set -euo pipefail
+if [ "${NODE_ENV:-}" = "production" ]; then
+  echo "instance.sh sets a fixed, public dev NEXTAUTH_SECRET and must not run with NODE_ENV=production." >&2
+  exit 1
+fi
 : "${PORT:?PORT must be set}"
 cd "$(dirname "$0")/.."
 export NEXTAUTH_URL="http://localhost:${PORT}"
@@ -18,7 +22,7 @@ export MOCK_AI_SUGGESTIONS="${MOCK_AI_SUGGESTIONS:-true}"
 
 # Lowercase, [a-z0-9_] only, so the id is safe as a database name and path.
 raw_id="${INSTANCE_ID:-port-${PORT}}"
-id="$(printf '%s' "$raw_id" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '_' | cut -c1-40)"
+id="$(printf '%s' "$raw_id" | tr -d '\n\r' | tr 'A-Z' 'a-z' | tr -c 'a-z0-9' '_' | cut -c1-40)"
 [ -n "$id" ] || { echo "INSTANCE_ID has no usable characters" >&2; exit 1; }
 
 # Base connection: the environment, else .env, else the .env.example default.
@@ -29,15 +33,10 @@ fi
 base_url="${base_url:-postgresql://postgres:postgres@localhost:5432/career_buddy}"
 
 # Only ever create databases on the local dev server, never a shared/remote one.
-case "$base_url" in
-  postgresql://*@localhost[:/]* | postgresql://*@127.0.0.1[:/]* | postgres://*@localhost[:/]* | postgres://*@127.0.0.1[:/]*) ;;
-  *) echo "Refusing to create an instance database on a non-local DATABASE_URL" >&2; exit 1 ;;
-esac
-
-# Swap the database name (the path segment after host:port), keep any query.
-query=""
-case "$base_url" in *\?*) query="?${base_url#*\?}"; base_url="${base_url%%\?*}" ;; esac
-export DATABASE_URL="${base_url%/*}/career_buddy_${id}${query}"
+# shellcheck source=scripts/instance-db.sh
+. "$PWD/scripts/instance-db.sh"
+DATABASE_URL="$(instance_db_url "$base_url" "$id")" || exit 1
+export DATABASE_URL
 export UPLOADS_DIR="${UPLOADS_DIR:-$PWD/uploads/${id}}"
 
 echo "instance ${id}: database career_buddy_${id}, uploads ${UPLOADS_DIR}" >&2
