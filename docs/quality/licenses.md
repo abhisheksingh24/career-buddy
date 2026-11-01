@@ -59,3 +59,9 @@ the intent chosen then; until then all rights stay with the owner.
 Not yet distributed. Before the public release, ship third-party notices
 (generated from the licence scan) and the `caniuse-lite` attribution on an
 about or licences page.
+
+## Licence of this project
+
+Decision (owner, issue #89): all rights reserved. The root `LICENSE` file says
+so and `package.json` has `"license": "UNLICENSED"` with `"private": true`.
+Revisit before any open-source release.
