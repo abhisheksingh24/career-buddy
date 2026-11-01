@@ -1,7 +1,7 @@
 # 0005. Store uploaded resume files on the local filesystem
 
 - **Date:** 2026-11-01
-- **Status:** Adopted (superseded for new uploads by ADR 0012)
+- **Status:** Adopted (superseded for new uploads by ADR 0014)
 - **Issue / PR:** n/a (recorded at onboarding)
 
 ## Context
