@@ -7,7 +7,7 @@ import {
   type CategoryId,
 } from "@/components/category-navigation";
 import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-layout";
-import { RateLimitAlert } from "@/components/rate-limit-alert";
+import { RateLimitNotice } from "@/components/rate-limit-alert";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -448,26 +448,26 @@ export default function InteractiveAnalyzePage() {
                 </Alert>
               )}
 
-              {remaining > 0 && <RateLimitAlert />}
-
-              {/* Start Analysis Button */}
-              <Button
-                onClick={handleStartAnalysis}
-                disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
-                className="w-full"
-                size="lg"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Analyzing...
-                  </>
-                ) : remaining > 0 ? (
-                  `Try again in ${remaining}s`
-                ) : (
-                  "Start Analysis"
-                )}
-              </Button>
+              <RateLimitNotice active={remaining > 0}>
+                {/* Start Analysis Button */}
+                <Button
+                  onClick={handleStartAnalysis}
+                  disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Analyzing...
+                    </>
+                  ) : remaining > 0 ? (
+                    `Try again in ${remaining}s`
+                  ) : (
+                    "Start Analysis"
+                  )}
+                </Button>
+              </RateLimitNotice>
             </div>
           )}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-analysis-results";
-import { RateLimitAlert } from "@/components/rate-limit-alert";
+import { RateLimitNotice } from "@/components/rate-limit-alert";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -199,20 +199,20 @@ export default function AnalyzePage() {
             </CardContent>
           </Card>
 
-          {remaining > 0 && <RateLimitAlert />}
-
-          <Button
-            onClick={run}
-            disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading
-              ? "Analyzing..."
-              : remaining > 0
-                ? `Try again in ${remaining}s`
-                : "Analyze Resume"}
-          </Button>
+          <RateLimitNotice active={remaining > 0}>
+            <Button
+              onClick={run}
+              disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
+              className="w-full"
+              size="lg"
+            >
+              {isLoading
+                ? "Analyzing..."
+                : remaining > 0
+                  ? `Try again in ${remaining}s`
+                  : "Analyze Resume"}
+            </Button>
+          </RateLimitNotice>
         </div>
 
         {/* Results Section */}

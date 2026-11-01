@@ -24,7 +24,7 @@ describe("retry wait", () => {
 });
 
 describe("revealAlert", () => {
-  it("scrolls the alert into view with the nearest block", () => {
+  it("scrolls the alert-and-button wrapper into view with the nearest block", () => {
     const scrollIntoView = vi.fn();
     revealAlert({ scrollIntoView }, false);
     expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest", behavior: "smooth" });
