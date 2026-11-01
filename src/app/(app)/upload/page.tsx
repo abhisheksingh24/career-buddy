@@ -10,7 +10,6 @@ import { AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function UploadPage() {
-  const [fileName, setFileName] = useState<string>("");
   const [outcome, setOutcome] = useState<UploadOutcome | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,18 +29,11 @@ export default function UploadPage() {
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-semibold">Upload Resume</h1>
       <form action={onSubmit} className="space-y-3">
-        <input
-          name="file"
-          type="file"
-          className="mt-2"
-          accept=".pdf,.docx,.txt"
-          onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
-        />
+        <input name="file" type="file" className="mt-2" accept=".pdf,.docx,.txt" />
         <button disabled={loading} className="px-4 py-2 bg-black text-white rounded">
           {loading ? "Uploading..." : "Upload"}
         </button>
       </form>
-      {fileName && <p className="text-sm">Selected: {fileName}</p>}
       {outcome && !outcome.ok && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
