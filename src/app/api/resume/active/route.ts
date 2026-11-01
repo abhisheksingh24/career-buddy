@@ -1,5 +1,6 @@
 import { guard } from "@/lib/api-guard";
 import { prisma } from "@/lib/db";
+import { logError } from "@/lib/logger";
 import { NextResponse } from "next/server";
 
 export async function GET(): Promise<NextResponse> {
@@ -35,7 +36,7 @@ export async function GET(): Promise<NextResponse> {
       createdAt: resume.createdAt,
     });
   } catch (error) {
-    console.error("Failed to fetch active resume:", error);
+    logError("Failed to fetch active resume", error);
     return NextResponse.json({ error: "Failed to fetch resume" }, { status: 500 });
   }
 }

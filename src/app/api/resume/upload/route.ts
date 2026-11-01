@@ -1,3 +1,4 @@
+import { logError } from "@/lib/logger";
 import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 import { guard } from "@/lib/api-guard";
@@ -57,7 +58,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       filePath = `resumes/${fileName}`;
     }
   } catch (error) {
-    console.error("Failed to save file:", error);
+    logError("Failed to save file", error);
     // Continue without file storage - text extraction still works
   }
 

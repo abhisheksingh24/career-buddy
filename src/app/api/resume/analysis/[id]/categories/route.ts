@@ -1,6 +1,7 @@
 import { guard } from "@/lib/api-guard";
 import { transformToCategoryAnalysis } from "@/lib/category-transformer";
 import { prisma } from "@/lib/db";
+import { logError } from "@/lib/logger";
 import type {
   CategoryAnalysisResponse,
   ComprehensiveFeedback,
@@ -115,7 +116,7 @@ export async function GET(
 
     return NextResponse.json(categories);
   } catch (error) {
-    console.error("Error fetching category analysis:", error);
+    logError("Error fetching category analysis", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
