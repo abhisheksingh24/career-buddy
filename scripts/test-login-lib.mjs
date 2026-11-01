@@ -8,7 +8,18 @@ export const SESSION_COOKIE = "next-auth.session-token";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
-function localUrl(raw, label) {
+// Query parameters a local DATABASE_URL may carry. Anything else is refused:
+// Prisma lets ?host= / ?hostaddr= override the URL authority, which would
+// defeat the host check below.
+const DB_PARAMS = new Set([
+  "schema",
+  "connection_limit",
+  "connect_timeout",
+  "sslmode",
+  "pgbouncer",
+]);
+
+function localUrl(raw, label, { allowedParams, pathless }) {
   let u;
   try {
     u = new URL(raw);
@@ -16,6 +27,20 @@ function localUrl(raw, label) {
     return `${label} is missing or not a valid URL`;
   }
   if (!LOCAL_HOSTS.has(u.hostname)) return `${label} is not local (${u.hostname})`;
+  if (u.hash) return `${label} has an unexpected fragment`;
+  const seen = new Set();
+  for (const key of u.searchParams.keys()) {
+    // searchParams decodes %-escapes, so encoded variants are compared decoded.
+    if (!allowedParams.has(key))
+      return `${label} has an unexpected parameter (${key.toLowerCase()})`;
+    if (seen.has(key)) return `${label} repeats a parameter (${key})`;
+    seen.add(key);
+  }
+  if (pathless) {
+    if (u.protocol !== "http:") return `${label} must use http`;
+    if (u.username || u.password) return `${label} must not carry credentials`;
+    if (u.pathname !== "/") return `${label} must not have a path`;
+  }
   return null;
 }
 
@@ -29,12 +54,15 @@ export function testLoginRefusals(env) {
   if (env.TEST_LOGIN !== "true") reasons.push("TEST_LOGIN is not set to true");
   if (env.NODE_ENV === "production") reasons.push("NODE_ENV is production");
   if (env.VERCEL || env.VERCEL_ENV === "production") reasons.push("running on a hosting platform");
-  const db = localUrl(env.DATABASE_URL ?? "", "DATABASE_URL");
+  const db = localUrl(env.DATABASE_URL ?? "", "DATABASE_URL", { allowedParams: DB_PARAMS });
   if (db) reasons.push(db);
   else if (!new URL(env.DATABASE_URL).pathname.startsWith("/career_buddy")) {
     reasons.push("database name does not start with career_buddy");
   }
-  const auth = localUrl(env.NEXTAUTH_URL ?? "", "NEXTAUTH_URL");
+  const auth = localUrl(env.NEXTAUTH_URL ?? "", "NEXTAUTH_URL", {
+    allowedParams: new Set(),
+    pathless: true,
+  });
   if (auth) reasons.push(auth);
   return reasons;
 }
