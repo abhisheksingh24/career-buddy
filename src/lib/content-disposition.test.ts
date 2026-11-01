@@ -35,6 +35,12 @@ describe("contentDisposition", () => {
     expect(contentDisposition("a\udc00")).toContain("%EF%BF%BD");
   });
 
+  it("does not leave trailing spaces after truncation", () => {
+    expect(contentDisposition("a".repeat(149) + "   b.pdf")).toContain(
+      `filename="${"a".repeat(149)}"`,
+    );
+  });
+
   it("truncates long names to 150 code points without splitting pairs", () => {
     expect(contentDisposition("😀".repeat(200))).toBe(
       `inline; filename="${"_".repeat(150)}"; filename*=UTF-8''${"%F0%9F%98%80".repeat(150)}`,
