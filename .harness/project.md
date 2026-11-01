@@ -36,7 +36,7 @@
 
 **Run (mobile):** not applicable (web only).
 
-**Test:** `npx vitest run --maxWorkers=2`. Green. `jsdom` (the configured test environment) is a devDependency. Only one test file exists (`src/lib/match.test.ts`).
+**Test:** `npx vitest run --maxWorkers=2`. Green. `jsdom` (the configured test environment) is a devDependency. Only one test file exists (`src/lib/match.test.ts`). Accessibility and performance budget (after `npm run build`; first time `npx playwright install chromium`): `npm run perf:budget && npm run test:a11y` (no database needed; port `A11Y_PORT`, default 3917).
 
 **Lint:** `npm run lint` (`eslint .`; passes with warnings). Typecheck: `npx tsc --noEmit` (clean). Format: `npm run format`.
 
