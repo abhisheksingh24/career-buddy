@@ -1,0 +1,1 @@
+The resume file response no longer sends `Access-Control-Allow-Origin: *`, and the file name in its `Content-Disposition` header is now sanitised (no quotes or line breaks; non-ASCII names use `filename*`).
