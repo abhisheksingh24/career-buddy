@@ -42,9 +42,9 @@
 
 **Build:** `npm run build` (green).
 
-**Instance:** `PORT=$PORT npx next dev -p $PORT` (unverified; needs per-instance Postgres, e.g. `DATABASE_URL` pointing at a database named for `$INSTANCE_ID`, and `NEXTAUTH_URL=http://localhost:$PORT`). Ready path: `/api/auth/providers` (unverified). Resume files are written to `./uploads/`, which is not per-instance.
+**Instance:** `PORT=$PORT INSTANCE_ID=$INSTANCE_ID scripts/instance.sh` (verified: starts `next dev` on `$PORT`, sets `NEXTAUTH_URL`, mock AI on). Ready path: `/api/auth/providers` (verified, 200). Not fully isolated yet: the database is whatever `DATABASE_URL` says (per-instance DB is issue #44), and resume files go to `./uploads/` in the checkout, so separate worktrees are separate.
 
-**CI:** `layered` (no existing workflows; harness workflows added alongside).
+**CI:** `layered` (no existing workflows; harness workflows added alongside). `.github/workflows/ci.yml` runs install, lint, typecheck, test and build on PRs and main.
 
 **Demo:** start the instance with `MOCK_AI_SUGGESTIONS=true`; sign-in is Google OAuth only (no credentials provider), so the demo agent needs a seeded session row in the database or test credentials (unverified). Screens: `/`, `/dashboard`, `/profile`, `/upload`, `/analyze`, `/analyze/interactive`.
 
