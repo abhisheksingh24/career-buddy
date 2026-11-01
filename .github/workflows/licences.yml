@@ -1,0 +1,36 @@
+name: licences
+
+# Licence scan (quality bar): production dependency licences must be on the
+# permissive allowlist in .github/licence-policy.json, or a recorded exception.
+# A new copyleft or unknown licence fails the build (scripts/licenses.mjs,
+# ADR 0013). Secret scan and SAST live in security.yml.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: licences-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  licence-scan:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install (scripts disabled)
+        timeout-minutes: 5
+        run: npm ci --ignore-scripts
+      - name: Licence scan (production dependencies)
+        timeout-minutes: 5
+        run: node scripts/licenses.mjs

@@ -1,0 +1,1 @@
+CI now scans production dependency licences against a permissive allowlist (`licences.yml`, `.github/licence-policy.json`) and fails on a new copyleft or unknown licence. Secret scanning and static analysis already ran in `security.yml`.
