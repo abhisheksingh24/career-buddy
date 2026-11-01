@@ -1,5 +1,5 @@
 // Pure logic for scripts/licenses.mjs (importable, no side effects). Tested in
-// src/lib/licenses.test.ts. See docs/decisions/0012-licence-scan-in-ci.md.
+// src/lib/licenses.test.ts. See docs/decisions/0013-licence-scan-in-ci.md.
 
 /** "@scope/name@1.2.3" -> "@scope/name" (the version separator is the last "@"). */
 export function packageName(key) {

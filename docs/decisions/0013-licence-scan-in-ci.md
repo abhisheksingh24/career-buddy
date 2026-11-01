@@ -1,4 +1,4 @@
-# 0012. Licence scan in CI
+# 0013. Licence scan in CI
 
 Status: Accepted
 Date: 2026-11-01

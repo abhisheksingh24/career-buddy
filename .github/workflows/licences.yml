@@ -3,7 +3,7 @@ name: licences
 # Licence scan (quality bar): production dependency licences must be on the
 # permissive allowlist in .github/licence-policy.json, or a recorded exception.
 # A new copyleft or unknown licence fails the build (scripts/licenses.mjs,
-# ADR 0012). Secret scan and SAST live in security.yml.
+# ADR 0013). Secret scan and SAST live in security.yml.
 on:
   pull_request:
   push:

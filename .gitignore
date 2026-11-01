@@ -62,3 +62,7 @@ next-env.d.ts
 .harness/demos/
 .harness/ux/
 .claude/worktrees/
+
+# playwright
+/test-results/
+/playwright-report/

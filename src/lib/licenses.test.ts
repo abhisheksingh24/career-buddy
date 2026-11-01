@@ -12,7 +12,7 @@ const policy = {
   allowed: [...allowed],
   exceptions: [
     { package: "@img/sharp-libvips-*", licenses: "LGPL-3.0-or-later", reason: "r", adr: "0009" },
-    { package: "duck", licenses: "BSD*", reason: "r", adr: "0012" },
+    { package: "duck", licenses: "BSD*", reason: "r", adr: "0013" },
   ],
 };
 const rep = (o: Record<string, string | string[]>) =>

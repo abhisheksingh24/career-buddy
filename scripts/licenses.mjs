@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { evaluate } from "./licenses-lib.mjs";
 
 // The checker is an exact-pinned devDependency (lockfile integrity hashes,
-// Dependabot with cooldown; ADR 0012). Run the local binary, never the registry.
+// Dependabot with cooldown; ADR 0013). Run the local binary, never the registry.
 const CHECKER = fileURLToPath(
   new URL("../node_modules/.bin/license-checker-rseidelsohn", import.meta.url),
 );
