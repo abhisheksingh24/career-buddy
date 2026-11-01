@@ -30,7 +30,7 @@ flowchart LR
 | AI                   | OpenAI calls with mock fallback                                               | `src/lib/ai*.ts`, `semantic-match.ts`, `feedback-generator.ts` |
 | UI                   | shadcn-style primitives and analysis panels                                   | `src/components/**`                                            |
 
-Existing narrative docs: `docs/API.md`, `docs/PROJECT_STRUCTURE.md`, `docs/ONBOARDING.md`, `docs/INTERACTIVE_RESUME_ANALYSIS_PLAN.md`.
+Narrative docs: [API](api.md), [project structure](project-structure.md), [development setup](../development.md), [interactive analysis UI plan](../ux/interactive-analysis-plan.md).
 
 ## Data model
 
