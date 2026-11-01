@@ -1445,3 +1445,11 @@ Based on market research, successful resume analysis tools include:
 This interactive resume analysis UI will transform Career Buddy from a simple analysis tool into a comprehensive resume improvement platform. The 3-panel design provides clear navigation, detailed feedback, and visual reference, making it easy for users to systematically improve their resumes.
 
 The step-by-step workflow ensures users don't feel overwhelmed and can focus on one improvement area at a time, while real-time score updates provide immediate feedback on their progress.
+
+## Phone layout (#152)
+
+Below 768px the panels stack inside one scrolling column: the categories list
+is capped at 40% of the viewport height and scrolls on its own, the details
+region keeps its natural height (it must never be a shrinkable flex child), and
+choosing a category scrolls the details into view (`scrollToCategoryDetails`).
+The laptop and tablet layouts are unchanged.

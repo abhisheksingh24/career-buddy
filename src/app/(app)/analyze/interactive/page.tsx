@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
+import { scrollToCategoryDetails } from "@/lib/scroll-to-details";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
 import {
   TrendingUp,
@@ -197,6 +198,8 @@ export default function InteractiveAnalyzePage() {
 
   const handleCategorySelect = (categoryId: CategoryId) => {
     setSelectedCategoryId(categoryId);
+    // On the stacked phone layout, bring the details on screen (#152).
+    requestAnimationFrame(() => scrollToCategoryDetails());
     // No loading state needed for category selection - data is already loaded
   };
 

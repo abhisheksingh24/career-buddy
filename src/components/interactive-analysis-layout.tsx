@@ -86,6 +86,7 @@ export function InteractiveAnalysisLayout({
         <section
           aria-label="Category details"
           tabIndex={0}
+          data-category-details
           className="flex-[1.5] overflow-y-auto bg-white min-w-0"
           style={{ minWidth: "300px" }}
         >
@@ -129,6 +130,7 @@ export function InteractiveAnalysisLayout({
         <section
           aria-label="Category details"
           tabIndex={0}
+          data-category-details
           className="flex-[1.5] overflow-y-auto bg-white min-w-0"
           style={{ minWidth: "300px" }}
         >
@@ -181,6 +183,7 @@ export function InteractiveAnalysisLayout({
           <section
             aria-label="Category details"
             tabIndex={0}
+            data-category-details
             className="flex-[1.5] overflow-y-auto bg-white min-w-0"
             style={{ minWidth: "250px" }}
           >
@@ -208,16 +211,17 @@ export function InteractiveAnalysisLayout({
         </div>
       </div>
 
-      {/* Mobile: Stacked Layout (< 768px) */}
-      <div className="flex md:hidden flex-col flex-1 overflow-hidden">
+      {/* Mobile: Stacked Layout (< 768px). The whole stack scrolls; the
+          categories list is capped so the details are never squeezed out (#152). */}
+      <div className="flex md:hidden flex-col flex-1 overflow-y-auto">
         {/* Category Navigation - Mobile */}
         <div
           role="region"
           aria-label="Analysis categories"
           tabIndex={0}
-          className="border-b bg-gray-50 overflow-x-auto flex-shrink-0"
+          className="border-b bg-gray-50 overflow-y-auto max-h-[40vh] flex-shrink-0"
         >
-          <div className="p-4 min-w-max">{children.leftPanel}</div>
+          <div className="p-4">{children.leftPanel}</div>
         </div>
 
         {/* Center Panel - Mobile */}
@@ -225,7 +229,8 @@ export function InteractiveAnalysisLayout({
           role="region"
           aria-label="Category details"
           tabIndex={0}
-          className="flex-1 overflow-y-auto bg-white min-w-0"
+          data-category-details
+          className="bg-white min-w-0 flex-shrink-0 scroll-mt-2"
         >
           <div className="p-4">{children.centerPanel}</div>
         </div>
