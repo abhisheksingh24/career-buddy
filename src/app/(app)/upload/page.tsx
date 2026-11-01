@@ -55,7 +55,7 @@ export default function UploadPage() {
           </Button>
         </div>
       </form>
-      {fileName && <p className="text-sm">Selected: {fileName}</p>}
+      {fileName && <p className="text-sm" aria-live="polite">Selected: {fileName}</p>}
       {outcome && !outcome.ok && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />

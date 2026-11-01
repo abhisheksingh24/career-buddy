@@ -73,8 +73,6 @@ export default function ProfilePage() {
       if (res.ok) {
         const data = await res.json();
         setResume(data);
-      } else if (res.status === 404) {
-        setResume(null);
       }
     } catch (err) {
       console.error("Failed to fetch resume:", err);
