@@ -5,6 +5,10 @@
 # The database name is not yet per-instance (issue #44); until then
 # DATABASE_URL from .env (or the environment) is used as is.
 set -euo pipefail
+if [ "${NODE_ENV:-}" = "production" ]; then
+  echo "instance.sh sets a fixed, public dev NEXTAUTH_SECRET and must not run with NODE_ENV=production." >&2
+  exit 1
+fi
 : "${PORT:?PORT must be set}"
 cd "$(dirname "$0")/.."
 export NEXTAUTH_URL="http://localhost:${PORT}"

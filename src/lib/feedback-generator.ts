@@ -6,6 +6,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { completionParams } from "./openai-params";
 import type { ComprehensiveFeedback, SkillMatchResult, JobRequirements } from "./types/analysis";
 
 // Category name mapping: full names -> short names
@@ -391,8 +392,7 @@ Provide comprehensive feedback in JSON format.`;
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0.3,
-      max_tokens: 4000, // Significantly increased to ensure action items are included
+      ...completionParams(model, { maxTokens: 4000, temperature: 0.3 }),
       response_format: { type: "json_object" },
     });
 

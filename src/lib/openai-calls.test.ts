@@ -15,6 +15,7 @@ vi.mock("openai", () => ({
 import { getSuggestions } from "./ai";
 import { detectDomain, extractJobRequirements, extractSkillsFromText } from "./ai-extraction";
 import { scoreExperienceRelevance } from "./comprehensive-scoring";
+import { isReasoningModel } from "./openai-params";
 import { getBatchEmbeddings, getEmbedding } from "./semantic-match";
 
 const reply = (content: string) => ({ choices: [{ message: { content } }] });
@@ -138,4 +139,46 @@ describe("embeddings", () => {
     embedCreate.mockRejectedValue(new Error("fail"));
     await expect(getEmbedding("a")).rejects.toThrow("fail");
   });
+});
+
+describe("isReasoningModel", () => {
+  it.each(["o3-mini", "gpt-5", "o1"])("treats %s as a reasoning model", (m) => {
+    expect(isReasoningModel(m)).toBe(true);
+  });
+  it.each([
+    "gpt-4o",
+    "gpt-4o-mini",
+    "omni-moderation-latest",
+    "ft:gpt-4o",
+    "text-embedding-3-small",
+  ])("does not treat %s as a reasoning model", (m) => {
+    expect(isReasoningModel(m)).toBe(false);
+  });
+});
+
+describe("token parameters per model", () => {
+  const params = { resumeText: "r", jobDescription: "j" };
+
+  it("uses max_tokens and temperature for default models", async () => {
+    vi.stubEnv("OPENAI_MODEL", "gpt-4o-mini");
+    chatCreate.mockResolvedValue(reply(JSON.stringify({ bullets: [] })));
+    await getSuggestions(params);
+    const body = chatCreate.mock.calls[0][0];
+    expect(body.max_tokens).toBe(400);
+    expect(body.temperature).toBe(0.3);
+    expect(body).not.toHaveProperty("max_completion_tokens");
+  });
+
+  it.each(["gpt-5", "gpt-5-mini", "o3-mini", "o1"])(
+    "uses max_completion_tokens and no temperature for %s",
+    async (model) => {
+      vi.stubEnv("OPENAI_MODEL", model);
+      chatCreate.mockResolvedValue(reply(" Data Science "));
+      await detectDomain("jd");
+      const body = chatCreate.mock.calls[0][0];
+      expect(body.max_completion_tokens).toBeGreaterThan(20);
+      expect(body).not.toHaveProperty("max_tokens");
+      expect(body).not.toHaveProperty("temperature");
+    },
+  );
 });

@@ -52,7 +52,7 @@ erDiagram
 - Logging: `src/lib/logger.ts`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
 - CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check` and `security`. Dependabot covers npm and Actions with a 7-day cooldown.
-- Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`; database name per instance is still open (#44).
+- Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT` and refuses to run with `NODE_ENV=production` (it sets a public dev auth secret). OpenAI calls build their token/temperature parameters through `completionParams` (`src/lib/openai-params.ts`), which supports o-series and gpt-5 models (`max_completion_tokens`, no `temperature`); database name per instance is still open (#44).
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
 - Security headers: `next.config.ts` `headers()` applies `src/lib/security-headers.ts` to every path (nosniff, referrer, frame denial, permissions policy, HSTS in production only, and a report-only CSP; tested in `security-headers.test.ts`). Enforcing the CSP is a follow-up.

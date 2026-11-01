@@ -6,6 +6,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { completionParams } from "./openai-params";
 import type { ExtractedSkills, JobRequirements } from "./types/analysis";
 
 export const ExtractedSkillsSchema = z.object({
@@ -119,8 +120,7 @@ Return ONLY the JSON object, no additional text`;
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0.2,
-      max_tokens: 800,
+      ...completionParams(model, { maxTokens: 800, temperature: 0.2 }),
       response_format: { type: "json_object" },
     });
 
@@ -223,8 +223,7 @@ CRITICAL REQUIREMENTS - Normalization:
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0.2,
-      max_tokens: 800,
+      ...completionParams(model, { maxTokens: 800, temperature: 0.2 }),
       response_format: { type: "json_object" },
     });
 
@@ -286,8 +285,7 @@ Return only the domain name, nothing else.`;
         { role: "system", content: systemPrompt },
         { role: "user", content: `Identify the domain:\n\n${jobDescription.substring(0, 1000)}` },
       ],
-      temperature: 0.1,
-      max_tokens: 20,
+      ...completionParams(model, { maxTokens: 20, temperature: 0.1 }),
     });
 
     const domain = completion.choices?.[0]?.message?.content?.trim() ?? "General";
