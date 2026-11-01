@@ -10,12 +10,13 @@ const DELAY_MS = Number(process.env.AUDIT_RETRY_DELAY_MS ?? 10_000);
 // no code, so classify on the whole text. Findings never produce `error`.
 const NETWORK =
   /ENOTFOUND|ECONNREFUSED|ECONNRESET|ETIMEDOUT|EAI_AGAIN|EPIPE|FETCH_ERROR|ERR_SOCKET_TIMEOUT|audit request to .* failed|audit endpoint returned an error|\b(429|50\d)\b/;
-const errText = (r) => [r.error?.code, r.message, r.error?.summary, r.error?.detail].filter(Boolean).join(" ");
+const errText = (r) =>
+  [r.error?.code, r.message, r.error?.summary, r.error?.detail].filter(Boolean).join(" ");
 
 const allow = new Map(
-  JSON.parse(readFileSync(new URL("../.github/audit-allowlist.json", import.meta.url), "utf8")).accepted.map(
-    (a) => [a.id, a],
-  ),
+  JSON.parse(
+    readFileSync(new URL("../.github/audit-allowlist.json", import.meta.url), "utf8"),
+  ).accepted.map((a) => [a.id, a]),
 );
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -62,10 +63,13 @@ for (const v of Object.values(report.vulnerabilities ?? {})) {
     else bad.set(id, `${via.dependency} (${via.severity}): ${via.title} ${via.url}`);
   }
 }
-for (const id of accepted) console.log(`Accepted ${id}: ${allow.get(id).reason} [${allow.get(id).tracking}]`);
+for (const id of accepted)
+  console.log(`Accepted ${id}: ${allow.get(id).reason} [${allow.get(id).tracking}]`);
 for (const id of allow.keys()) {
   if (!accepted.has(id))
-    console.log(`::warning::Allowlist entry ${id} no longer reported; remove it from .github/audit-allowlist.json.`);
+    console.log(
+      `::warning::Allowlist entry ${id} no longer reported; remove it from .github/audit-allowlist.json.`,
+    );
 }
 if (bad.size) {
   for (const m of bad.values()) console.error(`::error::${m}`);
