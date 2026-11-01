@@ -72,63 +72,71 @@ export function CategoryNavigation({
         const isLowScore = category.score < 50;
 
         return (
-          <Card
+          <button
             key={category.id}
-            className={cn(
-              "cursor-pointer transition-all hover:shadow-md",
-              isActive && "ring-2 ring-blue-500 bg-blue-50",
-              isLowScore && !isActive && "border-red-200 bg-red-50/30",
-            )}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onCategorySelect(category.id)}
+            className="block w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                {/* Header: Icon, Name, Score */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <Icon className="h-5 w-5 text-gray-600 flex-shrink-0" />
-                    <h4 className="text-sm font-semibold text-gray-900 truncate">
-                      {category.name}
-                    </h4>
+            <Card
+              className={cn(
+                "cursor-pointer transition-all hover:shadow-md",
+                isActive && "ring-2 ring-blue-500 bg-blue-50",
+                isLowScore && !isActive && "border-red-200 bg-red-50/30",
+              )}
+            >
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  {/* Header: Icon, Name, Score */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <Icon className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                      <span className="text-sm font-semibold text-gray-900 truncate">
+                        {category.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {getStatusIndicator(category.score)}
+                      <span className={cn("text-lg font-bold", getScoreColor(category.score))}>
+                        {category.score}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {getStatusIndicator(category.score)}
-                    <span className={cn("text-lg font-bold", getScoreColor(category.score))}>
-                      {category.score}
-                    </span>
-                  </div>
-                </div>
 
-                {/* Progress Bar */}
-                <div className="space-y-1">
-                  <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                    <div
-                      className={cn("h-full transition-all", getProgressColor(category.score))}
-                      style={{ width: `${category.score}%` }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-600">{getStatusLabel(category.score)}</span>
-                    {category.actionItemsCount > 0 && (
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "text-xs",
-                          category.score < 50
-                            ? "border-red-300 text-red-700 bg-red-50"
-                            : category.score < 80
-                              ? "border-yellow-300 text-yellow-700 bg-yellow-50"
-                              : "border-green-300 text-green-700 bg-green-50",
-                        )}
-                      >
-                        {category.actionItemsCount} improvements
-                      </Badge>
-                    )}
+                  {/* Progress Bar */}
+                  <div className="space-y-1">
+                    <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className={cn("h-full transition-all", getProgressColor(category.score))}
+                        style={{ width: `${category.score}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600">
+                        {getStatusLabel(category.score)}
+                      </span>
+                      {category.actionItemsCount > 0 && (
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-xs",
+                            category.score < 50
+                              ? "border-red-300 text-red-700 bg-red-50"
+                              : category.score < 80
+                                ? "border-yellow-300 text-yellow-700 bg-yellow-50"
+                                : "border-green-300 text-green-700 bg-green-50",
+                          )}
+                        >
+                          {category.actionItemsCount} improvements
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </button>
         );
       })}
     </div>

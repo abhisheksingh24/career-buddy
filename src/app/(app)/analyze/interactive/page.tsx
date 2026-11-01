@@ -315,8 +315,11 @@ export default function InteractiveAnalyzePage() {
                   <CardContent className="space-y-3">
                     {/* File Upload */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Upload Resume File</label>
+                      <label htmlFor="resume-file" className="block text-sm font-medium mb-2">
+                        Upload Resume File
+                      </label>
                       <input
+                        id="resume-file"
                         type="file"
                         accept=".pdf,.docx,.txt"
                         onChange={handleFileUpload}
