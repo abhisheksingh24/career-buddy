@@ -51,7 +51,7 @@ erDiagram
 - Auth: NextAuth, Google only, database sessions; each API route checks the session itself (no middleware).
 - Logging: `src/lib/logger.ts`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
-- CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check` and `security`. Dependabot covers npm and Actions with a 7-day cooldown.
+- CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check`, `security` (gitleaks, Semgrep), `audit` and `licences` (ADR 0012). Dependabot covers npm and Actions with a 7-day cooldown.
 
 - Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`, refuses `NODE_ENV=production` (it sets a public dev auth secret), and keeps state private to `INSTANCE_ID` (default `port-$PORT`, sanitised to `[a-z0-9_]`, max 40 chars). Database: `career_buddy_<id>` on the local Postgres, derived from `DATABASE_URL` (env, `.env`, or the `.env.example` default; parsed by `scripts/instance-db.sh`, which accepts only host `localhost` or `127.0.0.1` and rejects `host=`/`hostaddr=`/socket query parameters; tested in `scripts/instance-db.test.ts`), created and migrated by `prisma migrate deploy` at start. Uploads: `UPLOADS_DIR` (default `uploads/<id>/`, read by `src/lib/uploads.ts`). Tear-down: `psql -h localhost -U postgres -c "DROP DATABASE \"career_buddy_<id>\""` and `rm -rf uploads/<id>`. OpenAI calls build their token/temperature parameters through `completionParams` (`src/lib/openai-params.ts`), which supports o-series and gpt-5 models (`max_completion_tokens`, no `temperature`).
 
