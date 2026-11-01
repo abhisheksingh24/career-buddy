@@ -13,7 +13,7 @@ All routes are Next.js App Router handlers under `src/app/api`. Every handler (e
   - Session required (401). Returns the user's `Profile`; a user who has not saved one yet gets 200 with an empty profile (`EMPTY_PROFILE`: null text fields, `skills: []`), never 404. The `user` record is not included
 - PUT /api/profile
   - Session required (401). JSON validated by `profileSchema` (`src/lib/profile-schema.ts`); creates or updates the profile. Blank link fields (`website`, `linkedin`, `github`) are treated as unset; blank skills are dropped. Length caps (PUT only, so stored rows can always be read): headline 200, location 200, bio 3000, each skill 50 and at most 50 skills, each URL 2048
-  - Response: the saved `Profile`; 400 `{ error: <validation issues> }`; 500 `{ error }`
+  - Response: the saved `Profile`; 400 `{ error: <readable sentence, e.g. "Bio is too long (max 3000 characters)">, issues: <raw zod issues> }`; 500 `{ error }`
 
 ## Resume
 

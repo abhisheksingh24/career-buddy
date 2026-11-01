@@ -41,6 +41,12 @@ export default function ProfilePage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
   useEffect(() => {
+    return () => {
+      if (savedTimer.current) clearTimeout(savedTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
     if (session?.user) {
       fetchProfile();
       fetchResume();
@@ -178,20 +184,6 @@ export default function ProfilePage() {
         <p className="text-gray-600">Manage your professional profile and resume</p>
       </div>
 
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {saved && (
-        <Alert role="status">
-          <CheckCircle className="h-4 w-4" />
-          <AlertDescription>Profile saved</AlertDescription>
-        </Alert>
-      )}
-
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile">Profile Information</TabsTrigger>
@@ -231,7 +223,9 @@ export default function ProfilePage() {
                   placeholder="Tell us about yourself..."
                 />
                 <p className="mt-1 text-xs text-gray-500 text-right">
-                  {bioLength} / {PROFILE_LIMITS.bio}
+                  {bioLength >= PROFILE_LIMITS.bio
+                    ? `Limit reached: ${PROFILE_LIMITS.bio} characters. Extra text is cut off.`
+                    : `${bioLength} / ${PROFILE_LIMITS.bio}`}
                 </p>
               </div>
 
@@ -310,6 +304,22 @@ export default function ProfilePage() {
                   characters each).
                 </p>
               </div>
+            </div>
+
+            <div className="space-y-3">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {saved && (
+                <Alert role="status">
+                  <CheckCircle className="h-4 w-4" />
+                  <AlertDescription>Profile saved</AlertDescription>
+                </Alert>
+              )}
             </div>
 
             <div className="flex justify-end">
