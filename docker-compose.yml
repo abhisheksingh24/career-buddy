@@ -4,6 +4,12 @@ services:
   postgres:
     image: postgres:15
     container_name: career-buddy-db
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-career_buddy}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -21,12 +27,16 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: career-buddy-pgadmin
+    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+    # pgAdmin's entrypoint writes /pgadmin4/config_distro.py inside the image, so it cannot run read-only.
+    security_opt:
+      - no-new-privileges:true
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@career-buddy.local}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
-      - "8080:80"
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
