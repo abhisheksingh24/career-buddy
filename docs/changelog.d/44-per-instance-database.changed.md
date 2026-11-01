@@ -1,0 +1,1 @@
+Dev instances now each get their own database and resume-upload folder, so two instances running side by side no longer share data. `scripts/instance.sh` derives `career_buddy_<INSTANCE_ID>` from `DATABASE_URL`, creates and migrates it on start, and sets `UPLOADS_DIR`.
