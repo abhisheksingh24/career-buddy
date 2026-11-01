@@ -32,7 +32,7 @@
 
 **Install:** `npm ci && npx prisma generate` (needs a `.env` copied from `.env.example`; `.env.example` is tracked in git and holds placeholders only). Database: `docker-compose up -d` then `npx prisma migrate dev` (or `make init`).
 
-**Run (web):** `npm run dev` (http://localhost:3000). Set `MOCK_AI_SUGGESTIONS=true` to run without an OpenAI key.
+**Run (web):** `npm run dev` (http://localhost:3000). Set `MOCK_AI_SUGGESTIONS=true` for canned AI output with no real OpenAI calls (suggestions also need `OPENAI_API_KEY` set to any placeholder).
 
 **Run (mobile):** not applicable (web only).
 

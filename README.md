@@ -377,7 +377,7 @@ If you prefer to run steps manually:
 - `OPENAI_API_KEY` - For AI-powered suggestions (or use `MOCK_AI_SUGGESTIONS=true`)
 - `OPENAI_MODEL` - OpenAI model to use (default: `gpt-4o-mini`). o-series and gpt-5 models are supported: `completionParams` (`src/lib/openai-params.ts`) sends `max_completion_tokens` and omits `temperature` for them
 - `OPENAI_TIMEOUT_MS` - Timeout for OpenAI requests (default: `10000`)
-- `MOCK_AI_SUGGESTIONS` - Set to `true` to use mock AI (no API key needed)
+- `MOCK_AI_SUGGESTIONS` - Set to `true` to use mock AI (no real OpenAI calls; suggestions still need `OPENAI_API_KEY` set, any placeholder works)
 - `ENABLE_AI_SUGGESTIONS` - Set to `false` to disable AI features entirely
 
 Common tasks
