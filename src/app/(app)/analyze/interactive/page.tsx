@@ -447,12 +447,6 @@ export default function InteractiveAnalyzePage() {
                 </Alert>
               )}
 
-              {remaining > 0 && (
-                <Alert variant="destructive" role="status">
-                  <AlertDescription>{rateLimitMessage(remaining)}</AlertDescription>
-                </Alert>
-              )}
-
               {/* Start Analysis Button */}
               <Button
                 onClick={handleStartAnalysis}
@@ -471,6 +465,13 @@ export default function InteractiveAnalyzePage() {
                   "Start Analysis"
                 )}
               </Button>
+
+              {remaining > 0 && (
+                <Alert variant="destructive" role="status">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{rateLimitMessage()}</AlertDescription>
+                </Alert>
+              )}
             </div>
           )}
 

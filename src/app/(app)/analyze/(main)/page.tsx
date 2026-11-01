@@ -4,12 +4,12 @@ import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-anal
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
 import type { EnhancedAnalysisResult } from "@/lib/types/analysis";
+import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import { FileText, Upload, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
-import { useRetryCountdown } from "@/lib/use-retry-countdown";
 
 type AnalyzeResponse = EnhancedAnalysisResult | { error?: string } | null;
 
@@ -210,17 +210,17 @@ export default function AnalyzePage() {
                 ? `Try again in ${remaining}s`
                 : "Analyze Resume"}
           </Button>
+
+          {remaining > 0 && (
+            <Alert variant="destructive" role="status">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{rateLimitMessage()}</AlertDescription>
+            </Alert>
+          )}
         </div>
 
         {/* Results Section */}
         <div className="space-y-4">
-          {remaining > 0 && (
-            <Alert variant="destructive" role="status">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{rateLimitMessage(remaining)}</AlertDescription>
-            </Alert>
-          )}
-
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />

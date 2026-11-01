@@ -1,11 +1,10 @@
-/** "1 second" / "5 seconds". */
-export function formatSeconds(n: number): string {
-  return `${n} ${n === 1 ? "second" : "seconds"}`;
-}
-
-/** The message shown while the user must wait before analysing again. */
-export function rateLimitMessage(secondsLeft: number): string {
-  return `You're doing that too quickly. Please wait ${formatSeconds(secondsLeft)} and try again.`;
+/**
+ * The message shown while the user must wait before analysing again. It is
+ * constant on purpose: it sits in a live region, and text that changed every
+ * second would be re-announced every second. The countdown lives in the button.
+ */
+export function rateLimitMessage(): string {
+  return "You're doing that too quickly. Please wait a moment and try again.";
 }
 
 /** Whole seconds from a Retry-After header value, or null if absent or invalid. */
