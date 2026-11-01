@@ -19,22 +19,21 @@ everything else is under Open risks.
 flowchart LR
   B[Browser] -->|HTTPS, session cookie| N[Next.js routes]
   N -->|Prisma| D[(PostgreSQL)]
-  N -->|read/write| F[./uploads/resumes]
-  N -->|resume text, job text| O[OpenAI API]
+    N -->|resume text, job text| O[OpenAI API]
   B -->|OAuth| G[Google]
   G --> N
 ```
 
-| Entry point                                                                          | Trust boundary                                                                                 | Auth today                                                                                                |
-| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `POST /api/resume/upload`                                                            | Untrusted file (PDF, DOCX or anything else) parsed by `pdf-parse` and `mammoth`, saved to disk | Session required                                                                                          |
-| `GET /api/resume/[id]/file`                                                          | Reads a stored file named by a DB record                                                       | Session and ownership check                                                                               |
-| `GET /api/resume/active`, `GET /api/resume/analysis/[id]/categories`, `/api/profile` | User data from the DB                                                                          | Session checked in each route; scoping is per route, no central guard                                     |
-| `POST /api/resume/analyze`                                                           | Untrusted JSON (resume text, job description) which may be sent to OpenAI                      | No session needed to run; the session only decides whether the result is saved                            |
-| `POST /api/resume/suggest`                                                           | Untrusted JSON sent to OpenAI                                                                  | None                                                                                                      |
-| `/api/auth/*`                                                                        | Google OAuth, NextAuth session cookie                                                          | NextAuth                                                                                                  |
-| Environment                                                                          | Secrets from env                                                                               | Not in the client bundle; `.env` is git-ignored, `.env.example` is tracked without values; gitleaks in CI |
-| Third parties                                                                        | Google (sign-in), OpenAI (resume text leaves our servers), Google Fonts at build time          | Terms in `licenses.md`                                                                                    |
+| Entry point                                                                          | Trust boundary                                                                                                                        | Auth today                                                                                                |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `POST /api/resume/upload`                                                            | Untrusted file (PDF, DOCX or anything else) parsed by `pdf-parse` and `mammoth`, stored in the database (`Resume.fileData`), max 5 MB | Session required                                                                                          |
+| `GET /api/resume/[id]/file`                                                          | Reads a stored file named by a DB record                                                                                              | Session and ownership check                                                                               |
+| `GET /api/resume/active`, `GET /api/resume/analysis/[id]/categories`, `/api/profile` | User data from the DB                                                                                                                 | Session checked in each route; scoping is per route, no central guard                                     |
+| `POST /api/resume/analyze`                                                           | Untrusted JSON (resume text, job description) which may be sent to OpenAI                                                             | No session needed to run; the session only decides whether the result is saved                            |
+| `POST /api/resume/suggest`                                                           | Untrusted JSON sent to OpenAI                                                                                                         | None                                                                                                      |
+| `/api/auth/*`                                                                        | Google OAuth, NextAuth session cookie                                                                                                 | NextAuth                                                                                                  |
+| Environment                                                                          | Secrets from env                                                                                                                      | Not in the client bundle; `.env` is git-ignored, `.env.example` is tracked without values; gitleaks in CI |
+| Third parties                                                                        | Google (sign-in), OpenAI (resume text leaves our servers), Google Fonts at build time                                                 | Terms in `licenses.md`                                                                                    |
 
 ## Threats and mitigations
 
@@ -56,7 +55,7 @@ flowchart LR
 
 Known gaps, not mitigated yet. Each has an issue.
 
-- **Upload handling (#36):** no file size limit; no content verification (the type comes from the client `Content-Type`, and unknown types are decoded as text); PDF and DOCX parsers run on untrusted input inside the request process; the parser error message is returned to the client; files sit unencrypted on local disk.
+- **Upload handling (#36, mostly fixed):** uploads are capped at 5 MB (Content-Length pre-check plus file size; a chunked body without Content-Length is still buffered by the runtime before the size check), the type is decided from content, and parser errors are not returned. Remaining: PDF and DOCX parsers still run on untrusted input inside the request process, and files are stored as plain `bytea` rows (encryption at rest is the database host's).
 - **No central auth and no rate limiting (#37):** per-route checks are repeated by hand, so a new route can forget one. `POST /api/resume/suggest` and `POST /api/resume/analyze` can be called without signing in and spend OpenAI budget. Nothing limits request rate or body size on any route, including sign-in.
 - **Test login (#38):** not built; when it is, it must be impossible to enable in production.
 - **No audit logging (#43):** sign-ins, uploads and access are not recorded, so misuse cannot be investigated.
@@ -64,5 +63,5 @@ Known gaps, not mitigated yet. Each has an issue.
 - **Remaining audit findings (#7, #14 via #74, #75):** items ADR 0008 could not fix (for example `deepmerge-ts` through the Prisma 6 CLI, build time only).
 - **No user data export or delete.** Required once accounts exist; needs a story before going public.
 - **CSP is report-only (#87):** the policy is sent as `Content-Security-Policy-Report-Only`, so violations show in the browser console but nothing is blocked. It still allows inline scripts (no nonces yet). Follow-up: check for violations in real use, move to nonces, then switch to an enforcing `Content-Security-Policy`.
-- **Encryption at rest** relies on the database host for rows; uploaded files have none until storage moves off local disk.
+- **Encryption at rest** relies on the database host for rows; uploaded files are rows in the same database, so they get the same protection.
 - **Prompt injection:** resume and job text go straight into OpenAI prompts. Output is shown only to the same user, so impact is low, but it is not validated beyond schema parsing where used.

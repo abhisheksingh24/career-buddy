@@ -100,7 +100,8 @@ model Resume {
   name        String
   content     Json     // Structured resume data
   rawText     String   @db.Text
-  fileUrl     String?  // URL to stored file
+  fileUrl     String?  // Legacy: path under UPLOADS_DIR for files stored before fileData existed
+  fileData    Bytes?   // Uploaded PDF/DOCX bytes (max 5 MB), kept in the database so no writable disk is needed
   fileType    String   // PDF, DOCX, etc.
   isActive    Boolean  @default(true)
   analyses    ResumeAnalysis[]
