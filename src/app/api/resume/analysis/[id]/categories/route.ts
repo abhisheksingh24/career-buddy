@@ -90,7 +90,7 @@ export async function GET(
       totalYearsExperience: 0,
       matchedSkills: (analysisRecord.matchedSkills as SkillMatch[] | null) || [],
       missingSkills: (analysisRecord.missing || []).map((skill) => ({
-        skill: typeof skill === "string" ? skill : skill.skill || skill,
+        skill: skill,
         priority: "important" as const,
         category: "technical" as const,
       })),

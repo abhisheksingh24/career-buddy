@@ -128,7 +128,7 @@ export async function GET(
       // #endregion
 
       // Return file with proper headers (including CORS for react-pdf)
-      return new NextResponse(fileBuffer, {
+      return new NextResponse(new Uint8Array(fileBuffer), {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `inline; filename="${resume.name}"`,

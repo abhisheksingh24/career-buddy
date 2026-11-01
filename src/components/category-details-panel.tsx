@@ -233,7 +233,7 @@ export function CategoryDetailsPanel({
   }
 
   // Loading state
-  if (isLoading) {
+  if (isLoading || !selectedCategory) {
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -881,8 +881,9 @@ export function CategoryDetailsPanel({
                 </CardHeader>
                 <CardContent>
                   {(() => {
-                    const missingSkillsData =
-                      fullCategoryData.missingSkills as RequiredSkillsCategoryData["missingSkills"];
+                    const missingSkillsData = (
+                      fullCategoryData as Partial<RequiredSkillsCategoryData>
+                    ).missingSkills;
                     const suggestions: string[] = [];
 
                     // Generate suggestions based on missing skills

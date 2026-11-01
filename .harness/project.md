@@ -36,11 +36,11 @@
 
 **Run (mobile):** not applicable (web only).
 
-**Test:** `npx vitest run --maxWorkers=2`. Currently RED: `jsdom` is configured as the test environment but is not in package.json (see baseline). Only one test file exists (`src/lib/match.test.ts`).
+**Test:** `npx vitest run --maxWorkers=2`. Green. `jsdom` (the configured test environment) is a devDependency. Only one test file exists (`src/lib/match.test.ts`).
 
-**Lint:** `npm run lint` (next lint; passes with warnings). Typecheck: `npx tsc --noEmit` (currently 34 errors). Format: `npm run format`.
+**Lint:** `npm run lint` (next lint; passes with warnings). Typecheck: `npx tsc --noEmit` (clean). Format: `npm run format`.
 
-**Build:** `npm run build` (currently fails on a type error in `src/app/api/resume/[id]/file/route.ts`).
+**Build:** `npm run build` (green).
 
 **Instance:** `PORT=$PORT npx next dev -p $PORT` (unverified; needs per-instance Postgres, e.g. `DATABASE_URL` pointing at a database named for `$INSTANCE_ID`, and `NEXTAUTH_URL=http://localhost:$PORT`). Ready path: `/api/auth/providers` (unverified). Resume files are written to `./uploads/`, which is not per-instance.
 
