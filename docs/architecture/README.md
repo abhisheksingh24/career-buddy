@@ -57,6 +57,6 @@ erDiagram
 
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
-- Security headers: `next.config.ts` `headers()` applies `src/lib/security-headers.ts` to every path (nosniff, referrer, frame denial, permissions policy, HSTS in production only, and a report-only CSP; tested in `security-headers.test.ts`). Enforcing the CSP is a follow-up.
+- Security headers: `next.config.ts` `headers()` applies the static ones from `src/lib/security-headers.ts` to every path (nosniff, referrer, frame denial, permissions policy, HSTS in production only, `Reporting-Endpoints`). The enforced `Content-Security-Policy` is built per request in `src/proxy.ts` with a fresh nonce (no `unsafe-inline` for scripts or style elements; `style-src-attr` keeps it for style attributes). Because a nonce cannot live in static HTML, the root layout calls `connection()` and every page renders per request. Violations POST to `src/app/api/csp-report/route.ts`, which logs a trimmed record. See ADR 0018.
 - Node: `^22.22.2 || ^24.15 || >=26` (`engines`; `.nvmrc` tracks 22), required by jsdom 30 and lint-staged 17.
 - Decisions: `docs/decisions/0001` to `0007`.
