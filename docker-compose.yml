@@ -24,11 +24,11 @@ services:
       timeout: 5s
       retries: 5
 
+  # pgAdmin's entrypoint writes /pgadmin4/config_distro.py inside the image, so it cannot run read-only.
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: career-buddy-pgadmin
-    # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-    # pgAdmin's entrypoint writes /pgadmin4/config_distro.py inside the image, so it cannot run read-only.
     security_opt:
       - no-new-privileges:true
     environment:
