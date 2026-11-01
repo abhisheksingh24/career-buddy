@@ -54,7 +54,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(profile);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      return NextResponse.json({ error: error.issues }, { status: 400 });
     }
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
   }
