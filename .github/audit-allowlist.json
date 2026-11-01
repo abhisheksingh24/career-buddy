@@ -1,0 +1,11 @@
+{
+  "_comment": "Accepted npm audit advisories (GHSA ids) for `npm audit --omit=dev --audit-level=high`. Each needs a reason and a tracking issue. Remove the entry when fixed.",
+  "accepted": [
+    {
+      "id": "GHSA-ggr8-5vv4-36mx",
+      "package": "deepmerge-ts (via prisma CLI -> @prisma/config)",
+      "reason": "Stack exhaustion when merging recursive objects. Reached only through the Prisma CLI reading our own prisma config at build/migrate time, never with untrusted input at runtime. The fix needs Prisma 7, a major upgrade ignored per ADR 0008.",
+      "tracking": "#74 / #75"
+    }
+  ]
+}

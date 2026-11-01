@@ -1,0 +1,1 @@
+CI now audits production dependencies (`npm audit --omit=dev --audit-level=high`) on PRs, main and weekly; known accepted advisories are listed in `.github/audit-allowlist.json`, and a registry outage warns instead of failing.
