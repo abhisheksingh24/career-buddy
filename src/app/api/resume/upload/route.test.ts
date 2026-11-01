@@ -73,4 +73,26 @@ describe("POST /api/resume/upload", () => {
     expect(data.fileType).toBe("application/pdf");
     expect(Buffer.from(data.fileData).toString()).toBe("%PDF-1.4 body");
   });
+
+  it("rejects a chunked body without Content-Length once it passes the cap, without reading it all", async () => {
+    let pulled = 0;
+    const chunk = new Uint8Array(1024 * 1024);
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled += 1;
+        if (pulled > 50) controller.close();
+        else controller.enqueue(chunk);
+      },
+    });
+    const request = new Request("http://localhost/api/resume/upload", {
+      method: "POST",
+      body: stream,
+      headers: { "content-type": "multipart/form-data; boundary=x" },
+      duplex: "half",
+    } as RequestInit);
+    const res = await POST(request);
+    expect(res.status).toBe(413);
+    expect(pulled).toBeLessThan(15);
+    expect(create).not.toHaveBeenCalled();
+  });
 });
