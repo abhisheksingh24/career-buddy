@@ -3,11 +3,12 @@
 What this product uses that someone else owns, and on what terms (see
 "Licensing and provenance" in `$BUILD_EASY_HOME/harness/quality-bar.md`).
 Owned by the dev agent; update it in the PR that adds or removes an entry.
-The CI licence scan covers every package; list here only what a scan
-cannot see, plus any package that is not plainly permissive.
+The CI licence scan (`licences.yml`, ADR 0013) covers every production
+package; list here only what a scan cannot see, plus any package that is not
+plainly permissive. Exceptions live in `.github/licence-policy.json`.
 
 Scan run 2026-11-01 on `main` with `npx license-checker --production --summary`.
-There is no licence scan in CI yet (see the profile). Result: MIT 116,
+CI now runs this scan on every PR. Result: MIT 116,
 Apache-2.0 18, ISC 10, BSD-2-Clause 5, BSD-3-Clause 3, 0BSD 1, plus the
 exceptions below.
 
@@ -25,11 +26,17 @@ the intent chosen then; until then all rights stay with the owner.
 | `@img/sharp-libvips-<platform>` (via `sharp`, Next image optimisation) | LGPL-3.0-or-later                    | Prebuilt native library pulled in as an optional dependency of Next; dynamically loaded, unmodified | ADR 0009. Accepted while the app is a hosted service; revisit if we bundle or modify it. Owner not yet asked in plain words             |
 | `jszip` (via `mammoth`)                                                | MIT OR GPL-3.0-or-later              | DOCX parsing                                                                                        | ADR 0009. We take the MIT option                                                                                                        |
 | `caniuse-lite` (via browserslist)                                      | CC-BY-4.0                            | Browser data used at build time                                                                     | ADR 0009. Attribution to ship in notices before distribution                                                                            |
-| `duck` (transitive)                                                    | "BSD\*" (scanner could not classify) | Pulled in by a dependency; BSD-style text                                                           | ADR 0009. Confirm the licence text when the CI scan is added                                                                            |
+| `duck` (transitive)                                                    | "BSD\*" (scanner could not classify) | Pulled in by a dependency; BSD-style text                                                           | ADR 0009. Licence file read: BSD 2-clause (ADR 0013)                                                                                    |
 | `pako` (transitive)                                                    | MIT AND Zlib                         | Compression                                                                                         | Both permissive; no action                                                                                                              |
 | `axe-core`, `@axe-core/playwright` (dev only)                          | MPL-2.0                              | Accessibility checks in CI (`e2e/`); never in the production bundle                                 | ADR 0012. File-level copyleft; we do not modify or redistribute them, so no obligation is triggered. Owner not yet asked in plain words |
 | `@playwright/test` (dev only)                                          | Apache-2.0                           | Browser runner for the accessibility checks                                                         | Permissive; no action                                                                                                                   |
 | `web`                                                                  | UNLICENSED                           | This project itself                                                                                 | n/a                                                                                                                                     |
+
+## Dev dependencies added for tooling
+
+| Package                                     | Licence      | Why                                                        |
+| ------------------------------------------- | ------------ | ---------------------------------------------------------- |
+| `license-checker-rseidelsohn` (exact 5.0.1) | BSD-3-Clause | Runs the CI licence scan (ADR 0013); dev only, not shipped |
 
 ## Assets (fonts, icons, images, sounds, copied code or text)
 

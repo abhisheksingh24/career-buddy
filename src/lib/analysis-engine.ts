@@ -13,6 +13,7 @@ import {
   extractYearsOfExperience,
 } from "./comprehensive-scoring";
 import { generateComprehensiveFeedback } from "./feedback-generator";
+import { logError } from "./logger";
 import { matchSkillsSemantically, matchSkillsSimple } from "./semantic-match";
 import type {
   EnhancedAnalysisResult,
@@ -277,7 +278,7 @@ export async function analyzeResume(params: {
       missingKeywords: missingSkills.map((s) => s.skill), // Legacy field
     };
   } catch (error) {
-    console.error("Analysis failed:", error);
+    logError("Analysis failed", error);
     return getMockEnhancedAnalysis(params);
   }
 }
