@@ -402,7 +402,7 @@ make reset        # Reset everything (useful for troubleshooting)
 ### NPM Commands
 
 ```bash
-npm run test   # Run tests (Node 20 LTS recommended)
+npm run test   # Run tests (Node 22.22.2 or newer, see .nvmrc)
 npm run lint   # Format/lint
 npm run build # Build for production
 npm run dev   # Start development server

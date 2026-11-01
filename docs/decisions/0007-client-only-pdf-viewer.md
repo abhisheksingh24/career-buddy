@@ -15,7 +15,7 @@
 
 ## Decision
 
-Import `ResumePDFViewer` with `next/dynamic({ ssr: false })` and a `Skeleton` loading state. Also add `jsdom` as a devDependency (Vitest environment) and declare Node `^20.19 || ^22.13 || >=24` in `engines` and `.nvmrc`, as jsdom requires.
+Import `ResumePDFViewer` with `next/dynamic({ ssr: false })` and a `Skeleton` loading state. Also add `jsdom` as a devDependency (Vitest environment) and declare Node `^20.19 || ^22.13 || >=24` in `engines` and `.nvmrc`, as jsdom requires. (Node range partly superseded by ADR 0011.)
 
 ## Consequences
 
