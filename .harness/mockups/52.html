@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockup #52 Tailor to a role</title>
+<style>
+:root{--bg:#faf8f5;--card:#fff;--ink:#2a2a28;--mute:#6b6a66;--line:#e4e0d9;--brand:#1f7a74;--brand-ink:#fff;--amber:#fdf1d8;--r:12px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+nav.toggle{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+button{font:inherit;min-height:44px;padding:0 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+button[aria-pressed=true]{outline:2px solid var(--brand)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:12px 0}
+.mute{color:var(--mute)}.step{font-size:14px;color:var(--mute)}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.del{background:#fbe9e5}.add{background:#e3f3f1}input{font:inherit;min-height:44px;width:100%;padding:0 12px;border:1px solid var(--line);border-radius:var(--r)}
+.hide{display:none}.note{background:var(--amber);padding:8px 12px;border-radius:var(--r);font-size:14px}
+.ov{position:fixed;inset:0;background:#0006;display:flex;align-items:flex-end;justify-content:center}
+.ov>div{background:#fff;padding:20px;border-radius:var(--r) var(--r) 0 0;width:100%;max-width:420px}
+@media(min-width:600px){.ov{align-items:center}.ov>div{border-radius:var(--r)}}
+</style></head><body><main>
+<p class="mute">Low-fidelity mockup, fake data. Pick a screen:</p>
+<nav class="toggle" id="nav"></nav>
+<section id="s-start"><h1>Tailor to a role</h1><p class="mute">Job from Job fit is already filled in.</p>
+<div class="card"><b>Senior Engineer, Acme</b><br><span class="mute">Using: Base resume</span></div>
+<button class="p" onclick="go('s1')">Tailor my resume to this role</button></section>
+
+<section id="s1" class="hide"><p class="step">Step 1 of 3 · Review changes (<span id="n">1</span> of 3)</p>
+<p class="note">Longer edits are easier on a laptop.</p>
+<div class="card"><b id="sg"></b><p>Why: the job lists it first.</p>
+<div class="add">After: Skills: Kubernetes, TypeScript, React</div><div class="del">Before: Skills: React, TypeScript, Kubernetes</div>
+<div class="row" style="margin-top:12px"><button class="p" onclick="dec(1)">Accept</button><button onclick="dec(0)">Skip</button><button onclick="undo()">Undo</button></div></div>
+<p class="mute" id="log"></p></section>
+
+<section id="s2" class="hide"><p class="step">Step 2 of 3 · Preview</p>
+<label>Name <input value="Senior Engineer, Acme"></label>
+<div class="card"><b>Jane Doe</b><br>Skills: <span class="add">Kubernetes</span>, TypeScript, React<br>Experience: <span class="add">Ran services on Kubernetes</span></div>
+<div class="row"><button onclick="go('s1')">Back</button><button class="p" onclick="go('s3')">Looks good</button></div></section>
+
+<section id="s3" class="hide"><p class="step">Step 3 of 3 · Done</p><h2>Saved as "Senior Engineer, Acme"</h2>
+<p>Your base resume is unchanged.</p><div class="row"><button class="p">Download PDF</button><button onclick="go('list')">Open copy</button></div></section>
+
+<section id="list" class="hide"><h1>Tailored resumes</h1>
+<div class="card row" style="justify-content:space-between"><span><b>Senior Engineer, Acme</b><br><span class="mute">1 Nov</span></span><button onclick="ov(true)" aria-label="Actions">Rename / Delete</button></div>
+<div class="card row"><span><b>Product Engineer, A very long company name that truncates in the list</b></span></div>
+<button class="p" onclick="go('s-start')">New tailored resume</button></section>
+
+<section id="empty" class="hide"><h1>Tailored resumes</h1><div class="card"><p>No tailored resumes yet. Paste a job to make your first.</p><button class="p">Tailor to a role</button></div></section>
+
+<section id="err" class="hide"><p class="step">Step 1 of 3</p><div class="card"><p>Connection lost. Your choices so far are kept.</p><button class="p">Try again</button></div></section>
+
+<div class="ov hide" id="ov"><div><b>Delete this copy?</b><p>Your base resume is not affected.</p><div class="row"><button onclick="ov(false)">Keep</button><button class="p" onclick="ov(false)">Delete</button></div></div></div>
+<script>
+const S={'s-start':'Start','s1':'1 Review','s2':'2 Preview','s3':'3 Done','list':'Copies list','empty':'Empty list','err':'Connection lost'};
+const sg=['Move "Kubernetes" up in Skills','Lead the Acme role with the platform work','Drop "Visual Basic" (not relevant)'];let i=0;
+function go(k){for(const id in S)document.getElementById(id).classList.toggle('hide',id!==k);
+document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));if(k==='s1')show()}
+function show(){document.getElementById('n').textContent=i+1;document.getElementById('sg').textContent=sg[i]}
+function dec(a){document.getElementById('log').textContent=(a?'Accepted':'Skipped')+': '+sg[i];if(i<2){i++;show()}else{i=0;go('s2')}}
+function undo(){if(i>0){i--;show()}}
+function ov(v){document.getElementById('ov').classList.toggle('hide',!v)}
+for(const k in S){const b=document.createElement('button');b.textContent=S[k];b.dataset.k=k;b.onclick=()=>go(k);document.getElementById('nav').append(b)}
+go('s-start');
+</script></main></body></html>

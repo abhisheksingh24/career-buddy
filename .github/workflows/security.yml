@@ -1,0 +1,65 @@
+name: security
+
+# build-easy quality bar (harness/quality-bar.md): secret scanning and static
+# analysis on every PR, on main, and weekly. Stack-specific checks (lint,
+# typecheck, tests, dependency audit) live in the project's own CI workflow.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+# runs-on follows the repo variable CI_RUNNER (self-hosted runner, ADR 0025);
+# jobs avoid `container:` and `services:`, which need a Linux runner.
+jobs:
+  secrets:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      # gitleaks-action unpacks into os.tmpdir()/gitleaks.tmp and fails if that
+      # file exists. Self-hosted instances share one user temp dir, so give this
+      # step a private, freshly emptied TMPDIR under the runner's own work area
+      # On hosted runners it is just another empty directory.
+      - name: Prepare private temp dir for gitleaks
+        run: |
+          rm -rf "$RUNNER_TEMP/gitleaks-tmp"
+          mkdir -p "$RUNNER_TEMP/gitleaks-tmp"
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          TMPDIR: ${{ runner.temp }}/gitleaks-tmp
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+
+  static-analysis:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      # `docker run` instead of `container:` so the job runs on any runner.
+      # An adopted project (ADR 0042) has `.harness/security-baseline`: the
+      # commit before adoption. Findings already present there are tracked as
+      # tasks, so only new ones fail. Delete the file when the last is fixed.
+      - run: |
+          base=""
+          if [ -s .harness/security-baseline ]; then
+            base="--baseline-commit $(tr -d '[:space:]' < .harness/security-baseline)"
+          fi
+          docker run --rm -v "$PWD:/src" -w /src \
+            semgrep/semgrep:1.181.0@sha256:81474464c1f07483ba0682a44787fd93c91397419762a04abe2bafaae396304b \
+            semgrep scan --config p/default --error --metrics off $base

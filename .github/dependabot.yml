@@ -1,0 +1,13 @@
+# build-easy quality bar: automated dependency updates. The skeleton task adds
+# an entry for the project's own package ecosystem (npm, pip, ...).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]

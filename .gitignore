@@ -52,3 +52,8 @@ next-env.d.ts
 /# prisma client artifacts
 /src/generated/prisma/query_engine-*.node*
 /src/generated/prisma/*.tmp*
+
+# build-easy
+.harness/demos/
+.harness/ux/
+.claude/worktrees/
