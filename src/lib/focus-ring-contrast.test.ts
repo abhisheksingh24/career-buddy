@@ -8,7 +8,11 @@ const block = (sel: string) => {
   return css.slice(start, css.indexOf("}", start));
 };
 const lightness = (b: string, name: string) => {
-  const m = b.match(new RegExp(`--${name}:\\s*oklch\\(([\\d.]+) 0 0\\)`));
+  const line = b
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.startsWith(`--${name}:`));
+  const m = line?.match(/oklch\(([\d.]+) 0 0\)/);
   if (!m) throw new Error(`${name} not an opaque grey oklch`);
   return Number(m[1]);
 };
