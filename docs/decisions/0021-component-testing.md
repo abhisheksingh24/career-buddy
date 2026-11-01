@@ -1,4 +1,4 @@
-# 0020. Component tests with Testing Library on Vitest
+# 0021. Component tests with Testing Library on Vitest
 
 - **Date:** 2026-11-02
 - **Status:** Accepted

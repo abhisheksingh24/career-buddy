@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import ProfilePage from "./page";
 
 const signIn = vi.fn();
@@ -9,6 +10,8 @@ vi.mock("next-auth/react", () => ({
 }));
 
 describe("/profile when signed out", () => {
+  beforeEach(() => signIn.mockReset());
+
   it("asks the user to sign in and offers the Google button", () => {
     render(<ProfilePage />);
     expect(screen.getByText("Please sign in to view your profile.")).toBeInTheDocument();

@@ -12,7 +12,7 @@ CI now runs this scan on every PR. Result: MIT 116,
 Apache-2.0 18, ISC 10, BSD-2-Clause 5, BSD-3-Clause 3, 0BSD 1, plus the
 exceptions below.
 
-## Dev-only test tooling (issue #120, ADR 0020)
+## Dev-only test tooling (issue #120, ADR 0021)
 
 Not shipped, so outside the production scan. Checked by hand: `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/dom` are MIT; their dependencies are MIT, ISC or Apache-2.0 (`aria-query`).
 
