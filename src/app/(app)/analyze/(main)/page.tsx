@@ -1,10 +1,11 @@
 "use client";
 
 import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-analysis-results";
+import { RateLimitAlert } from "@/components/rate-limit-alert";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
+import { parseRetryAfter } from "@/lib/retry-wait";
 import type { EnhancedAnalysisResult } from "@/lib/types/analysis";
 import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import { FileText, Upload, AlertCircle } from "lucide-react";
@@ -198,6 +199,8 @@ export default function AnalyzePage() {
             </CardContent>
           </Card>
 
+          {remaining > 0 && <RateLimitAlert />}
+
           <Button
             onClick={run}
             disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
@@ -210,13 +213,6 @@ export default function AnalyzePage() {
                 ? `Try again in ${remaining}s`
                 : "Analyze Resume"}
           </Button>
-
-          {remaining > 0 && (
-            <Alert variant="destructive" role="status">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{rateLimitMessage()}</AlertDescription>
-            </Alert>
-          )}
         </div>
 
         {/* Results Section */}

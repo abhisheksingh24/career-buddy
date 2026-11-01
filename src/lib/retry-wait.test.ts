@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { parseRetryAfter, rateLimitMessage, secondsLeft } from "./retry-wait";
+import { parseRetryAfter, rateLimitMessage, revealAlert, secondsLeft } from "./retry-wait";
 
 describe("retry wait", () => {
   it("keeps the live message constant so it is announced once", () => {
@@ -20,5 +20,21 @@ describe("retry wait", () => {
     expect(secondsLeft(10_000, 9_001)).toBe(1);
     expect(secondsLeft(10_000, 10_000)).toBe(0);
     expect(secondsLeft(10_000, 20_000)).toBe(0);
+  });
+});
+
+describe("revealAlert", () => {
+  it("scrolls the alert into view with the nearest block", () => {
+    const scrollIntoView = vi.fn();
+    revealAlert({ scrollIntoView }, false);
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest", behavior: "smooth" });
+  });
+  it("jumps instead of animating for reduced motion", () => {
+    const scrollIntoView = vi.fn();
+    revealAlert({ scrollIntoView }, true);
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest", behavior: "auto" });
+  });
+  it("ignores a missing element", () => {
+    expect(() => revealAlert(null, false)).not.toThrow();
   });
 });

@@ -7,12 +7,13 @@ import {
   type CategoryId,
 } from "@/components/category-navigation";
 import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-layout";
+import { RateLimitAlert } from "@/components/rate-limit-alert";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
-import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
+import { parseRetryAfter } from "@/lib/retry-wait";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
 import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import {
@@ -447,6 +448,8 @@ export default function InteractiveAnalyzePage() {
                 </Alert>
               )}
 
+              {remaining > 0 && <RateLimitAlert />}
+
               {/* Start Analysis Button */}
               <Button
                 onClick={handleStartAnalysis}
@@ -465,13 +468,6 @@ export default function InteractiveAnalyzePage() {
                   "Start Analysis"
                 )}
               </Button>
-
-              {remaining > 0 && (
-                <Alert variant="destructive" role="status">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{rateLimitMessage()}</AlertDescription>
-                </Alert>
-              )}
             </div>
           )}
 
