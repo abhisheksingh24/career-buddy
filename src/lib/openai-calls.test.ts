@@ -139,3 +139,30 @@ describe("embeddings", () => {
     await expect(getEmbedding("a")).rejects.toThrow("fail");
   });
 });
+
+describe("token parameters per model", () => {
+  const params = { resumeText: "r", jobDescription: "j" };
+
+  it("uses max_tokens and temperature for default models", async () => {
+    vi.stubEnv("OPENAI_MODEL", "gpt-4o-mini");
+    chatCreate.mockResolvedValue(reply(JSON.stringify({ bullets: [] })));
+    await getSuggestions(params);
+    const body = chatCreate.mock.calls[0][0];
+    expect(body.max_tokens).toBe(400);
+    expect(body.temperature).toBe(0.3);
+    expect(body).not.toHaveProperty("max_completion_tokens");
+  });
+
+  it.each(["gpt-5", "gpt-5-mini", "o3-mini", "o1"])(
+    "uses max_completion_tokens and no temperature for %s",
+    async (model) => {
+      vi.stubEnv("OPENAI_MODEL", model);
+      chatCreate.mockResolvedValue(reply(" Data Science "));
+      await detectDomain("jd");
+      const body = chatCreate.mock.calls[0][0];
+      expect(body.max_completion_tokens).toBeGreaterThan(20);
+      expect(body).not.toHaveProperty("max_tokens");
+      expect(body).not.toHaveProperty("temperature");
+    },
+  );
+});

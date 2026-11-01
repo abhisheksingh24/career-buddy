@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { completionParams } from "./openai-params";
+
 export const SuggestionsSchema = z.object({
   bullets: z.array(z.string()).max(5),
   skills: z.array(z.string()).max(20).optional().default([]),
@@ -99,8 +101,7 @@ export async function getSuggestions(params: {
           { role: "system", content: system },
           { role: "user", content: user },
         ],
-        temperature: 0.3,
-        max_tokens: 400,
+        ...completionParams(model, { maxTokens: 400, temperature: 0.3 }),
       },
       { signal: controller.signal },
     );
