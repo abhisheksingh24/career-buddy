@@ -32,5 +32,5 @@ OpenAI budget. Nothing limited request rate or body size.
 - With more than one app instance the limit is per instance (effective limit
   multiplied) and a restart resets it. Move to a shared store (for example the
   database or Redis) before scaling out; recorded in the threat model.
-- Signed-out use of analyze is gone; the pages already sit behind sign-in.
+- Signed-out use of analyze is gone; the analyze pages are now gated server-side (`(app)/analyze/layout.tsx` redirects signed-out visitors to sign-in, as the dashboard does).
 - Limits of 10 per minute are generous for a person and can be tuned in `AI_RATE_LIMIT`.

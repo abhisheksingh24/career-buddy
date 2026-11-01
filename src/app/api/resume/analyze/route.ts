@@ -69,67 +69,65 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Persist the analysis with a placeholder Resume record
   let analysisId: string | null = null;
 
-  {
-    // Get or create a default portfolio for the user
-    let portfolio = await prisma.portfolio.findFirst({
-      where: { userId, isDefault: true },
-    });
+  // Get or create a default portfolio for the user
+  let portfolio = await prisma.portfolio.findFirst({
+    where: { userId, isDefault: true },
+  });
 
-    if (!portfolio) {
-      portfolio = await prisma.portfolio.create({
-        data: {
-          userId,
-          name: "Default Portfolio",
-          isDefault: true,
-        },
-      });
-    }
-
-    // Get the next version number for this portfolio
-    const lastResume = await prisma.resume.findFirst({
-      where: { portfolioId: portfolio.id },
-      orderBy: { version: "desc" },
-    });
-    const nextVersion = (lastResume?.version || 0) + 1;
-
-    // Create a placeholder resume for pasted text analysis
-    const resume = await prisma.resume.create({
+  if (!portfolio) {
+    portfolio = await prisma.portfolio.create({
       data: {
-        portfolioId: portfolio.id,
-        version: nextVersion,
-        name: "pasted-resume",
-        content: {}, // Empty JSON for now
-        rawText: resumeText,
-        fileType: "text/plain",
-        fileUrl: `${userId}::placeholder::${Date.now()}`,
+        userId,
+        name: "Default Portfolio",
+        isDefault: true,
       },
     });
-
-    const savedAnalysis = await prisma.resumeAnalysis.create({
-      data: {
-        resumeId: resume.id,
-        jobTitle,
-        jobDesc: jobDescription,
-        score: analysis.overallScore,
-        keywords: analysis.matchedSkills.map((s) => s.skill),
-        missing: analysis.missingSkills.map((s) => s.skill),
-        suggestions: {
-          bullets: analysis.suggestedBullets,
-          categories: JSON.parse(JSON.stringify(categories)) as Prisma.InputJsonValue, // Store category data in suggestions JSON field
-        },
-        // Enhanced analysis fields
-        domain: analysis.domain,
-        atsScore: analysis.atsScore,
-        matchedSkills: JSON.parse(JSON.stringify(analysis.matchedSkills)), // Convert to JSON
-        experienceGaps: analysis.experienceGaps,
-        strengthAreas: analysis.strengthAreas,
-        improvementAreas: analysis.improvementAreas,
-        atsTips: analysis.atsTips,
-      },
-    });
-
-    analysisId = savedAnalysis.id;
   }
+
+  // Get the next version number for this portfolio
+  const lastResume = await prisma.resume.findFirst({
+    where: { portfolioId: portfolio.id },
+    orderBy: { version: "desc" },
+  });
+  const nextVersion = (lastResume?.version || 0) + 1;
+
+  // Create a placeholder resume for pasted text analysis
+  const resume = await prisma.resume.create({
+    data: {
+      portfolioId: portfolio.id,
+      version: nextVersion,
+      name: "pasted-resume",
+      content: {}, // Empty JSON for now
+      rawText: resumeText,
+      fileType: "text/plain",
+      fileUrl: `${userId}::placeholder::${Date.now()}`,
+    },
+  });
+
+  const savedAnalysis = await prisma.resumeAnalysis.create({
+    data: {
+      resumeId: resume.id,
+      jobTitle,
+      jobDesc: jobDescription,
+      score: analysis.overallScore,
+      keywords: analysis.matchedSkills.map((s) => s.skill),
+      missing: analysis.missingSkills.map((s) => s.skill),
+      suggestions: {
+        bullets: analysis.suggestedBullets,
+        categories: JSON.parse(JSON.stringify(categories)) as Prisma.InputJsonValue, // Store category data in suggestions JSON field
+      },
+      // Enhanced analysis fields
+      domain: analysis.domain,
+      atsScore: analysis.atsScore,
+      matchedSkills: JSON.parse(JSON.stringify(analysis.matchedSkills)), // Convert to JSON
+      experienceGaps: analysis.experienceGaps,
+      strengthAreas: analysis.strengthAreas,
+      improvementAreas: analysis.improvementAreas,
+      atsTips: analysis.atsTips,
+    },
+  });
+
+  analysisId = savedAnalysis.id;
 
   // Return analysis with categories
   return NextResponse.json({

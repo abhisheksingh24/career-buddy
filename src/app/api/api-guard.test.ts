@@ -1,5 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "fs";
-import { join } from "path";
+/// <reference types="vite/client" />
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { getServerSession, aiCalls } = vi.hoisted(() => ({
@@ -81,19 +80,20 @@ it("does not count different users together", async () => {
 });
 
 describe("every API route uses the shared guard", () => {
-  const files: string[] = [];
-  const walk = (dir: string) => {
-    for (const name of readdirSync(dir)) {
-      const p = join(dir, name);
-      if (statSync(p).isDirectory()) walk(p);
-      else if (name === "route.ts") files.push(p);
-    }
-  };
-  walk(__dirname);
+  // Raw source of each route file, keyed by relative path (no filesystem path building).
+  const routes = import.meta.glob("./**/route.ts", {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  }) as Record<string, string>;
+  const entries = Object.entries(routes);
 
-  it.each(files.map((f) => [f.slice(__dirname.length)]))("%s", (rel) => {
+  it("finds the route files", () => {
+    expect(entries.length).toBeGreaterThan(3);
+  });
+
+  it.each(entries)("%s", (rel, src) => {
     if (rel.includes("/auth/")) return; // NextAuth's own handler
-    const src = readFileSync(join(__dirname, rel), "utf8");
     expect(src).toMatch(/await guard\(/);
   });
 });

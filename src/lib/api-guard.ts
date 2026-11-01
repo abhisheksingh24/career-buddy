@@ -47,6 +47,8 @@ export const MAX_JSON_BYTES = 200_000;
 
 /** Parse a JSON body; null when it is missing, invalid or larger than `maxBytes`. */
 export async function readJson(req: Request, maxBytes = MAX_JSON_BYTES): Promise<unknown | null> {
+  const declared = Number(req.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maxBytes) return null;
   const text = await req.text().catch(() => "");
   if (!text || new TextEncoder().encode(text).length > maxBytes) return null;
   try {
