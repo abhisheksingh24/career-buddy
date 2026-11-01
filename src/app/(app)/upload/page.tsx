@@ -1,32 +1,27 @@
 "use client";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  readUploadResponse,
+  UPLOAD_FALLBACK_ERROR,
+  type UploadOutcome,
+} from "@/lib/upload-response";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function UploadPage() {
   const [fileName, setFileName] = useState<string>("");
-  const [result, setResult] = useState<{
-    status: number;
-    id?: string;
-    originalName?: string;
-    mimeType?: string;
-    length?: number;
-    error?: string;
-  } | null>(null);
+  const [outcome, setOutcome] = useState<UploadOutcome | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(formData: FormData) {
     setLoading(true);
-    setResult(null);
+    setOutcome(null);
     try {
       const res = await fetch("/api/resume/upload", { method: "POST", body: formData });
-      const text = await res.text();
-      const maybe = text ? JSON.parse(text) : { error: "Empty response" };
-      setResult({ status: res.status, ...maybe });
-    } catch (e: unknown) {
-      setResult({
-        status: 500,
-        error: e instanceof Error ? e.message : "Unknown error occurred",
-      });
+      setOutcome(await readUploadResponse(res));
+    } catch {
+      setOutcome({ ok: false, error: UPLOAD_FALLBACK_ERROR });
     }
     setLoading(false);
   }
@@ -47,10 +42,19 @@ export default function UploadPage() {
         </button>
       </form>
       {fileName && <p className="text-sm">Selected: {fileName}</p>}
-      {result && (
-        <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">
-          {JSON.stringify(result, null, 2)}
-        </pre>
+      {outcome && !outcome.ok && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="break-words">{outcome.error}</AlertDescription>
+        </Alert>
+      )}
+      {outcome?.ok && (
+        <Alert>
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription className="break-words">
+            {outcome.fileName ? `Uploaded ${outcome.fileName}` : "Resume uploaded successfully!"}
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

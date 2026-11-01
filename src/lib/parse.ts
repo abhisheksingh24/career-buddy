@@ -1,26 +1,14 @@
-export async function extractTextFromFile(
-  file: File,
-): Promise<{ text: string; mimeType: string; originalName: string }> {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const mimeType = file.type || "application/octet-stream";
-  const originalName = (file as File & { name?: string }).name ?? "upload";
+import type { UploadKind } from "./upload-validation";
 
-  if (mimeType === "application/pdf") {
+/** Extract text from an upload already validated by `detectKind`. */
+export async function extractText(buffer: Buffer, kind: UploadKind): Promise<string> {
+  if (kind === "pdf") {
     const { default: pdfParse } = await import("pdf-parse");
-    const result = await pdfParse(buffer);
-    return { text: result.text ?? "", mimeType, originalName };
+    return (await pdfParse(buffer)).text ?? "";
   }
-
-  if (
-    mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    originalName.toLowerCase().endsWith(".docx")
-  ) {
+  if (kind === "docx") {
     const { default: mammoth } = await import("mammoth");
-    const result = await mammoth.extractRawText({ buffer });
-    return { text: result.value ?? "", mimeType, originalName };
+    return (await mammoth.extractRawText({ buffer })).value ?? "";
   }
-
-  // Fallback: treat as text
-  return { text: buffer.toString("utf8"), mimeType, originalName };
+  return buffer.toString("utf8");
 }
