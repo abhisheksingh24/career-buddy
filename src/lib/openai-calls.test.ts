@@ -15,6 +15,7 @@ vi.mock("openai", () => ({
 import { getSuggestions } from "./ai";
 import { detectDomain, extractJobRequirements, extractSkillsFromText } from "./ai-extraction";
 import { scoreExperienceRelevance } from "./comprehensive-scoring";
+import { isReasoningModel } from "./openai-params";
 import { getBatchEmbeddings, getEmbedding } from "./semantic-match";
 
 const reply = (content: string) => ({ choices: [{ message: { content } }] });
@@ -137,6 +138,21 @@ describe("embeddings", () => {
   it("rethrows API errors", async () => {
     embedCreate.mockRejectedValue(new Error("fail"));
     await expect(getEmbedding("a")).rejects.toThrow("fail");
+  });
+});
+
+describe("isReasoningModel", () => {
+  it.each(["o3-mini", "gpt-5", "o1"])("treats %s as a reasoning model", (m) => {
+    expect(isReasoningModel(m)).toBe(true);
+  });
+  it.each([
+    "gpt-4o",
+    "gpt-4o-mini",
+    "omni-moderation-latest",
+    "ft:gpt-4o",
+    "text-embedding-3-small",
+  ])("does not treat %s as a reasoning model", (m) => {
+    expect(isReasoningModel(m)).toBe(false);
   });
 });
 
