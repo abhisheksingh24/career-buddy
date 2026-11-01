@@ -40,6 +40,11 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+# the template stays tracked: placeholders only, never real secrets
+!.env.example
+
+# Docker install script (downloaded by the README steps, not part of the repo)
+get-docker.sh
 
 # vercel
 .vercel

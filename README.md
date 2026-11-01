@@ -78,6 +78,7 @@ brew install --cask docker
 # Install Docker Engine
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
+rm get-docker.sh   # the script is not kept in the repo
 
 # Install Docker Compose
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose

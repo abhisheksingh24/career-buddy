@@ -30,7 +30,7 @@
 
 **Stack:** TypeScript, Next.js 16 (App Router, Turbopack dev), React 19, Tailwind v4 + shadcn/Radix, NextAuth v4 (Google, database sessions), Prisma 6 on PostgreSQL (Docker locally, Supabase intended in production), OpenAI (optional, mock mode), Vitest. See docs/decisions/0001-0006 and docs/architecture/README.md.
 
-**Install:** `npm ci && npx prisma generate` (needs a `.env` copied from `.env.example`; note `.env.example` is git-ignored, see gaps). Database: `docker-compose up -d` then `npx prisma migrate dev` (or `make init`).
+**Install:** `npm ci && npx prisma generate` (needs a `.env` copied from `.env.example`; `.env.example` is tracked in git and holds placeholders only). Database: `docker-compose up -d` then `npx prisma migrate dev` (or `make init`).
 
 **Run (web):** `npm run dev` (http://localhost:3000). Set `MOCK_AI_SUGGESTIONS=true` to run without an OpenAI key.
 
