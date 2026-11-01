@@ -14,7 +14,7 @@ Not recorded.
 
 ## Decision
 
-Prisma 6 (`prisma/schema.prisma`, migrations in `prisma/migrations`) over PostgreSQL. Models: User, Account, Session, VerificationToken, Profile, Portfolio, Resume, JobApplication, ResumeAnalysis, Review.
+Prisma 7 with the `pg` driver adapter, see ADR 0020 (`prisma/schema.prisma`, migrations in `prisma/migrations`) over PostgreSQL. Models: User, Account, Session, VerificationToken, Profile, Portfolio, Resume, JobApplication, ResumeAnalysis, Review.
 
 ## Consequences
 
