@@ -17,17 +17,17 @@ import { isAiEnabled, isMockMode } from "./ai";
 import { ScoringWeights, SkillMatchResult, JobRequirements } from "./types/analysis";
 
 // Zod schemas for AI responses
-const ExperienceRelevanceSchema = z.object({
+export const ExperienceRelevanceSchema = z.object({
   score: z.number().min(0).max(100),
   reasoning: z.string(),
 });
 
-const EducationScoreSchema = z.object({
+export const EducationScoreSchema = z.object({
   score: z.number().min(0).max(100),
   reasoning: z.string(),
 });
 
-const AchievementsScoreSchema = z.object({
+export const AchievementsScoreSchema = z.object({
   score: z.number().min(0).max(100),
   reasoning: z.string(),
 });

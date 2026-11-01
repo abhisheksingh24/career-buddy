@@ -31,7 +31,7 @@ const CATEGORY_NAME_MAP: Record<
 };
 
 // Action Item Schema with category name normalization
-const ActionItemSchema = z.object({
+export const ActionItemSchema = z.object({
   id: z.string(),
   category: z
     .string()
@@ -50,7 +50,7 @@ const ActionItemSchema = z.object({
   estimatedImpact: z.number().min(0).max(100),
 });
 
-const ComprehensiveFeedbackSchema = z.object({
+export const ComprehensiveFeedbackSchema = z.object({
   // Legacy fields (required for backward compatibility)
   strengthAreas: z.array(z.string()).min(3).max(5),
   improvementAreas: z.array(z.string()).min(3).max(5),
