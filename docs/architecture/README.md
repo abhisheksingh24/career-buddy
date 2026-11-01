@@ -55,5 +55,6 @@ erDiagram
 - Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`; database name per instance is still open (#44).
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
+- Security headers: `next.config.ts` `headers()` applies `src/lib/security-headers.ts` to every path (nosniff, referrer, frame denial, permissions policy, HSTS in production only, and a report-only CSP; tested in `security-headers.test.ts`). Enforcing the CSP is a follow-up.
 - Node: `^20.19 || ^22.13 || >=24` (`engines`, `.nvmrc`), required by jsdom for tests.
 - Decisions: `docs/decisions/0001` to `0007`.
