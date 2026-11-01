@@ -34,9 +34,9 @@ export function CategoryNavigation({
   onCategorySelect,
 }: CategoryNavigationProps) {
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
+    if (score >= 80) return "text-green-700";
     if (score >= 60) return "text-blue-600";
-    if (score >= 40) return "text-yellow-600";
+    if (score >= 40) return "text-yellow-700";
     return "text-red-600";
   };
 
@@ -49,10 +49,10 @@ export function CategoryNavigation({
 
   const getStatusIndicator = (score: number) => {
     if (score >= 80) {
-      return <CheckCircle className="h-4 w-4 text-green-600" />;
+      return <CheckCircle className="h-4 w-4 text-green-700" />;
     }
     if (score >= 50) {
-      return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+      return <AlertTriangle className="h-4 w-4 text-yellow-700" />;
     }
     return <XCircle className="h-4 w-4 text-red-600" />;
   };
@@ -108,7 +108,7 @@ export function CategoryNavigation({
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{getStatusLabel(category.score)}</span>
+                    <span className="text-xs text-gray-600">{getStatusLabel(category.score)}</span>
                     {category.actionItemsCount > 0 && (
                       <Badge
                         variant="outline"

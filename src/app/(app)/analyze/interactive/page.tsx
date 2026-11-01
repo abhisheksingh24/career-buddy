@@ -496,7 +496,7 @@ export default function InteractiveAnalyzePage() {
           ),
           rightPanel: (
             <div className="h-full flex flex-col">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h3>
+              <h2 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h2>
               <ResumePDFViewer
                 fileUrl={resumeId ? `/api/resume/${resumeId}/file` : null}
                 fileType={resumeFileType}
