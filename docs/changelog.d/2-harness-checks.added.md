@@ -1,0 +1,1 @@
+A CI workflow now runs lint, typecheck, tests and build on every pull request, and `scripts/instance.sh` starts an isolated app instance on a given port for parallel checks. Dependabot also watches npm packages with a 7-day cooldown.
