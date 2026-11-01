@@ -51,8 +51,10 @@ export const MAX_PROFILE_BYTES = 50_000;
  * safely. Forwarding headers are client-controlled unless a proxy we run sets
  * them, so they are read only when `TRUSTED_PROXY=true`. Then the entry the
  * proxy appended is used: the Nth from the right, N = `TRUSTED_PROXY_HOPS`
- * (default 1), never the first (which the client writes). `X-Real-IP` is the
- * fallback. Untrusted: null, and the caller skips per-address limiting rather
+ * (default 1), never the first (which the client writes). If the header has
+ * fewer entries than the hop count the chain is not what we configured, so
+ * the result is null; `X-Real-IP` is used only when the header is absent
+ * entirely. Untrusted: null, and the caller skips per-address limiting rather
  * than sharing one bucket that a single client could fill (ADR 0022).
  */
 export function clientKey(req: Request): string | null {
@@ -62,8 +64,10 @@ export function clientKey(req: Request): string | null {
     .split(",")
     .map((e) => e.trim())
     .filter(Boolean);
-  const fwd = entries.length >= hops ? entries[entries.length - hops] : undefined;
-  return fwd || req.headers.get("x-real-ip")?.trim() || null;
+  if (entries.length > 0) {
+    return entries.length >= hops ? entries[entries.length - hops] : null;
+  }
+  return req.headers.get("x-real-ip")?.trim() || null;
 }
 
 /** 429 response for a refused rate-limit check. */

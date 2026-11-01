@@ -24,11 +24,16 @@ describe("clientKey", () => {
     expect(clientKey(req({ "x-forwarded-for": "6.6.6.6, 9.9.9.9, 10.0.0.1" }))).toBe("9.9.9.9");
   });
 
-  it("falls back to x-real-ip when the header is empty or too short", () => {
+  it("falls back to x-real-ip only when x-forwarded-for is absent", () => {
     vi.stubEnv("TRUSTED_PROXY", "true");
-    expect(clientKey(req({ "x-forwarded-for": " , ", "x-real-ip": "5.6.7.8" }))).toBe("5.6.7.8");
     expect(clientKey(req({ "x-real-ip": "5.6.7.8" }))).toBe("5.6.7.8");
     expect(clientKey(req())).toBeNull();
+  });
+
+  it("returns null when x-forwarded-for has fewer entries than the hop count", () => {
+    vi.stubEnv("TRUSTED_PROXY", "true");
+    vi.stubEnv("TRUSTED_PROXY_HOPS", "2");
+    expect(clientKey(req({ "x-forwarded-for": "9.9.9.9", "x-real-ip": "5.6.7.8" }))).toBeNull();
   });
 });
 

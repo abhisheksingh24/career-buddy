@@ -10,7 +10,7 @@ Sign-in has no session, so its rate limit (20 POSTs a minute) needs a client add
 
 ## Decision
 
-- Forwarding headers are read only when `TRUSTED_PROXY=true`, meaning a proxy we run sets them. The address is the entry the proxy appended: the Nth from the right, N = `TRUSTED_PROXY_HOPS` (default 1). `X-Real-IP` is the fallback.
+- Forwarding headers are read only when `TRUSTED_PROXY=true`, meaning a proxy we run sets them. The address is the entry the proxy appended: the Nth from the right, N = `TRUSTED_PROXY_HOPS` (default 1). If the header has fewer entries than the hop count the chain is not what we configured, so there is no address (sign-in not address-limited); `X-Real-IP` is used only when `X-Forwarded-For` is absent entirely.
 - When no proxy is trusted there is no safe address, so sign-in is not address-limited. We do not use one global bucket (any shared cap can be filled by one client) and do not trust the header. Sign-in POSTs only redirect to Google, which holds the credentials, so the cost of leaving them unlimited is low.
 - Anonymous limits use their own bounded store (`anonRateLimit`), separate from the signed-in one (`rateLimit`). Flooding anonymous keys can only evict other anonymous keys.
 - `readJson` now counts bytes while streaming (via `readBodyLimited`), so chunked bodies without Content-Length are never buffered past the cap. Over-size JSON still returns 400, as before.
