@@ -1,0 +1,1 @@
+`.env.example` is confirmed tracked in git with placeholder values only, and `.gitignore` now explicitly keeps it tracked. The unused `get-docker.sh` installer was removed from the repository; the README still shows how to download it on demand, and it is now git-ignored.
