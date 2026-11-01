@@ -19,6 +19,25 @@ All raw values live in one tokens file; screens never inline them.
 (named steps, not pixel sizes), spacing scale, radii, elevation, motion.
 Path to the tokens file. -->
 
+### Focus ring
+
+The keyboard focus ring is the `--ring` token in `src/app/globals.css`, drawn
+as a solid 3px ring (`focus-visible:ring-[3px] ring-ring`, no opacity) on
+buttons, badges and tabs. Rule: at least 3:1 against the surface it sits on
+(WCAG 2.2 1.4.11). Measured:
+
+| Mode  | Ring               | Against               | Ratio |
+| ----- | ------------------ | --------------------- | ----- |
+| Light | `oklch(0.556 0 0)` | page and card (white) | 4.7:1 |
+| Light | `oklch(0.556 0 0)` | primary button        | 3.8:1 |
+| Dark  | `oklch(0.708 0 0)` | page                  | 7.6:1 |
+| Dark  | `oklch(0.708 0 0)` | card                  | 6.9:1 |
+
+Before, the ring was 50% transparent (about 1.5:1). In dark mode the primary
+button is near-white, so a single grey cannot reach 3:1 against both it and
+the page; the outer edge on the page is what counts. `src/lib/focus-ring-contrast.test.ts`
+fails if a token change drops below 3:1.
+
 ## Layout
 
 <!-- Width classes: compact < 600, medium 600-839, expanded 840+ (Material
