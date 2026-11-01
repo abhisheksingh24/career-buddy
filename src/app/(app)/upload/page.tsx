@@ -37,7 +37,10 @@ export default function UploadPage() {
           accept=".pdf,.docx,.txt"
           onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
         />
-        <button disabled={loading} className="px-4 py-2 bg-black text-white rounded">
+        <button
+          disabled={loading}
+          className="px-4 py-2 max-sm:min-h-11 bg-black text-white rounded"
+        >
           {loading ? "Uploading..." : "Upload"}
         </button>
       </form>

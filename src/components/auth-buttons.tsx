@@ -6,13 +6,15 @@ export function AuthButtons() {
   const { status } = useSession();
 
   if (status === "loading") {
-    return <button className="px-3 py-1.5 rounded bg-gray-200 text-gray-600">...</button>;
+    return (
+      <button className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-200 text-gray-600">...</button>
+    );
   }
 
   if (status === "authenticated") {
     return (
       <button
-        className="px-3 py-1.5 rounded bg-gray-900 text-white"
+        className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white"
         onClick={() => signOut()}
       >
         Sign out
@@ -22,12 +24,10 @@ export function AuthButtons() {
 
   return (
     <button
-      className="px-3 py-1.5 rounded bg-gray-900 text-white"
+      className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white"
       onClick={() => signIn("google")}
     >
       Sign in
     </button>
   );
 }
-
-
