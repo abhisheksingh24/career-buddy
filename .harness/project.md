@@ -46,6 +46,6 @@
 
 **CI:** `layered` (no existing workflows; harness workflows added alongside). `.github/workflows/ci.yml` runs install, lint, typecheck, test and build on PRs and main.
 
-**Demo:** start the instance with `MOCK_AI_SUGGESTIONS=true`; sign-in is Google OAuth only (no credentials provider), so the demo agent needs a seeded session row in the database or test credentials (unverified). Screens: `/`, `/dashboard`, `/profile`, `/upload`, `/analyze`, `/analyze/interactive`.
+**Demo:** start the instance with `MOCK_AI_SUGGESTIONS=true`; sign-in is Google OAuth only, so for a signed-in demo run `TEST_LOGIN=true NEXTAUTH_URL=http://localhost:$PORT DATABASE_URL=<instance db url> node scripts/test-login.mjs`, which prints a JSON cookie (`name`, `value`) valid for one hour; set it in the browser (unverified end to end: guard unit-tested only). It refuses unless the guards in ADR 0016 hold. Screens: `/`, `/dashboard`, `/profile`, `/upload`, `/analyze`, `/analyze/interactive`.
 
 **Deploy:** (not yet; README names Supabase for the database, no hosting config in the repo)
