@@ -5,23 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { ProfileInput } from "@/lib/profile-schema";
 import { readUploadResponse } from "@/lib/upload-response";
 import { FileText, Upload, AlertCircle, CheckCircle } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { z } from "zod";
 
-const profileSchema = z.object({
-  headline: z.string().optional(),
-  bio: z.string().optional(),
-  location: z.string().optional(),
-  website: z.string().url().optional().nullable(),
-  linkedin: z.string().url().optional().nullable(),
-  github: z.string().url().optional().nullable(),
-  skills: z.array(z.string()).optional(),
-});
-
-type Profile = z.infer<typeof profileSchema>;
+type Profile = Partial<ProfileInput>;
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();

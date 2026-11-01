@@ -1,6 +1,6 @@
 import { guard } from "@/lib/api-guard";
 import prisma from "@/lib/db";
-import { profileSchema } from "@/lib/profile-schema";
+import { EMPTY_PROFILE, profileSchema } from "@/lib/profile-schema";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -9,16 +9,10 @@ export async function GET() {
   if ("response" in auth) return auth.response;
   const { userId } = auth;
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId },
-    include: { user: true },
-  });
+  const profile = await prisma.profile.findUnique({ where: { userId } });
 
-  if (!profile) {
-    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-  }
-
-  return NextResponse.json(profile);
+  // A new user has no profile row yet: that is a normal state, not an error.
+  return NextResponse.json(profile ?? EMPTY_PROFILE);
 }
 
 export async function PUT(req: NextRequest) {
