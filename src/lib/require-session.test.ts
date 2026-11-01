@@ -18,6 +18,7 @@ describe("signInUrl", () => {
       "/api/auth/signin?callbackUrl=%2Fanalyze%2Finteractive",
     );
     expect(signInUrl("/analyze")).toBe("/api/auth/signin?callbackUrl=%2Fanalyze");
+    expect(signInUrl("/upload")).toBe("/api/auth/signin?callbackUrl=%2Fupload");
   });
   it("never echoes other paths or external URLs", () => {
     for (const p of ["https://evil.com", "//evil.com", "/analyze/../x", "/admin"]) {

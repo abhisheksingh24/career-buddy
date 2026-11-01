@@ -16,13 +16,12 @@ import {
 const PAGES = {
   "/": ".next/server/app/index.html",
   "/profile": ".next/server/app/profile.html",
-  "/upload": ".next/server/app/upload.html",
 };
 
 // Server-rendered pages (behind the sign-in guard) have no built HTML, so their
 // scripts come from Next's own per-route list in route-bundle-stats.json.
 const STATS_FILE = ".next/diagnostics/route-bundle-stats.json";
-const DYNAMIC_PAGES = ["/analyze", "/analyze/interactive"];
+const DYNAMIC_PAGES = ["/upload", "/analyze", "/analyze/interactive"];
 
 // kB gzipped. Set about 10% above the size measured on 2026-11-01
 // (/ 183, /profile 230, /upload 183, /analyze 203, /analyze/interactive 206).

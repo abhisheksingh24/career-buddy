@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 // Only these paths may be used as a post-sign-in destination (no open redirect).
-const ALLOWED_RETURN_PATHS = ["/analyze", "/analyze/interactive"] as const;
+const ALLOWED_RETURN_PATHS = ["/analyze", "/analyze/interactive", "/upload"] as const;
 
 export function signInUrl(returnPath: string): string {
   const safe = (ALLOWED_RETURN_PATHS as readonly string[]).includes(returnPath)
