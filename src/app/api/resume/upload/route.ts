@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { extractTextFromFile } from "@/lib/parse";
 import { writeFile, mkdir } from "fs/promises";
 import { getServerSession } from "next-auth";
+import { uploadsRoot } from "@/lib/uploads";
 import { join } from "path";
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -38,7 +39,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     // Only save PDF and DOCX files (not text-only resumes)
     if (mimeType === "application/pdf" || mimeType.includes("wordprocessingml")) {
-      const uploadsDir = join(process.cwd(), "uploads", "resumes");
+      const uploadsDir = join(uploadsRoot(), "resumes");
       await mkdir(uploadsDir, { recursive: true });
 
       // Create unique filename: userId_timestamp_originalName

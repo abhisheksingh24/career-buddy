@@ -52,7 +52,7 @@ erDiagram
 - Logging: `src/lib/logger.ts`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
 - CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check` and `security`. Dependabot covers npm and Actions with a 7-day cooldown.
-- Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`; database name per instance is still open (#44).
+- Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT` with state private to `INSTANCE_ID` (default `port-$PORT`, sanitised to `[a-z0-9_]`, max 40 chars). Database: `career_buddy_<id>` on the local Postgres, derived from `DATABASE_URL` (env, `.env`, or the `.env.example` default; non-local hosts are refused), created and migrated by `prisma migrate deploy` at start. Uploads: `UPLOADS_DIR` (default `uploads/<id>/`, read by `src/lib/uploads.ts`). Tear-down: `psql -h localhost -U postgres -c "DROP DATABASE career_buddy_<id>"` and `rm -rf uploads/<id>`.
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
 - Security headers: `next.config.ts` `headers()` applies `src/lib/security-headers.ts` to every path (nosniff, referrer, frame denial, permissions policy, HSTS in production only, and a report-only CSP; tested in `security-headers.test.ts`). Enforcing the CSP is a follow-up.

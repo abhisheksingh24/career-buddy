@@ -60,7 +60,7 @@ Known gaps, not mitigated yet. Each has an issue.
 - **No central auth and no rate limiting (#37):** per-route checks are repeated by hand, so a new route can forget one. `POST /api/resume/suggest` and `POST /api/resume/analyze` can be called without signing in and spend OpenAI budget. Nothing limits request rate or body size on any route, including sign-in.
 - **Test login (#38):** not built; when it is, it must be impossible to enable in production.
 - **No audit logging (#43):** sign-ins, uploads and access are not recorded, so misuse cannot be investigated.
-- **Shared dev state (#44):** instances share one `./uploads/` directory and need a per-instance database.
+- **Shared dev state (#44, fixed):** each instance gets its own database (`career_buddy_<INSTANCE_ID>`) and uploads directory (`uploads/<INSTANCE_ID>/`); `scripts/instance.sh` refuses a non-local `DATABASE_URL`.
 - **Remaining audit findings (#7, #14 via #74, #75):** items ADR 0008 could not fix (for example `deepmerge-ts` through the Prisma 6 CLI, build time only).
 - **No user data export or delete.** Required once accounts exist; needs a story before going public.
 - **CSP is report-only (#87):** the policy is sent as `Content-Security-Policy-Report-Only`, so violations show in the browser console but nothing is blocked. It still allows inline scripts (no nonces yet). Follow-up: check for violations in real use, move to nonces, then switch to an enforcing `Content-Security-Policy`.

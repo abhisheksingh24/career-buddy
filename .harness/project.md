@@ -42,7 +42,7 @@
 
 **Build:** `npm run build` (green).
 
-**Instance:** `PORT=$PORT INSTANCE_ID=$INSTANCE_ID scripts/instance.sh` (verified: starts `next dev` on `$PORT`, sets `NEXTAUTH_URL`, mock AI on). Ready path: `/api/auth/providers` (verified, 200). Not fully isolated yet: the database is whatever `DATABASE_URL` says (per-instance DB is issue #44), and resume files go to `./uploads/` in the checkout, so separate worktrees are separate.
+**Instance:** `PORT=$PORT INSTANCE_ID=$INSTANCE_ID scripts/instance.sh` (needs `docker-compose up -d postgres`). Derives `DATABASE_URL` database `career_buddy_<id>` (created if missing, `prisma migrate deploy` run), sets `UPLOADS_DIR=uploads/<id>`, `NEXTAUTH_URL=http://localhost:$PORT`. Ready path: `/api/auth/providers` (verified). Tear down: `DROP DATABASE career_buddy_<id>` and `rm -rf uploads/<id>`.
 
 **CI:** `layered` (no existing workflows; harness workflows added alongside). `.github/workflows/ci.yml` runs install, lint, typecheck, test and build on PRs and main.
 

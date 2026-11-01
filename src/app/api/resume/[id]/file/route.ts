@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { readFile } from "fs/promises";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { uploadsRoot } from "@/lib/uploads";
 import { join } from "path";
 
 export async function GET(
@@ -55,7 +56,7 @@ export async function GET(
     }
 
     // Read file from storage
-    const filePath = join(process.cwd(), "uploads", resume.fileUrl);
+    const filePath = join(uploadsRoot(), resume.fileUrl);
 
     try {
       const fileBuffer = await readFile(filePath);
