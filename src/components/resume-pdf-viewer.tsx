@@ -17,53 +17,6 @@ if (typeof window !== "undefined") {
       ? `${window.location.origin}/pdf.worker.min.mjs`
       : "/pdf.worker.min.mjs";
   pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "resume-pdf-viewer.tsx:15",
-      message: "PDF.js worker configured",
-      data: { workerSrc: pdfjs.GlobalWorkerOptions.workerSrc, workerUrl },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      runId: "run1",
-      hypothesisId: "B",
-    }),
-  }).catch(() => {});
-  // Test if worker file is accessible
-  fetch(workerUrl, { method: "HEAD" })
-    .then((response) => {
-      fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location: "resume-pdf-viewer.tsx:workerTest",
-          message: "Worker file test",
-          data: { status: response.status, ok: response.ok, url: workerUrl },
-          timestamp: Date.now(),
-          sessionId: "debug-session",
-          runId: "run1",
-          hypothesisId: "B",
-        }),
-      }).catch(() => {});
-    })
-    .catch((error) => {
-      fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location: "resume-pdf-viewer.tsx:workerTest",
-          message: "Worker file test failed",
-          data: { error: error.message, url: workerUrl },
-          timestamp: Date.now(),
-          sessionId: "debug-session",
-          runId: "run1",
-          hypothesisId: "B",
-        }),
-      }).catch(() => {});
-    });
-  // #endregion
 }
 
 interface ResumePDFViewerProps {
@@ -73,21 +26,6 @@ interface ResumePDFViewerProps {
 }
 
 export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: ResumePDFViewerProps) {
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "resume-pdf-viewer.tsx:24",
-      message: "ResumePDFViewer render",
-      data: { fileUrl, fileType, isLoading },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      runId: "run1",
-      hypothesisId: "A",
-    }),
-  }).catch(() => {});
-  // #endregion
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
@@ -106,22 +44,6 @@ export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: Resume
       ? `${typeof window !== "undefined" ? window.location.origin : ""}${fileUrl}`
       : fileUrl;
 
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "resume-pdf-viewer.tsx:useEffect",
-        message: "Fetching PDF as Blob",
-        data: { absoluteFileUrl },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "E",
-      }),
-    }).catch(() => {});
-    // #endregion
-
     fetch(absoluteFileUrl)
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -129,40 +51,10 @@ export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: Resume
       })
       .then((blob) => {
         const blobUrl = URL.createObjectURL(blob);
-        // #region agent log
-        fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "resume-pdf-viewer.tsx:useEffect",
-            message: "Blob URL created",
-            data: { blobUrl, blobSize: blob.size },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "E",
-          }),
-        }).catch(() => {});
-        // #endregion
         setPdfBlobUrl(blobUrl);
         setPdfLoading(false);
       })
-      .catch((error) => {
-        // #region agent log
-        fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "resume-pdf-viewer.tsx:useEffect",
-            message: "Blob fetch failed",
-            data: { error: error.message },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "E",
-          }),
-        }).catch(() => {});
-        // #endregion
+      .catch(() => {
         setPdfError("Failed to fetch PDF file.");
         setPdfLoading(false);
       });
@@ -179,21 +71,6 @@ export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: Resume
   }, [fileUrl, fileType]);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "resume-pdf-viewer.tsx:31",
-        message: "PDF document loaded successfully",
-        data: { numPages },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "D",
-      }),
-    }).catch(() => {});
-    // #endregion
     setNumPages(numPages);
     setPdfLoading(false);
     setPdfError(null);
@@ -201,21 +78,6 @@ export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: Resume
   }, []);
 
   const onDocumentLoadError = useCallback((error: Error) => {
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "resume-pdf-viewer.tsx:38",
-        message: "PDF document load error",
-        data: { error: error.message, stack: error.stack },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "D",
-      }),
-    }).catch(() => {});
-    // #endregion
     console.error("PDF load error:", error);
     setPdfError("Failed to load PDF. Please try uploading again.");
     setPdfLoading(false);
@@ -244,21 +106,6 @@ export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: Resume
   // Use Blob URL if available, otherwise compute absolute URL
   const documentFileUrl = useMemo(() => {
     if (pdfBlobUrl) {
-      // #region agent log
-      fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location: "resume-pdf-viewer.tsx:useMemo",
-          message: "Using Blob URL",
-          data: { pdfBlobUrl },
-          timestamp: Date.now(),
-          sessionId: "debug-session",
-          runId: "run2",
-          hypothesisId: "E",
-        }),
-      }).catch(() => {});
-      // #endregion
       return pdfBlobUrl;
     }
     if (!fileUrl) return null;
@@ -268,23 +115,6 @@ export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: Resume
     const fullUrl = fileUrl.startsWith("/")
       ? `${typeof window !== "undefined" ? window.location.origin : ""}${fileUrl}`
       : fileUrl;
-    // #region agent log
-    if (typeof window !== "undefined") {
-      fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location: "resume-pdf-viewer.tsx:useMemo",
-          message: "Computed absolute URL",
-          data: { fileUrl, fullUrl, origin: window.location.origin },
-          timestamp: Date.now(),
-          sessionId: "debug-session",
-          runId: "run2",
-          hypothesisId: "C",
-        }),
-      }).catch(() => {});
-    }
-    // #endregion
     return fullUrl;
   }, [fileUrl, pdfBlobUrl]);
 
@@ -421,23 +251,6 @@ export function ResumePDFViewer({ fileUrl, fileType, isLoading = false }: Resume
               file={documentFileUrl}
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
-              onLoadProgress={({ loaded, total }) => {
-                // #region agent log
-                fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    location: "resume-pdf-viewer.tsx:onLoadProgress",
-                    message: "PDF load progress",
-                    data: { loaded, total, fileUrl: documentFileUrl },
-                    timestamp: Date.now(),
-                    sessionId: "debug-session",
-                    runId: "run2",
-                    hypothesisId: "C",
-                  }),
-                }).catch(() => {});
-                // #endregion
-              }}
               loading={
                 <div className="flex items-center justify-center p-8">
                   <Skeleton className="h-[800px] w-[600px]" />
