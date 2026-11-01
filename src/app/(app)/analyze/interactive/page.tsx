@@ -118,30 +118,6 @@ export default function InteractiveAnalyzePage() {
     }
   }, [session]);
 
-  // #region agent log
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      fetch("http://127.0.0.1:7242/ingest/9461d7c9-c815-4bb2-bdd1-550b35efca7c", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          location: "interactive/page.tsx:useEffect",
-          message: "ResumePDFViewer props updated",
-          data: {
-            resumeId,
-            resumeFileType,
-            fileUrl: resumeId ? `/api/resume/${resumeId}/file` : null,
-          },
-          timestamp: Date.now(),
-          sessionId: "debug-session",
-          runId: "run1",
-          hypothesisId: "A",
-        }),
-      }).catch(() => {});
-    }
-  }, [resumeId, resumeFileType]);
-  // #endregion
-
   const fetchUserResume = async () => {
     try {
       const response = await fetch("/api/resume/active");
