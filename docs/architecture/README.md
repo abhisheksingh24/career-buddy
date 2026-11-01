@@ -55,5 +55,5 @@ erDiagram
 - Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`; database name per instance is still open (#44).
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
-- Node: `^20.19 || ^22.13 || >=24` (`engines`, `.nvmrc`), required by jsdom for tests.
+- Node: `^22.22.2 || ^24.15 || >=26` (`engines`; `.nvmrc` tracks 22), required by jsdom 30 and lint-staged 17.
 - Decisions: `docs/decisions/0001` to `0007`.
