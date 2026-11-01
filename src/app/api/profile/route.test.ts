@@ -57,7 +57,7 @@ describe("profile route", () => {
 
   it.each([
     ["headline", { headline: "x".repeat(201) }],
-    ["bio", { bio: "x".repeat(2001) }],
+    ["bio", { bio: "x".repeat(3001) }],
     ["location", { location: "x".repeat(201) }],
     ["a skill", { skills: ["x".repeat(51)] }],
     ["skill count", { skills: Array.from({ length: 51 }, (_, i) => `s${i}`) }],
@@ -67,9 +67,16 @@ describe("profile route", () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
+  it("names the field and limit in the 400 body", async () => {
+    const res = await PUT(put({ bio: "x".repeat(3001) }));
+    expect((await res.json()).error).toBe("Bio is too long (max 3000 characters)");
+    const skills = await PUT(put({ skills: ["x".repeat(51)] }));
+    expect((await skills.json()).error).toBe("A skill is too long (max 50 characters)");
+  });
+
   it("accepts values at the caps", async () => {
     const res = await PUT(
-      put({ headline: "x".repeat(200), bio: "x".repeat(2000), skills: ["x".repeat(50)] }),
+      put({ headline: "x".repeat(200), bio: "x".repeat(3000), skills: ["x".repeat(50)] }),
     );
     expect(res.status).toBe(200);
   });

@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { ProfileInput } from "@/lib/profile-schema";
+import { PROFILE_LIMITS, type ProfileInput } from "@/lib/profile-schema";
 import { readUploadResponse } from "@/lib/upload-response";
 import { FileText, Upload, AlertCircle, CheckCircle } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Profile = Partial<ProfileInput>;
 
@@ -19,6 +19,14 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [bioLength, setBioLength] = useState(0);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearSaved = () => {
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    setSaved(false);
+  };
 
   // Resume management state
   const [resume, setResume] = useState<{
@@ -49,6 +57,7 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
       setProfile(data);
+      setBioLength(data?.bio?.length ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load profile");
     } finally {
@@ -107,6 +116,7 @@ export default function ProfilePage() {
     try {
       setIsSaving(true);
       setError(null);
+      clearSaved();
       const formData = new FormData(e.currentTarget);
       const data = {
         headline: formData.get("headline") as string,
@@ -129,9 +139,18 @@ export default function ProfilePage() {
         body: JSON.stringify(data),
       });
 
-      if (!res.ok) throw new Error("Failed to update profile");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(
+          res.status === 400 && typeof body?.error === "string"
+            ? body.error
+            : "Failed to update profile",
+        );
+      }
       const updatedProfile = await res.json();
       setProfile(updatedProfile);
+      setSaved(true);
+      savedTimer.current = setTimeout(() => setSaved(false), 4000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save profile");
     } finally {
@@ -166,6 +185,13 @@ export default function ProfilePage() {
         </Alert>
       )}
 
+      {saved && (
+        <Alert role="status">
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription>Profile saved</AlertDescription>
+        </Alert>
+      )}
+
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile">Profile Information</TabsTrigger>
@@ -173,7 +199,7 @@ export default function ProfilePage() {
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} onChange={clearSaved} className="space-y-6">
             <div className="space-y-4">
               <div>
                 <label htmlFor="headline" className="block text-sm font-medium text-gray-700">
@@ -183,6 +209,7 @@ export default function ProfilePage() {
                   type="text"
                   id="headline"
                   name="headline"
+                  maxLength={PROFILE_LIMITS.headline}
                   defaultValue={profile?.headline || ""}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Full Stack Developer | AI Enthusiast"
@@ -197,10 +224,15 @@ export default function ProfilePage() {
                   id="bio"
                   name="bio"
                   rows={4}
+                  maxLength={PROFILE_LIMITS.bio}
+                  onChange={(e) => setBioLength(e.target.value.length)}
                   defaultValue={profile?.bio || ""}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Tell us about yourself..."
                 />
+                <p className="mt-1 text-xs text-gray-500 text-right">
+                  {bioLength} / {PROFILE_LIMITS.bio}
+                </p>
               </div>
 
               <div>
@@ -211,6 +243,7 @@ export default function ProfilePage() {
                   type="text"
                   id="location"
                   name="location"
+                  maxLength={PROFILE_LIMITS.location}
                   defaultValue={profile?.location || ""}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="City, Country"
@@ -267,15 +300,20 @@ export default function ProfilePage() {
                   type="text"
                   id="skills"
                   name="skills"
+                  aria-describedby="skills-hint"
                   defaultValue={profile?.skills?.join(", ") || ""}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="React, Node.js, Python (comma separated)"
+                  placeholder="React, Node.js, Python"
                 />
+                <p id="skills-hint" className="mt-1 text-xs text-gray-500">
+                  Separate skills with commas (up to {PROFILE_LIMITS.skills}, {PROFILE_LIMITS.skill}{" "}
+                  characters each).
+                </p>
               </div>
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit" disabled={isSaving} className="px-6">
+              <Button type="submit" disabled={isSaving} className="px-6 min-h-11">
                 {isSaving ? "Saving..." : "Save Profile"}
               </Button>
             </div>

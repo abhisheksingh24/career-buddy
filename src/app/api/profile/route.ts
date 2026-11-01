@@ -1,6 +1,6 @@
 import { guard } from "@/lib/api-guard";
 import prisma from "@/lib/db";
-import { EMPTY_PROFILE, profileSchema } from "@/lib/profile-schema";
+import { EMPTY_PROFILE, describeProfileIssues, profileSchema } from "@/lib/profile-schema";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -36,7 +36,10 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(profile);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.issues }, { status: 400 });
+      return NextResponse.json(
+        { error: describeProfileIssues(error.issues), issues: error.issues },
+        { status: 400 },
+      );
     }
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
   }
