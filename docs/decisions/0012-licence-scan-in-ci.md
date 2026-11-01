@@ -16,10 +16,15 @@ output differs by platform because optional native packages (`@img/sharp-*`,
 
 - New workflow `licences.yml` runs `scripts/licenses.mjs` on PRs, pushes to main
   and weekly, on the Linux runner after `npm ci --ignore-scripts`.
-- The script runs `license-checker-rseidelsohn@5.0.1` through `npx --yes`
-  (pinned; a maintained fork of license-checker, BSD-3-Clause, released months
-  ago so past the dependency cooldown). It is not added to `package.json`, so
-  there is no new runtime or dev dependency; the pin is bumped by hand.
+- The script runs the local binary of `license-checker-rseidelsohn`, an
+  exact-pinned (no caret) devDependency at 5.0.1 (a maintained fork of
+  license-checker, BSD-3-Clause). It is a devDependency, not a runtime one, so
+  it never ships. Being in the lockfile gives it integrity hashes, `npm audit`
+  coverage and Dependabot updates under the 7-day cooldown. An earlier draft
+  ran it with `npx --yes` to avoid a dependency; that is superseded, because
+  it fetched unlockfiled registry code on every run, outside the cooldown and
+  the audit. The dev tree adds moderate advisories via `@npmcli/arborist`
+  (dev only; CI audits production at high), and no new high or critical.
 - Policy is `.github/licence-policy.json`: an allowlist of SPDX ids (MIT,
   Apache-2.0, ISC, BSD-2/3-Clause, 0BSD, Zlib, BlueOak-1.0.0, CC0-1.0,
   Python-2.0, Unlicense) and exceptions with reason and ADR. SPDX expressions

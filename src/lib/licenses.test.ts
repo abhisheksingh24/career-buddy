@@ -39,6 +39,13 @@ describe("expressionAllowed", () => {
     expect(expressionAllowed("Custom: https://x.test/licence", allowed)).toBe(false);
     expect(expressionAllowed("", allowed)).toBe(false);
   });
+  it("fails closed on a missing operand or unbalanced parentheses", () => {
+    expect(expressionAllowed("MIT OR", allowed)).toBe(false);
+    expect(expressionAllowed("OR MIT", allowed)).toBe(false);
+    expect(expressionAllowed("MIT AND", allowed)).toBe(false);
+    expect(expressionAllowed("(MIT OR", allowed)).toBe(false);
+    expect(expressionAllowed("MIT OR )", allowed)).toBe(false);
+  });
   it("OR needs one permissive side, AND needs both", () => {
     expect(expressionAllowed("(MIT OR GPL-3.0-or-later)", allowed)).toBe(true);
     expect(expressionAllowed("(MIT AND Zlib)", allowed)).toBe(true);

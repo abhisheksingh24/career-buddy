@@ -30,6 +30,12 @@ the intent chosen then; until then all rights stay with the owner.
 | `pako` (transitive)                                                    | MIT AND Zlib                         | Compression                                                                                         | Both permissive; no action                                                                                                  |
 | `web`                                                                  | UNLICENSED                           | This project itself                                                                                 | n/a                                                                                                                         |
 
+## Dev dependencies added for tooling
+
+| Package                                     | Licence      | Why                                                        |
+| ------------------------------------------- | ------------ | ---------------------------------------------------------- |
+| `license-checker-rseidelsohn` (exact 5.0.1) | BSD-3-Clause | Runs the CI licence scan (ADR 0012); dev only, not shipped |
+
 ## Assets (fonts, icons, images, sounds, copied code or text)
 
 | Asset                                              | Where used                                  | Source                   | Licence     | Attribution required                   |

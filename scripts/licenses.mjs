@@ -5,20 +5,23 @@
 // exceptions match by package name and unused ones only produce a notice.
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { evaluate } from "./licenses-lib.mjs";
 
-// Pinned (ADR 0012). Dependabot cannot see it; bump by hand.
-const CHECKER = "license-checker-rseidelsohn@5.0.1";
+// The checker is an exact-pinned devDependency (lockfile integrity hashes,
+// Dependabot with cooldown; ADR 0012). Run the local binary, never the registry.
+const CHECKER = fileURLToPath(
+  new URL("../node_modules/.bin/license-checker-rseidelsohn", import.meta.url),
+);
 
 const policy = JSON.parse(
   readFileSync(new URL("../.github/licence-policy.json", import.meta.url), "utf8"),
 );
 
-const r = spawnSync(
-  "npx",
-  ["--yes", CHECKER, "--production", "--json", "--excludePrivatePackages"],
-  { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
-);
+const r = spawnSync(CHECKER, ["--production", "--json", "--excludePrivatePackages"], {
+  encoding: "utf8",
+  maxBuffer: 64 * 1024 * 1024,
+});
 let report;
 try {
   report = JSON.parse(r.stdout);

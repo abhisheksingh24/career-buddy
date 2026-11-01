@@ -23,6 +23,7 @@ export function expressionAllowed(expr, allowed) {
     .split(/\s+/)
     .filter(Boolean);
   let pos = 0;
+  let malformed = false;
   const parseOr = () => {
     let ok = parseAnd();
     while (tokens[pos] === "OR") {
@@ -43,10 +44,16 @@ export function expressionAllowed(expr, allowed) {
   };
   const parseAtom = () => {
     const t = tokens[pos++];
-    if (t === undefined) return false;
+    if (t === undefined || t === ")" || t === "OR" || t === "AND") {
+      malformed = true; // missing operand, e.g. "MIT OR": fail closed
+      return false;
+    }
     if (t === "(") {
       const ok = parseOr();
-      if (tokens[pos] !== ")") return false;
+      if (tokens[pos] !== ")") {
+        malformed = true;
+        return false;
+      }
       pos++;
       return ok;
     }
@@ -55,7 +62,7 @@ export function expressionAllowed(expr, allowed) {
   if (tokens.length === 0) return false;
   const result = parseOr();
   // Leftover tokens (e.g. "Custom: foo bar") mean we did not understand it.
-  return result && pos === tokens.length;
+  return result && !malformed && pos === tokens.length;
 }
 
 const asText = (l) => (Array.isArray(l) ? `(${l.join(" OR ")})` : String(l ?? "UNKNOWN"));
