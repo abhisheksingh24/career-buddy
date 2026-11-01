@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import type { ExtractedSkills, JobRequirements } from "./types/analysis";
 
-const ExtractedSkillsSchema = z.object({
+export const ExtractedSkillsSchema = z.object({
   technical_skills: z.array(z.string()),
   soft_skills: z.array(z.string()),
   tools: z.array(z.string()),
@@ -16,7 +16,7 @@ const ExtractedSkillsSchema = z.object({
   domain_keywords: z.array(z.string()),
 });
 
-const JobRequirementsSchema = z.object({
+export const JobRequirementsSchema = z.object({
   required_skills: z.array(z.string()),
   preferred_skills: z.array(z.string()),
   experience_requirements: z.array(z.string()),

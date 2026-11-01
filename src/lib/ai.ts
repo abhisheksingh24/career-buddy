@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
-const SuggestionsSchema = z.object({
+export const SuggestionsSchema = z.object({
   bullets: z.array(z.string()).max(5),
   skills: z.array(z.string()).max(20).optional().default([]),
 });

@@ -1,18 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { profileSchema } from "@/lib/profile-schema";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 
-const profileSchema = z.object({
-  headline: z.string().optional(),
-  bio: z.string().optional(),
-  location: z.string().optional(),
-  website: z.string().url().optional().nullable(),
-  linkedin: z.string().url().optional().nullable(),
-  github: z.string().url().optional().nullable(),
-  skills: z.array(z.string()).optional(),
-});
 
 export async function GET() {
   const session = await getServerSession(authOptions);
