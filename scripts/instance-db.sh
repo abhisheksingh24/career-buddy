@@ -12,7 +12,15 @@
 #   parameter that can redirect the connection (host, hostaddr, socket*, service*,
 #   or a percent-encoded key we do not decode).
 instance_db_url() {
-  local url="$1" id="$2" scheme rest authority query="" hostport host port key pair
+  local LC_ALL=C
+  local url="$1" id="$2" scheme rest authority query="" hostport host port key pair q
+  # Allowlist the whole URL first: no "#" (fragment), backslash, whitespace,
+  # control characters or newlines, and no non-ASCII. Such characters let
+  # drivers read a different host than the one parsed below.
+  case "$url" in
+    *[!A-Za-z0-9._~:/?\&=@%+,\;\!\$\'\(\)\*-]*)
+      echo "Refusing DATABASE_URL with characters outside the allowed set" >&2; return 1 ;;
+  esac
   case "$url" in
     postgresql://*) scheme="postgresql" ;;
     postgres://*) scheme="postgres" ;;
@@ -29,11 +37,16 @@ instance_db_url() {
     localhost | 127.0.0.1) ;;
     *) echo "Refusing to create an instance database on a non-local DATABASE_URL" >&2; return 1 ;;
   esac
+  case "$hostport" in
+    *:) echo "Refusing DATABASE_URL with an empty port" >&2; return 1 ;;
+  esac
   case "$port" in
     *[!0-9]*) echo "Refusing DATABASE_URL with an invalid port" >&2; return 1 ;;
   esac
-  local IFS='&'
-  for pair in $query; do
+  q="$query"
+  while [ -n "$q" ]; do
+    pair="${q%%&*}"
+    case "$q" in *\&*) q="${q#*&}" ;; *) q="" ;; esac
     key="$(printf '%s' "${pair%%=*}" | tr 'A-Z' 'a-z')"
     case "$key" in
       host | hostaddr | socket* | service* | *%*)
