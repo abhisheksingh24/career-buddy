@@ -119,4 +119,19 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Phone: single-line text inputs meet the 44px touch minimum (#142). */
+  @media (max-width: 767px) {
+    input:not(
+      [type="file"],
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="hidden"],
+      [type="color"],
+      [type="submit"],
+      [type="button"]
+    ) {
+      min-height: 44px;
+    }
+  }
 }
