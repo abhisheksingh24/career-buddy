@@ -29,7 +29,7 @@ export async function guard(options: GuardOptions = {}): Promise<GuardResult> {
       return {
         response: NextResponse.json(
           {
-            error: `You're doing that too quickly. Please wait ${result.retryAfterSeconds} seconds and try again.`,
+            error: `You're doing that too quickly. Please wait ${result.retryAfterSeconds} ${result.retryAfterSeconds === 1 ? "second" : "seconds"} and try again.`,
           },
           { status: 429, headers: { "Retry-After": String(result.retryAfterSeconds) } },
         ),
