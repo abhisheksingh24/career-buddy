@@ -22,8 +22,13 @@ or `services:`.
   stops matching fails the run so the list cannot rot. Today: `image-alt` on
   the NextAuth built-in sign-in page (#102).
 - **Performance:** `scripts/perf-budget.mjs` sums the gzipped JS each
-  prerendered page loads at start (read from the built HTML) and fails over a
-  per-page budget (values in the profile). Chosen over Lighthouse CI: it is
+  page loads at start and fails over a per-page budget (values in the profile).
+  Prerendered pages are read from the built HTML. Server-rendered pages (the
+  sign-in-guarded `/analyze` routes, #37) have no HTML, so they are read from
+  Next's `.next/diagnostics/route-bundle-stats.json`, plus the shared scripts
+  Next leaves out of that list, so both kinds are measured the same way. A
+  missing build file, a route without stats, or a page without a budget fails
+  the run. Chosen over Lighthouse CI: it is
   deterministic, has no extra dependency and no flaky timing on shared runners.
   Runtime metrics (INP) are not covered yet.
 - New workflow `quality.yml`, separate from `ci.yml` so the browser install
