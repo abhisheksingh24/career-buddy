@@ -42,3 +42,17 @@ loading / error states, confirmation and undo, progressive disclosure. -->
 <!-- Vocabulary (one term per concept), tone, number and unit formats,
 how errors and empty states are phrased. Short lines, no paragraph over two
 short lines, say it once. -->
+
+## Checking tap targets
+
+Every control a person taps is at least 44px high at phone width (`max-sm:min-h-11`
+or `max-sm:h-11`; the Button sizes already do this). That includes native file
+inputs (give the input and its `file:` button the same minimum) and full-width
+toggles. Text field heights are set by the form-field work, not this rule.
+
+`e2e/tap-targets.spec.ts` checks the public Home screen in CI. It checks the
+signed-in screens (`/dashboard`, `/profile`, `/upload`, `/analyze`,
+`/analyze/interactive`) only when `A11Y_SESSION_TOKEN` is set, because a session
+needs a database that CI does not have. To run it locally: start an instance
+(`.harness/project.md`, Instance), run `scripts/test-login.mjs` for a cookie, then
+`A11Y_PORT=<port> A11Y_SESSION_TOKEN=<cookie value> npx playwright test tap-targets --project=phone`.

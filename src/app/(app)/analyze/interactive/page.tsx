@@ -318,7 +318,7 @@ export default function InteractiveAnalyzePage() {
                         accept=".pdf,.docx,.txt"
                         onChange={handleFileUpload}
                         disabled={isUploading || isLoading}
-                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        className="w-full max-sm:min-h-11 max-sm:file:min-h-11 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
                       {isUploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
                       {uploadError && (
