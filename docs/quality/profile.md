@@ -30,7 +30,7 @@ and names the issue.
 
 ## Project rules
 
-- Resumes are personal data. No resume text, job description or file name is written to logs, and no resume content appears in error responses (the upload route currently echoes a parser message; tracked in #36).
+- Resumes are personal data. No resume text, job description or file name is written to logs (all server logging goes through `src/lib/logger.ts`, ADR 0017), and no resume content appears in error responses (the upload route currently echoes a parser message; tracked in #36).
 - Every route that reads or writes user data checks the session on the server and scopes queries to the signed-in user. Today this is repeated by hand per route; #37 centralises it.
 - Anything that spends money (OpenAI calls) must be authenticated and rate limited (#37). Mock mode (`MOCK_AI_SUGGESTIONS=true`) is used for development and demos.
 - Uploaded files are served only through an owner-checked route, never from a public path (ADR 0005).
