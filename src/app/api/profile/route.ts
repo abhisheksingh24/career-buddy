@@ -1,19 +1,16 @@
-import { authOptions } from "@/lib/auth";
+import { guard } from "@/lib/api-guard";
 import prisma from "@/lib/db";
 import { profileSchema } from "@/lib/profile-schema";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 
-
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
 
   const profile = await prisma.profile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId },
     include: { user: true },
   });
 
@@ -25,21 +22,20 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
 
   try {
     const body = await req.json();
     const data = profileSchema.parse(body);
 
     const profile = await prisma.profile.upsert({
-      where: { userId: session.user.id },
+      where: { userId },
       update: data,
       create: {
         ...data,
-        userId: session.user.id,
+        userId,
       },
     });
 

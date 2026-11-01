@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
 export const runtime = "nodejs";
-import { authOptions } from "@/lib/auth";
+import { guard } from "@/lib/api-guard";
 import { prisma } from "@/lib/db";
 import { extractTextFromFile } from "@/lib/parse";
-import { writeFile, mkdir } from "fs/promises";
-import { getServerSession } from "next-auth";
 import { uploadsRoot } from "@/lib/uploads";
+import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
 
   const formData = await request.formData();
   const file = formData.get("file");
@@ -45,7 +43,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       // Create unique filename: userId_timestamp_originalName
       const timestamp = Date.now();
       const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const fileName = `${session.user.id}_${timestamp}_${sanitizedName}`;
+      const fileName = `${userId}_${timestamp}_${sanitizedName}`;
       filePath = join(uploadsDir, fileName);
 
       // Get file buffer
@@ -65,13 +63,13 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   // Get or create a default portfolio for the user
   let portfolio = await prisma.portfolio.findFirst({
-    where: { userId: session.user.id, isDefault: true },
+    where: { userId, isDefault: true },
   });
 
   if (!portfolio) {
     portfolio = await prisma.portfolio.create({
       data: {
-        userId: session.user.id,
+        userId,
         name: "Default Portfolio",
         isDefault: true,
       },
@@ -93,7 +91,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       content: {}, // Empty JSON for now - can be populated later with structured data
       rawText: text,
       fileType: mimeType,
-      fileUrl: filePath || `${session.user.id}::${Date.now()}::${originalName}`, // Store file path or placeholder
+      fileUrl: filePath || `${userId}::${Date.now()}::${originalName}`, // Store file path or placeholder
     },
   });
 

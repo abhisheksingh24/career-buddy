@@ -1,16 +1,22 @@
 import { extractJobRequirements, extractSkillsFromText, detectDomain } from "@/lib/ai-extraction";
 import { analyzeResume } from "@/lib/analysis-engine";
-import { authOptions } from "@/lib/auth";
+import { AI_RATE_LIMIT, guard, readJson } from "@/lib/api-guard";
 import { transformToCategoryAnalysis } from "@/lib/category-transformer";
 import { prisma } from "@/lib/db";
 import { generateComprehensiveFeedback } from "@/lib/feedback-generator";
 import { matchSkillsSimple, matchSkillsSemantically } from "@/lib/semantic-match";
 import type { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const body = await req.json().catch(() => ({}));
+  const auth = await guard({ rateLimit: AI_RATE_LIMIT });
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
+
+  const body = await readJson(req);
+  if (body === null) {
+    return NextResponse.json({ error: "Invalid or too large request" }, { status: 400 });
+  }
   const {
     resumeText = "",
     jobDescription = "",
@@ -60,20 +66,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Transform to category analysis
   const categories = transformToCategoryAnalysis(feedback, analysis);
 
-  // If user is signed in, persist Analysis with a placeholder Resume record
-  const session = await getServerSession(authOptions);
+  // Persist the analysis with a placeholder Resume record
   let analysisId: string | null = null;
 
-  if (session?.user?.id) {
+  {
     // Get or create a default portfolio for the user
     let portfolio = await prisma.portfolio.findFirst({
-      where: { userId: session.user.id, isDefault: true },
+      where: { userId, isDefault: true },
     });
 
     if (!portfolio) {
       portfolio = await prisma.portfolio.create({
         data: {
-          userId: session.user.id,
+          userId,
           name: "Default Portfolio",
           isDefault: true,
         },
@@ -96,7 +101,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         content: {}, // Empty JSON for now
         rawText: resumeText,
         fileType: "text/plain",
-        fileUrl: `${session.user.id}::placeholder::${Date.now()}`,
+        fileUrl: `${userId}::placeholder::${Date.now()}`,
       },
     });
 

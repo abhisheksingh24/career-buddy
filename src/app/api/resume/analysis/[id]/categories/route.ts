@@ -1,4 +1,4 @@
-import { authOptions } from "@/lib/auth";
+import { guard } from "@/lib/api-guard";
 import { transformToCategoryAnalysis } from "@/lib/category-transformer";
 import { prisma } from "@/lib/db";
 import type {
@@ -8,12 +8,15 @@ import type {
   SkillMatch,
 } from "@/lib/types/analysis";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
+
   try {
     // Await params in Next.js 15
     const { id: analysisId } = await params;
@@ -42,14 +45,8 @@ export async function GET(
       return NextResponse.json({ error: "Analysis not found" }, { status: 404 });
     }
 
-    // Check authentication and authorization
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     // Verify user owns the analysis
-    if (analysisRecord.resume.portfolio.userId !== session.user.id) {
+    if (analysisRecord.resume.portfolio.userId !== userId) {
       return NextResponse.json(
         { error: "Forbidden: You don't have access to this analysis" },
         { status: 403 },

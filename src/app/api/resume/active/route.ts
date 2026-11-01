@@ -1,18 +1,16 @@
-import { authOptions } from "@/lib/auth";
+import { guard } from "@/lib/api-guard";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 
 export async function GET(): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
 
   try {
     // Get the user's default portfolio
     const portfolio = await prisma.portfolio.findFirst({
-      where: { userId: session.user.id, isDefault: true },
+      where: { userId, isDefault: true },
     });
 
     if (!portfolio) {
