@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { readUploadResponse } from "@/lib/upload-response";
 import { FileText, Upload, AlertCircle, CheckCircle } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
@@ -23,7 +24,7 @@ const profileSchema = z.object({
 type Profile = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,8 +46,11 @@ export default function ProfilePage() {
     if (session?.user) {
       fetchProfile();
       fetchResume();
+    } else if (status === "unauthenticated") {
+      // Signed out: nothing to load, show the sign-in prompt.
+      setIsLoading(false);
     }
-  }, [session]);
+  }, [session, status]);
 
   const fetchProfile = async () => {
     try {
@@ -93,10 +97,8 @@ export default function ProfilePage() {
         body: formData,
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Upload failed");
-      }
+      const outcome = await readUploadResponse(res);
+      if (!outcome.ok) throw new Error(outcome.error);
 
       setUploadSuccess(true);
       await fetchResume(); // Refresh resume data
@@ -152,7 +154,12 @@ export default function ProfilePage() {
   }
 
   if (!session?.user) {
-    return <div className="p-6">Please sign in to view your profile.</div>;
+    return (
+      <div className="p-6 space-y-4">
+        <p>Please sign in to view your profile.</p>
+        <Button onClick={() => signIn("google")}>Sign in with Google</Button>
+      </div>
+    );
   }
 
   return (

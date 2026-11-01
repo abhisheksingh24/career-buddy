@@ -1,78 +1,70 @@
-import { logError } from "@/lib/logger";
 import { NextResponse } from "next/server";
 export const runtime = "nodejs";
-import { authOptions } from "@/lib/auth";
+import { guard } from "@/lib/api-guard";
 import { prisma } from "@/lib/db";
-import { extractTextFromFile } from "@/lib/parse";
-import { uploadsRoot } from "@/lib/uploads";
-import { writeFile, mkdir } from "fs/promises";
-import { getServerSession } from "next-auth";
-import { join } from "path";
+import { logError } from "@/lib/logger";
+import { extractText } from "@/lib/parse";
+import {
+  MAX_REQUEST_BYTES,
+  MAX_UPLOAD_BYTES,
+  MIME_BY_KIND,
+  TOO_LARGE_MESSAGE,
+  UNREADABLE_MESSAGE,
+  UNSUPPORTED_MESSAGE,
+  detectKind,
+} from "@/lib/upload-validation";
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await guard();
+  if ("response" in auth) return auth.response;
+  const { userId } = auth;
+
+  // Reject oversized bodies before buffering them.
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > MAX_REQUEST_BYTES) {
+    return NextResponse.json({ error: TOO_LARGE_MESSAGE }, { status: 413 });
   }
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json({ error: "No file" }, { status: 400 });
+  }
   const file = formData.get("file");
   if (!file || !(file instanceof File)) {
     return NextResponse.json({ error: "No file" }, { status: 400 });
   }
-
-  let parsed;
-  try {
-    parsed = await extractTextFromFile(file);
-  } catch (error: unknown) {
-    return NextResponse.json(
-      {
-        error: "Failed to parse file",
-        details: error instanceof Error ? error.message : "Unknown parsing error",
-      },
-      { status: 415 },
-    );
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json({ error: TOO_LARGE_MESSAGE }, { status: 413 });
   }
-  const { text, mimeType, originalName } = parsed;
 
-  // Save file to storage
-  let filePath: string | null = null;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const originalName = file.name || "upload";
+  const kind = detectKind(buffer, originalName);
+  if (!kind) {
+    return NextResponse.json({ error: UNSUPPORTED_MESSAGE }, { status: 415 });
+  }
+  const mimeType = MIME_BY_KIND[kind];
+
+  let text: string;
   try {
-    // Only save PDF and DOCX files (not text-only resumes)
-    if (mimeType === "application/pdf" || mimeType.includes("wordprocessingml")) {
-      const uploadsDir = join(uploadsRoot(), "resumes");
-      await mkdir(uploadsDir, { recursive: true });
-
-      // Create unique filename: userId_timestamp_originalName
-      const timestamp = Date.now();
-      const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const fileName = `${session.user.id}_${timestamp}_${sanitizedName}`;
-      filePath = join(uploadsDir, fileName);
-
-      // Get file buffer
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Write file to disk
-      await writeFile(filePath, buffer);
-
-      // Store relative path in database (for easier migration to cloud storage later)
-      filePath = `resumes/${fileName}`;
-    }
+    text = await extractText(buffer, kind);
   } catch (error) {
-    logError("Failed to save file", error);
-    // Continue without file storage - text extraction still works
+    logError("Resume text extraction failed", error, { kind });
+    // Parser messages can echo file content; return a fixed message instead.
+    return NextResponse.json({ error: UNREADABLE_MESSAGE }, { status: 422 });
   }
 
   // Get or create a default portfolio for the user
   let portfolio = await prisma.portfolio.findFirst({
-    where: { userId: session.user.id, isDefault: true },
+    where: { userId, isDefault: true },
   });
 
   if (!portfolio) {
     portfolio = await prisma.portfolio.create({
       data: {
-        userId: session.user.id,
+        userId,
         name: "Default Portfolio",
         isDefault: true,
       },
@@ -86,6 +78,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   });
   const nextVersion = (lastResume?.version || 0) + 1;
 
+  // Keep the original bytes (PDF/DOCX) in the database: no writable disk needed.
   const resume = await prisma.resume.create({
     data: {
       portfolioId: portfolio.id,
@@ -94,8 +87,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       content: {}, // Empty JSON for now - can be populated later with structured data
       rawText: text,
       fileType: mimeType,
-      fileUrl: filePath || `${session.user.id}::${Date.now()}::${originalName}`, // Store file path or placeholder
+      fileData: kind === "text" ? null : new Uint8Array(buffer),
     },
+    select: { id: true },
   });
 
   return NextResponse.json({
@@ -103,6 +97,5 @@ export async function POST(request: Request): Promise<NextResponse> {
     originalName,
     mimeType,
     length: text.length,
-    fileUrl: resume.fileUrl,
   });
 }

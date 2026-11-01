@@ -1,3 +1,4 @@
+import { publicGuard } from "@/lib/api-guard";
 import { log } from "@/lib/logger";
 
 // Receives CSP violation reports (report-uri and Reporting API). Public by
@@ -54,8 +55,13 @@ function pick(report: unknown): Record<string, string | number> | null {
 }
 
 export async function POST(request: Request) {
-  const declared = Number(request.headers.get("content-length") ?? 0);
-  if (declared > MAX_BYTES) return new Response(null, { status: 413 });
+  const refused = publicGuard(request, {
+    bucket: "csp-report",
+    limit: 60,
+    windowMs: 60_000,
+    maxBytes: MAX_BYTES,
+  });
+  if (refused) return refused;
   const text = await request.text();
   if (text.length > MAX_BYTES) return new Response(null, { status: 413 });
 

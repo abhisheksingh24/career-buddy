@@ -16,19 +16,18 @@ flowchart LR
     api --> lib[Parsing + scoring libs]
     lib --> openai[(OpenAI, optional)]
     api --> db[(PostgreSQL via Prisma)]
-    api --> fs[(./uploads local files)]
 ```
 
 ## Components
 
-| Component            | Purpose                                                                       | Where                                                          |
-| -------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Pages                | Dashboard, profile, upload, analyze, interactive analysis                     | `src/app/(app)/*`                                              |
-| API routes           | auth, profile, resume upload/active/file/analyze/suggest, analysis categories | `src/app/api/**`                                               |
-| Parsing              | text from PDF/DOCX                                                            | `src/lib/parse.ts`                                             |
-| Scoring and feedback | skill matching, semantic matching, comprehensive scoring, category transform  | `src/lib/*.ts`                                                 |
-| AI                   | OpenAI calls with mock fallback                                               | `src/lib/ai*.ts`, `semantic-match.ts`, `feedback-generator.ts` |
-| UI                   | shadcn-style primitives and analysis panels                                   | `src/components/**`                                            |
+| Component               | Purpose                                                                       | Where                                                          |
+| ----------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Pages                   | Dashboard, profile, upload, analyze, interactive analysis                     | `src/app/(app)/*`                                              |
+| API routes              | auth, profile, resume upload/active/file/analyze/suggest, analysis categories | `src/app/api/**`                                               |
+| Parsing + upload checks | text from PDF/DOCX/TXT; size limit (5 MB) and content-based type detection    | `src/lib/parse.ts`, `src/lib/upload-validation.ts`             |
+| Scoring and feedback    | skill matching, semantic matching, comprehensive scoring, category transform  | `src/lib/*.ts`                                                 |
+| AI                      | OpenAI calls with mock fallback                                               | `src/lib/ai*.ts`, `semantic-match.ts`, `feedback-generator.ts` |
+| UI                      | shadcn-style primitives and analysis panels                                   | `src/components/**`                                            |
 
 Narrative docs: [API](api.md), [project structure](project-structure.md), [development setup](../development.md), [interactive analysis UI plan](../ux/interactive-analysis-plan.md).
 
@@ -48,12 +47,12 @@ erDiagram
 
 ## Cross-cutting concerns
 
-- Auth: NextAuth, Google only, database sessions; each API route checks the session itself (no middleware).
+- Auth: NextAuth, Google only, database sessions; every API route calls `guard()` from `src/lib/api-guard.ts` first, which returns the user id or a 401 (and a 429 for per-user rate limits, `src/lib/rate-limit.ts`, in memory per instance). `src/app/api/api-guard.test.ts` fails if a route (other than NextAuth) does not call it. See ADR 0015.
 - Logging: `src/lib/logger.ts` is the single sink for server code (ADR 0017). `log` redacts free-text metadata; `logError` keeps only error class, code and status. `logger.test.ts` fails on any direct `console.*` in `src/lib` or `src/app/api`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
 - CI: `.github/workflows/ci.yml` (lint, typecheck, test, build on PRs and main; Node from `.nvmrc`) beside `docs-check`, `security`, `audit`, `licences` (ADR 0013) and `quality` (axe accessibility and a first-load JS budget, no database; `playwright.config.ts`, `e2e/`, `scripts/perf-budget.mjs`; ADR 0012). Dependabot covers npm and Actions with a 7-day cooldown.
 
-- Instances for parallel checks (ADR 0014 in the harness): `scripts/instance.sh` runs `next dev` on `$PORT`, refuses `NODE_ENV=production` (it sets a public dev auth secret), and keeps state private to `INSTANCE_ID` (default `port-$PORT`, sanitised to `[a-z0-9_]`, max 40 chars). Database: `career_buddy_<id>` on the local Postgres, derived from `DATABASE_URL` (env, `.env`, or the `.env.example` default; parsed by `scripts/instance-db.sh`, which accepts only host `localhost` or `127.0.0.1` and rejects `host=`/`hostaddr=`/socket query parameters; tested in `scripts/instance-db.test.ts`), created and migrated by `prisma migrate deploy` at start. Uploads: `UPLOADS_DIR` (default `uploads/<id>/`, read by `src/lib/uploads.ts`). Tear-down: `psql -h localhost -U postgres -c "DROP DATABASE \"career_buddy_<id>\""` and `rm -rf uploads/<id>`. OpenAI calls build their token/temperature parameters through `completionParams` (`src/lib/openai-params.ts`), which supports o-series and gpt-5 models (`max_completion_tokens`, no `temperature`).
+- Instances for parallel checks (the build-easy harness's own ADR 0014, not this repo's ADR 0014): `scripts/instance.sh` runs `next dev` on `$PORT`, refuses `NODE_ENV=production` (it sets a public dev auth secret), and keeps state private to `INSTANCE_ID` (default `port-$PORT`, sanitised to `[a-z0-9_]`, max 40 chars). Database: `career_buddy_<id>` on the local Postgres, derived from `DATABASE_URL` (env, `.env`, or the `.env.example` default; parsed by `scripts/instance-db.sh`, which accepts only host `localhost` or `127.0.0.1` and rejects `host=`/`hostaddr=`/socket query parameters; tested in `scripts/instance-db.test.ts`), created and migrated by `prisma migrate deploy` at start. Uploaded files live in `Resume.fileData` (ADR 0014), so they are per-instance with the database; `UPLOADS_DIR` (`src/lib/uploads.ts`) is only read for legacy files. Tear-down: `psql -h localhost -U postgres -c "DROP DATABASE \"career_buddy_<id>\""` (and `rm -rf uploads/<id>` if legacy files exist). OpenAI calls build their token/temperature parameters through `completionParams` (`src/lib/openai-params.ts`), which supports o-series and gpt-5 models (`max_completion_tokens`, no `temperature`).
 
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.

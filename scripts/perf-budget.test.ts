@@ -1,6 +1,38 @@
 import { describe, expect, it } from "vitest";
 
-import { overBudget, scriptsFromHtml } from "./perf-budget-lib.mjs";
+import {
+  gzipBytes,
+  overBudget,
+  scriptsFromHtml,
+  scriptsFromRouteStats,
+  sharedExtras,
+} from "./perf-budget-lib.mjs";
+
+describe("scriptsFromRouteStats", () => {
+  it("maps each route to its first-load scripts as /_next URLs", () => {
+    const m = scriptsFromRouteStats([
+      {
+        route: "/a",
+        firstLoadChunkPaths: [".next/static/chunks/b.js", ".next/static/chunks/a.js"],
+      },
+      { route: "/b" },
+    ]);
+    expect(m.get("/a")).toEqual(["/_next/static/chunks/a.js", "/_next/static/chunks/b.js"]);
+    expect(m.get("/b")).toEqual([]);
+  });
+});
+
+describe("sharedExtras", () => {
+  it("returns scripts the HTML loads that the stats leave out", () => {
+    expect(sharedExtras(["/x.js", "/poly.js"], ["/x.js"])).toEqual(["/poly.js"]);
+  });
+});
+
+describe("gzipBytes", () => {
+  it("refuses an empty list rather than reporting zero", () => {
+    expect(() => gzipBytes([])).toThrow();
+  });
+});
 
 describe("scriptsFromHtml", () => {
   it("lists each static script once, ignoring query strings and other assets", () => {
