@@ -1,0 +1,1 @@
+A script (`scripts/test-login.mjs`) now creates a one-hour signed-in session for automated demo runs on local instances. It does nothing unless `TEST_LOGIN=true` and refuses production, hosted or non-local databases; the app has no test-login route or provider.
