@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { readUploadResponse } from "@/lib/upload-response";
 import { FileText, Upload, AlertCircle, CheckCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -93,10 +94,8 @@ export default function ProfilePage() {
         body: formData,
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Upload failed");
-      }
+      const outcome = await readUploadResponse(res);
+      if (!outcome.ok) throw new Error(outcome.error);
 
       setUploadSuccess(true);
       await fetchResume(); // Refresh resume data
