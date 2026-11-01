@@ -19,3 +19,5 @@ Not recorded.
 ## Consequences
 
 Recorded as found; revisit when a change touches it.
+
+Update (#1): jsdom is now a devDependency and the suite runs; see ADR 0007.

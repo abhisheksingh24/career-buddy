@@ -52,4 +52,6 @@ erDiagram
 - Logging: `src/lib/logger.ts`.
 - Testing: Vitest, one test file (`src/lib/match.test.ts`).
 - Deploy: none in the repo.
-- Decisions: `docs/decisions/0001` to `0006`.
+- PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
+- Node: `^20.19 || ^22.13 || >=24` (`engines`, `.nvmrc`), required by jsdom for tests.
+- Decisions: `docs/decisions/0001` to `0007`.

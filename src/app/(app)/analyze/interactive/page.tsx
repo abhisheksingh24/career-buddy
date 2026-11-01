@@ -10,6 +10,7 @@ import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-lay
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
 import {
@@ -32,7 +33,7 @@ import { useState, useEffect } from "react";
 // pdf.js needs browser globals (DOMMatrix), so render the viewer on the client only.
 const ResumePDFViewer = dynamic(
   () => import("@/components/resume-pdf-viewer").then((m) => m.ResumePDFViewer),
-  { ssr: false },
+  { ssr: false, loading: () => <Skeleton className="h-full min-h-96 w-full" /> },
 );
 
 // Placeholder category data - will be replaced with real data in later iterations
