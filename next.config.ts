@@ -1,14 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Prevent Turbopack/bundler from inlining these native/Node-expected libs
+  // Prevent the bundler from inlining these native/Node-expected libs
   serverExternalPackages: ["pdf-parse", "mammoth"],
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      canvas: false,
-    };
-    return config;
+  // react-pdf optionally requires the native `canvas` package; stub it out.
+  turbopack: {
+    resolveAlias: {
+      canvas: "./src/lib/empty-module.ts",
+    },
   },
 };
 

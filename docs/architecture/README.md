@@ -4,7 +4,7 @@ As found at onboarding (2026-11-01).
 
 ## Overview
 
-Career Buddy is a single Next.js 15 app. A signed-in user uploads a resume (PDF/DOCX), pastes a job description, and gets a scored analysis across categories (match overview, required skills, work experience, education, impact, ATS compatibility, professional quality) with action items. An interactive view shows the resume PDF beside category details.
+Career Buddy is a single Next.js 16 app. A signed-in user uploads a resume (PDF/DOCX), pastes a job description, and gets a scored analysis across categories (match overview, required skills, work experience, education, impact, ATS compatibility, professional quality) with action items. An interactive view shows the resume PDF beside category details.
 
 ## System diagram
 

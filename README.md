@@ -1,6 +1,6 @@
 AI Resume & Portfolio Optimizer (MVP)
 
-Tech stack: Next.js 15 (App Router), TypeScript, Tailwind v4, shadcn, NextAuth.js, Prisma, Supabase (Postgres)
+Tech stack: Next.js 16 (App Router), TypeScript, Tailwind v4, shadcn, NextAuth.js, Prisma, Supabase (Postgres)
 
 Features (current)
 
