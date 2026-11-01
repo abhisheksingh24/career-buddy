@@ -16,17 +16,17 @@ and names the issue.
 
 ## Checks
 
-| Baseline item                       | How this project checks it                                                                                                                           |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lint, typecheck, tests              | `ci.yml` runs `npm run lint`, `npx tsc --noEmit`, `npx vitest run --maxWorkers=2`, `npm run build`                                                   |
-| Dependency audit                    | Not in CI yet (gap). Run `npm audit` by hand; ADR 0008 records the findings left after the Next 16 sweep. Remaining findings: #7 / #14 via #74 / #75 |
-| Licence scan (permissive allowlist) | Not in CI yet (gap). Run `npx license-checker --production --summary` by hand; result and exceptions in `licenses.md` and ADR 0009                   |
-| Secret scanning                     | `security.yml` (gitleaks)                                                                                                                            |
-| Static analysis                     | `security.yml` (Semgrep `p/default`, no baseline). Last full scan: no findings                                                                       |
-| Dependency updates                  | `.github/dependabot.yml` (npm and GitHub Actions, weekly, 7-day cooldown; Prisma majors ignored per ADR 0008)                                        |
-| Accessibility (WCAG 2.2 AA)         | Not checked automatically yet (gap): no axe run exists. Reviewer and UX review only                                                                  |
-| Performance budgets                 | None set or measured yet (gap). Proposed when UX work starts: INP under 200 ms on a mid-range phone; any action over 1 s shows progress              |
-| Docs alongside code                 | `docs-check.yml`                                                                                                                                     |
+| Baseline item                       | How this project checks it                                                                                                                                                                                                                    |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lint, typecheck, tests              | `ci.yml` runs `npm run lint`, `npx tsc --noEmit`, `npx vitest run --maxWorkers=2`, `npm run build`                                                                                                                                            |
+| Dependency audit                    | `audit.yml` runs `scripts/audit.mjs` (`npm audit --omit=dev --audit-level=high`, retried; an outage warns). Accepted advisories are in `.github/audit-allowlist.json`: today only deepmerge-ts via the Prisma CLI (ADR 0010, 0008; #74 / #75) |
+| Licence scan (permissive allowlist) | Not in CI yet (gap). Run `npx license-checker --production --summary` by hand; result and exceptions in `licenses.md` and ADR 0009                                                                                                            |
+| Secret scanning                     | `security.yml` (gitleaks)                                                                                                                                                                                                                     |
+| Static analysis                     | `security.yml` (Semgrep `p/default`, no baseline). Last full scan: no findings                                                                                                                                                                |
+| Dependency updates                  | `.github/dependabot.yml` (npm and GitHub Actions, weekly, 7-day cooldown; Prisma majors ignored per ADR 0008)                                                                                                                                 |
+| Accessibility (WCAG 2.2 AA)         | Not checked automatically yet (gap): no axe run exists. Reviewer and UX review only                                                                                                                                                           |
+| Performance budgets                 | None set or measured yet (gap). Proposed when UX work starts: INP under 200 ms on a mid-range phone; any action over 1 s shows progress                                                                                                       |
+| Docs alongside code                 | `docs-check.yml`                                                                                                                                                                                                                              |
 
 ## Project rules
 
