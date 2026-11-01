@@ -58,7 +58,7 @@ docker-up:
 	@echo "⏳ Waiting for database to be ready..."
 	@sleep 5
 	@echo "📊 pgAdmin available at: http://localhost:8080"
-	@echo "   Email: admin@career-buddy.local"
+	@echo "   Email: admin@example.com"
 	@echo "   Password: admin"
 
 # Stop Docker services
