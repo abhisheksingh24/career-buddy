@@ -1,4 +1,5 @@
 import { authOptions } from "@/lib/auth";
+import { contentDisposition } from "@/lib/content-disposition";
 import { prisma } from "@/lib/db";
 import { readFile } from "fs/promises";
 import { NextResponse } from "next/server";
@@ -63,11 +64,8 @@ export async function GET(
       return new NextResponse(new Uint8Array(fileBuffer), {
         headers: {
           "Content-Type": "application/pdf",
-          "Content-Disposition": `inline; filename="${resume.name}"`,
+          "Content-Disposition": contentDisposition(resume.name),
           "Cache-Control": "private, max-age=3600",
-          "Access-Control-Allow-Origin": "*", // Allow CORS for PDF.js
-          "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-          "Access-Control-Allow-Headers": "Range, Content-Type",
           "Accept-Ranges": "bytes", // Enable range requests for PDF.js
         },
       });
