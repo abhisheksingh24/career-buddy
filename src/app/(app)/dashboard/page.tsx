@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth";
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    redirect("/api/auth/signin");
+    redirect("/signin?callbackUrl=%2Fdashboard");
   }
 
   const analyses = await prisma.resumeAnalysis.findMany({

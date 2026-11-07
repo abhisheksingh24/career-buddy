@@ -14,7 +14,7 @@ or `services:`.
 
 - **Accessibility:** `@axe-core/playwright` 4.14.0 with `@playwright/test`
   1.64.1 (exact pins, both older than the 7-day cooldown), Chromium only, at a
-  desktop and a phone width. Pages: `/` and `/api/auth/signin`, served by
+  desktop and a phone width. Pages: `/` and `/signin`, served by
   `next start` on the production build. These need no database (no session
   cookie means NextAuth never queries it), so `DATABASE_URL` is a dummy and no
   Postgres is started. Serious and critical violations fail. Known ones are

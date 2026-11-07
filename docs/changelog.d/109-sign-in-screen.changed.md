@@ -1,0 +1,1 @@
+The sign-in page now says what Career Buddy does and what you get, names what Google shares (name and email), and brings you back to the page you wanted after signing in; it shows a plain error line if sign-in fails.
