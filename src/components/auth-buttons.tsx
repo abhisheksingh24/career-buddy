@@ -1,9 +1,11 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 export function AuthButtons() {
   const { status } = useSession();
+  const pathname = usePathname();
 
   if (status === "loading") {
     return (
@@ -14,7 +16,7 @@ export function AuthButtons() {
   if (status === "authenticated") {
     return (
       <button
-        className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white"
+        className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
         onClick={() => signOut()}
       >
         Sign out
@@ -22,9 +24,12 @@ export function AuthButtons() {
     );
   }
 
+  // The Profile page shows its own sign-in action; one is enough there.
+  if (pathname === "/profile") return null;
+
   return (
     <button
-      className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white"
+      className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
       onClick={() => signIn("google")}
     >
       Sign in

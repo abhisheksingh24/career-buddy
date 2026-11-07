@@ -15,9 +15,11 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-import { POST } from "./route";
-
+import { UPLOAD_RATE_LIMIT } from "@/lib/api-guard";
+import { resetRateLimits } from "@/lib/rate-limit";
 import { MAX_UPLOAD_BYTES } from "@/lib/upload-validation";
+
+import { POST } from "./route";
 
 function req(file: File, headers: Record<string, string> = {}): Request {
   const fd = new FormData();
@@ -31,6 +33,7 @@ function req(file: File, headers: Record<string, string> = {}): Request {
 
 describe("POST /api/resume/upload", () => {
   beforeEach(() => {
+    resetRateLimits();
     create.mockReset();
     create.mockResolvedValue({ id: "r1" });
     getServerSession.mockReset();
@@ -59,6 +62,16 @@ describe("POST /api/resume/upload", () => {
       req(new File(["%PDF-1"], "cv.pdf"), { "content-length": String(50 * 1024 * 1024) }),
     );
     expect(res.status).toBe(413);
+  });
+
+  it("returns 429 with Retry-After past the upload limit", async () => {
+    for (let i = 0; i < UPLOAD_RATE_LIMIT.limit; i++) {
+      expect((await POST(req(new File(["hello"], "cv.txt")))).status).toBe(200);
+    }
+    const res = await POST(req(new File(["hello"], "cv.txt")));
+    expect(res.status).toBe(429);
+    expect(Number(res.headers.get("Retry-After"))).toBeGreaterThan(0);
+    expect(create).toHaveBeenCalledTimes(UPLOAD_RATE_LIMIT.limit);
   });
 
   it("rejects unsupported content with 415", async () => {

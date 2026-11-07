@@ -14,13 +14,14 @@ minimatch finding is dev-only and omitted. A raw `npm audit` step would start re
 
 ## Decision
 
-- New workflow `audit.yml` runs `scripts/audit.mjs` on PRs, pushes to main and weekly.
+- New workflow `audit.yml` runs `scripts/audit.mjs` (a thin wrapper; the audit logic, allowlist matching and retries live in `scripts/audit-lib.mjs`) on PRs, pushes to main and weekly.
 - The script runs the audit as above, with 3 attempts and backoff. It fails on
   any high or critical advisory not listed in `.github/audit-allowlist.json`
   (matched by GHSA id, each with a reason and tracking issue). Unused
   allowlist entries produce a warning so they get removed.
 - A registry/network failure (after retries) is a warning and exits 0. Any other
   failure to run the audit (for example a missing lockfile) fails.
+- When a weekly scheduled run of `audit.yml` or `security.yml` fails, a final `notify-failure` job (schedule events only) runs `.github/scripts/notify-scheduled-failure.sh`. It opens one issue titled "Scheduled <workflow> run is failing" (labels `bug`, `p1`, `status:ready`, per conventions §8) or comments on the open one, so repeats do not duplicate. Registry outages stay warnings, so only real findings notify.
 
 ## Consequences
 

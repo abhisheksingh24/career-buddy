@@ -321,6 +321,8 @@ If you prefer to run steps manually:
 - `NEXTAUTH_URL` - Base URL of your application (e.g., `http://localhost:3000`)
 - `NEXTAUTH_SECRET` - Secret key for NextAuth (generate with `openssl rand -base64 32`)
 
+- `TRUSTED_PROXY` / `TRUSTED_PROXY_HOPS` - set `TRUSTED_PROXY=true` (and the proxy count) only behind a reverse proxy you run; sign-in rate limiting needs it (see `.env.example`, ADR 0022)
+
 #### Optional Variables
 
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - For Google OAuth sign-in

@@ -1,12 +1,14 @@
 "use client";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   readUploadResponse,
+  uploadedMessage,
   UPLOAD_FALLBACK_ERROR,
   type UploadOutcome,
 } from "@/lib/upload-response";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Upload } from "lucide-react";
 import { useState } from "react";
 
 export default function UploadPage() {
@@ -30,21 +32,34 @@ export default function UploadPage() {
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-semibold">Upload Resume</h1>
       <form action={onSubmit} className="space-y-3">
-        <input
-          name="file"
-          type="file"
-          className="mt-2 max-sm:min-h-11 max-sm:file:min-h-11"
-          accept=".pdf,.docx,.txt"
-          onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
-        />
-        <button
-          disabled={loading}
-          className="px-4 py-2 max-sm:min-h-11 bg-black text-white rounded"
-        >
-          {loading ? "Uploading..." : "Upload"}
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <label className="cursor-pointer">
+            <input
+              name="file"
+              type="file"
+              className="peer sr-only"
+              accept=".pdf,.docx,.txt"
+              onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
+            />
+            <Button
+              asChild
+              variant="outline"
+              className="w-full sm:w-auto min-h-11 peer-focus-visible:ring-ring peer-focus-visible:ring-[3px]"
+            >
+              <span>Choose file</span>
+            </Button>
+          </label>
+          <Button type="submit" disabled={loading} className="min-h-11">
+            <Upload className="h-4 w-4" />
+            {loading ? "Uploading..." : "Upload"}
+          </Button>
+        </div>
       </form>
-      {fileName && <p className="text-sm">Selected: {fileName}</p>}
+      {fileName && (
+        <p className="text-sm" aria-live="polite">
+          Selected: {fileName}
+        </p>
+      )}
       {outcome && !outcome.ok && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -55,7 +70,7 @@ export default function UploadPage() {
         <Alert>
           <CheckCircle className="h-4 w-4" />
           <AlertDescription className="break-words">
-            {outcome.fileName ? `Uploaded ${outcome.fileName}` : "Resume uploaded successfully!"}
+            {uploadedMessage(outcome.fileName ?? fileName)}
           </AlertDescription>
         </Alert>
       )}

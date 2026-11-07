@@ -10,8 +10,10 @@ import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-lay
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
+import { scrollToCategoryDetails } from "@/lib/scroll-to-details";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
 import {
   TrendingUp,
@@ -43,6 +45,7 @@ const placeholderCategories: Category[] = [
     name: "Match Overview",
     icon: TrendingUp,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -50,6 +53,7 @@ const placeholderCategories: Category[] = [
     name: "Required Skills",
     icon: Target,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -57,6 +61,7 @@ const placeholderCategories: Category[] = [
     name: "Work Experience",
     icon: Briefcase,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -64,6 +69,7 @@ const placeholderCategories: Category[] = [
     name: "Education & Credentials",
     icon: GraduationCap,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -71,6 +77,7 @@ const placeholderCategories: Category[] = [
     name: "Impact & Achievements",
     icon: Award,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -78,6 +85,7 @@ const placeholderCategories: Category[] = [
     name: "ATS Compatibility",
     icon: FileCheck,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -85,6 +93,7 @@ const placeholderCategories: Category[] = [
     name: "Professional Quality",
     icon: FileText,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
 ];
@@ -130,6 +139,7 @@ export default function InteractiveAnalyzePage() {
       const response = await fetch("/api/resume/active");
       if (response.ok) {
         const data = await response.json();
+        if (!data) return;
         setUserResume(data.rawText || null);
         setResumeId(data.id || null);
         setResumeFileType(data.fileType || "text/plain");
@@ -179,11 +189,11 @@ export default function InteractiveAnalyzePage() {
       const resumeResponse = await fetch("/api/resume/active");
       if (resumeResponse.ok) {
         const resumeData = await resumeResponse.json();
-        if (resumeData.rawText) {
+        if (resumeData?.rawText) {
           setResumeText(resumeData.rawText);
         }
         // Update resume ID and file type from active resume
-        if (resumeData.id) {
+        if (resumeData?.id) {
           setResumeId(resumeData.id);
           setResumeFileType(resumeData.fileType || "text/plain");
         }
@@ -197,6 +207,8 @@ export default function InteractiveAnalyzePage() {
 
   const handleCategorySelect = (categoryId: CategoryId) => {
     setSelectedCategoryId(categoryId);
+    // On the stacked phone layout, bring the details on screen (#152).
+    requestAnimationFrame(() => scrollToCategoryDetails());
     // No loading state needed for category selection - data is already loaded
   };
 
@@ -312,13 +324,16 @@ export default function InteractiveAnalyzePage() {
                   <CardContent className="space-y-3">
                     {/* File Upload */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Upload Resume File</label>
+                      <label htmlFor="resume-file" className="block text-sm font-medium mb-2">
+                        Upload Resume File
+                      </label>
                       <input
+                        id="resume-file"
                         type="file"
                         accept=".pdf,.docx,.txt"
                         onChange={handleFileUpload}
                         disabled={isUploading || isLoading}
-                        className="w-full max-sm:min-h-11 max-sm:file:min-h-11 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        className="w-full max-sm:min-h-11 max-sm:file:min-h-11 text-sm text-gray-500 outline-none focus-visible:ring-ring focus-visible:ring-[3px] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
                       {isUploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
                       {uploadError && (
@@ -348,8 +363,8 @@ export default function InteractiveAnalyzePage() {
                       <label className="block text-sm font-medium mb-2">
                         Resume Text (for analysis)
                       </label>
-                      <textarea
-                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                      <Textarea
+                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none bg-gray-50"
                         placeholder="Resume text will be extracted from uploaded PDF..."
                         value={resumeText}
                         onChange={(e) => setResumeText(e.target.value)}
@@ -376,9 +391,9 @@ export default function InteractiveAnalyzePage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium mb-1">Job Title</label>
-                        <input
+                        <Input
                           type="text"
-                          className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full border rounded-lg p-2 text-sm"
                           placeholder="e.g., Software Engineer"
                           value={jobTitle}
                           onChange={(e) => setJobTitle(e.target.value)}
@@ -387,9 +402,9 @@ export default function InteractiveAnalyzePage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1">Company</label>
-                        <input
+                        <Input
                           type="text"
-                          className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full border rounded-lg p-2 text-sm"
                           placeholder="e.g., Google"
                           value={company}
                           onChange={(e) => setCompany(e.target.value)}
@@ -404,9 +419,9 @@ export default function InteractiveAnalyzePage() {
                         Job Domain{" "}
                         <span className="text-xs text-gray-500 font-normal">(Optional)</span>
                       </label>
-                      <input
+                      <Input
                         type="text"
-                        className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border rounded-lg p-2 text-sm"
                         placeholder="e.g., Software Engineering"
                         value={domain}
                         onChange={(e) => setDomain(e.target.value)}
@@ -417,8 +432,8 @@ export default function InteractiveAnalyzePage() {
                     {/* Job Description */}
                     <div>
                       <label className="block text-sm font-medium mb-1">Job Description</label>
-                      <textarea
-                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      <Textarea
+                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none"
                         placeholder="Paste the job description here..."
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}
@@ -474,7 +489,7 @@ export default function InteractiveAnalyzePage() {
       <InteractiveAnalysisLayout
         jobTitle={jobTitle || "Position"}
         company={company || "Company"}
-        overallScore={analysisResult?.overallScore || 0}
+        overallScore={analysisResult ? analysisResult.overallScore : null}
       >
         {{
           leftPanel: (
@@ -496,7 +511,7 @@ export default function InteractiveAnalyzePage() {
           ),
           rightPanel: (
             <div className="h-full flex flex-col">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h3>
+              <h2 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h2>
               <ResumePDFViewer
                 fileUrl={resumeId ? `/api/resume/${resumeId}/file` : null}
                 fileType={resumeFileType}
