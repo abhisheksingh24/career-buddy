@@ -32,4 +32,10 @@ describe("Input and Textarea focus ring (#148)", () => {
       expect(readFileSync(join(__dirname, f), "utf8")).not.toContain("focus:ring-blue");
     }
   });
+
+  it("profile file inputs are focusable (sr-only), not display:none", () => {
+    const src = readFileSync(join(__dirname, "../../app/(app)/profile/page.tsx"), "utf8");
+    expect(src).not.toContain('className="hidden"');
+    expect(src.match(/peer sr-only/g)).toHaveLength(2);
+  });
 });

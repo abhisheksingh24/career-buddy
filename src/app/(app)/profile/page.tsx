@@ -320,19 +320,23 @@ export default function ProfilePage() {
 
                   <div className="flex gap-2">
                     <label className="cursor-pointer">
-                      <Button variant="outline" asChild>
+                      <input
+                        type="file"
+                        accept=".pdf,.docx,.txt"
+                        onChange={handleFileUpload}
+                        className="peer sr-only"
+                        disabled={isUploading}
+                      />
+                      <Button
+                        variant="outline"
+                        asChild
+                        className="peer-focus-visible:ring-ring peer-focus-visible:ring-[3px]"
+                      >
                         <span>
                           <Upload className="h-4 w-4 mr-2" />
                           Replace Resume
                         </span>
                       </Button>
-                      <input
-                        type="file"
-                        accept=".pdf,.docx,.txt"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        disabled={isUploading}
-                      />
                     </label>
                   </div>
                 </div>
@@ -341,19 +345,22 @@ export default function ProfilePage() {
                   <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-500 mb-4">No resume uploaded yet</p>
                   <label className="cursor-pointer">
-                    <Button asChild>
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.txt"
+                      onChange={handleFileUpload}
+                      className="peer sr-only"
+                      disabled={isUploading}
+                    />
+                    <Button
+                      asChild
+                      className="peer-focus-visible:ring-ring peer-focus-visible:ring-[3px]"
+                    >
                       <span>
                         <Upload className="h-4 w-4 mr-2" />
                         Upload Resume
                       </span>
                     </Button>
-                    <input
-                      type="file"
-                      accept=".pdf,.docx,.txt"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      disabled={isUploading}
-                    />
                   </label>
                 </div>
               )}
