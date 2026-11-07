@@ -10,6 +10,7 @@ import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-lay
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
 import { scrollToCategoryDetails } from "@/lib/scroll-to-details";
@@ -332,7 +333,7 @@ export default function InteractiveAnalyzePage() {
                         accept=".pdf,.docx,.txt"
                         onChange={handleFileUpload}
                         disabled={isUploading || isLoading}
-                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        className="w-full text-sm text-gray-500 outline-none focus-visible:ring-ring focus-visible:ring-[3px] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
                       {isUploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
                       {uploadError && (
@@ -362,8 +363,8 @@ export default function InteractiveAnalyzePage() {
                       <label className="block text-sm font-medium mb-2">
                         Resume Text (for analysis)
                       </label>
-                      <textarea
-                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                      <Textarea
+                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none bg-gray-50"
                         placeholder="Resume text will be extracted from uploaded PDF..."
                         value={resumeText}
                         onChange={(e) => setResumeText(e.target.value)}
@@ -390,9 +391,9 @@ export default function InteractiveAnalyzePage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium mb-1">Job Title</label>
-                        <input
+                        <Input
                           type="text"
-                          className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full border rounded-lg p-2 text-sm"
                           placeholder="e.g., Software Engineer"
                           value={jobTitle}
                           onChange={(e) => setJobTitle(e.target.value)}
@@ -401,9 +402,9 @@ export default function InteractiveAnalyzePage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1">Company</label>
-                        <input
+                        <Input
                           type="text"
-                          className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full border rounded-lg p-2 text-sm"
                           placeholder="e.g., Google"
                           value={company}
                           onChange={(e) => setCompany(e.target.value)}
@@ -418,9 +419,9 @@ export default function InteractiveAnalyzePage() {
                         Job Domain{" "}
                         <span className="text-xs text-gray-500 font-normal">(Optional)</span>
                       </label>
-                      <input
+                      <Input
                         type="text"
-                        className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full border rounded-lg p-2 text-sm"
                         placeholder="e.g., Software Engineering"
                         value={domain}
                         onChange={(e) => setDomain(e.target.value)}
@@ -431,8 +432,8 @@ export default function InteractiveAnalyzePage() {
                     {/* Job Description */}
                     <div>
                       <label className="block text-sm font-medium mb-1">Job Description</label>
-                      <textarea
-                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      <Textarea
+                        className="w-full border rounded-lg p-3 min-h-24 text-sm resize-none"
                         placeholder="Paste the job description here..."
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}

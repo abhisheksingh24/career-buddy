@@ -44,7 +44,7 @@ export default function UploadPage() {
             <Button
               asChild
               variant="outline"
-              className="w-full sm:w-auto min-h-11 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-[3px]"
+              className="w-full sm:w-auto min-h-11 peer-focus-visible:ring-ring peer-focus-visible:ring-[3px]"
             >
               <span>Choose file</span>
             </Button>
@@ -55,7 +55,11 @@ export default function UploadPage() {
           </Button>
         </div>
       </form>
-      {fileName && <p className="text-sm" aria-live="polite">Selected: {fileName}</p>}
+      {fileName && (
+        <p className="text-sm" aria-live="polite">
+          Selected: {fileName}
+        </p>
+      )}
       {outcome && !outcome.ok && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
