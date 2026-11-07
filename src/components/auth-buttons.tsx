@@ -25,6 +25,9 @@ export function AuthButtons() {
     );
   }
 
+  // The Profile page shows its own sign-in action; one is enough there.
+  if (pathname === "/profile") return null;
+
   return (
     <button
       className="px-3 py-1.5 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
