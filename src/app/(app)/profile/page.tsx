@@ -186,7 +186,7 @@ export default function ProfilePage() {
     return (
       <div className="p-6 space-y-4">
         <p>Please sign in to view your profile.</p>
-        <Button className="min-h-11" onClick={() => signIn("google")}>
+        <Button className="min-h-11" onClick={() => signIn("google", { callbackUrl: "/profile" })}>
           Sign in with Google
         </Button>
       </div>

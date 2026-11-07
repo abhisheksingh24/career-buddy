@@ -5,16 +5,13 @@ import { expect, test } from "@playwright/test";
 // /upload, /analyze) are uncovered until test sign-in exists (#38).
 const PAGES = [
   { name: "landing", path: "/" },
-  { name: "sign-in", path: "/api/auth/signin" },
+  { name: "sign-in", path: "/signin" },
 ];
 
 // Known violations we accept for now. Each entry needs a tracking issue; an
 // entry that no longer matches fails the run so the list cannot rot.
 type Allow = { rule: string; page: string; issue: string };
-const ALLOWED: Allow[] = [
-  // NextAuth's built-in sign-in page renders the Google logo without alt text.
-  { rule: "image-alt", page: "/api/auth/signin", issue: "#102" },
-];
+const ALLOWED: Allow[] = [];
 
 const FAIL_ON = new Set(["serious", "critical"]);
 

@@ -9,7 +9,7 @@ export function signInUrl(returnPath: string): string {
   const safe = (ALLOWED_RETURN_PATHS as readonly string[]).includes(returnPath)
     ? returnPath
     : "/dashboard";
-  return `/api/auth/signin?callbackUrl=${encodeURIComponent(safe)}`;
+  return `/signin?callbackUrl=${encodeURIComponent(safe)}`;
 }
 
 // Server-side page guard: sends signed-out visitors to sign-in, then back to returnPath.
