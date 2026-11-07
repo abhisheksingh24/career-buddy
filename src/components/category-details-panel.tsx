@@ -356,7 +356,11 @@ export function CategoryDetailsPanel({
         <p className="text-gray-600">{description}</p>
 
         {/* Score Display - Enhanced for Match Overview, standard for others */}
-        {selectedCategory.id === "overview" ? (
+        {selectedCategory.analysed === false ? (
+          <p className="pt-2 text-sm font-medium text-gray-600">
+            Not analysed yet. Run an analysis to see your score.
+          </p>
+        ) : selectedCategory.id === "overview" ? (
           <div className="pt-4">
             {/* Large Prominent Score for Match Overview */}
             <div className="flex items-center gap-6 mb-4">
