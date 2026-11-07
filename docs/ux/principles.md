@@ -17,4 +17,11 @@ Rules screens are checked against, on top of the baseline in
 
 ## Signed-out screens
 
-A signed-out screen shows exactly one sign-in action, and every tap target (including sign-in) is at least 44px. Upload shows the chosen file name once.
+A signed-out screen shows exactly one sign-in action, and every tap target (including sign-in) is at least 44px. Upload shows the chosen file name once (the file input is visually hidden behind the "Choose file" button, so the "Selected" line is the only place the name appears).
+
+## One main landmark per page
+
+The root layout (`src/app/layout.tsx`) renders the only `<main>`. Pages and
+components must not render another, because screen readers expect a single
+main landmark. `src/components/main-landmark.test.ts` scans `src/**/*.tsx`
+and fails if any other file renders `<main` (#139).

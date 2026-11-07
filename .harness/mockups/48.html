@@ -13,7 +13,7 @@ textarea{width:100%;min-height:200px;border:1px solid var(--line);border-radius:
 .prog{height:6px;background:var(--line);border-radius:9px;margin:6px 0 16px}.prog i{display:block;height:100%;background:var(--teal);border-radius:9px}
 .stick{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px 16px}.stick div{max-width:720px;margin:0 auto;display:flex;gap:8px;justify-content:space-between}
 .score{font-size:64px;font-weight:700;line-height:1}.hide{display:none}del{background:var(--rust-bg)}ins{background:var(--teal-bg);text-decoration:none}
-a.lnk{color:var(--teal)}
+a.lnk{color:var(--teal)}.li{display:flex;width:100%;justify-content:space-between;align-items:center;gap:8px;min-height:56px;padding:10px 16px;border:0;border-bottom:1px solid var(--line);background:none;font:inherit;text-align:left;cursor:pointer}.li:last-child{border:0}
 </style></head><body>
 <div class="bar"><b>Show:</b>
 <button data-b="s" data-t="s1" aria-pressed="true" onclick="show('s','s1')">1 Notes</button>
@@ -21,7 +21,13 @@ a.lnk{color:var(--teal)}
 <button data-b="s" data-t="s1e" aria-pressed="false" onclick="show('s','s1e')">Failed</button>
 <button data-b="s" data-t="s2" aria-pressed="false" onclick="show('s','s2')">2 Placement</button>
 <button data-b="s" data-t="s3" aria-pressed="false" onclick="show('s','s3')">3 Check</button>
-<button data-b="s" data-t="done" aria-pressed="false" onclick="show('s','done')">Result</button>
+<button data-b="s" data-t="done" aria-pressed="false" onclick="show('s','done')">Your resume + checklist</button>
+<button data-b="s" data-t="sec" aria-pressed="false" onclick="show('s','sec')">Section open</button>
+<button data-b="s" data-t="deep" aria-pressed="false" onclick="show('s','deep')">Go deeper</button>
+<button data-b="s" data-t="none" aria-pressed="false" onclick="show('s','none')">"I don't have any"</button>
+<button data-b="s" data-t="skip" aria-pressed="false" onclick="show('s','skip')">Skipped</button>
+<button data-b="s" data-t="back" aria-pressed="false" onclick="show('s','back')">Come back later</button>
+<button data-b="s" data-t="nog" aria-pressed="false" onclick="show('s','nog')">Guide unavailable</button>
 <button data-b="s" data-t="empty" aria-pressed="false" onclick="show('s','empty')">No resume yet</button></div>
 <main>
 <section id="empty" data-g="s" class="hide"><h1>Your resume</h1><p class="mute">You don't have a base resume yet.</p>
@@ -56,8 +62,54 @@ a.lnk{color:var(--teal)}
 <div class="card"><b>Leeds</b> BSc Computer Science, 2020</div>
 <div class="stick"><div><button class="btn" onclick="show('s','s2')">Back</button><button class="btn p" onclick="show('s','done')">Save my resume</button></div></div></section>
 
-<section id="done" data-g="s" class="hide"><h1>Your resume</h1><p class="mute">Saved. Last changed today.</p>
-<div class="card"><b>Acme Corp</b><ul><li>Built a billing API and cut errors by 40%</li></ul><b>Skills</b> Python, Postgres, AWS</div>
-<div class="row"><button class="btn p">Add more notes</button><button class="btn">See score</button><button class="btn">Delete resume</button></div>
-<p class="mute">Adding notes later: new items show as <ins>added</ins> next to what's already there. Nothing is replaced until you confirm.</p></section>
+<section id="done" data-g="s" class="hide"><h1>Your resume</h1><p class="mute">Saved. 2 of 7 sections look complete. Work on any in any order, or stop here.</p>
+<div class="prog" role="img" aria-label="2 of 7 complete"><i style="width:28%"></i></div>
+<div class="row" style="margin-bottom:12px"><button class="btn p" onclick="show('s','sec')">Next: Experience</button><button class="btn">Add more notes</button><button class="btn">See score</button></div>
+<div class="card" style="padding:0">
+<button class="li" onclick="show('s','sec')"><span><b>Experience</b><br><span class="mute">1 job listed. Is that all?</span></span><span class="chip warn">Thin</span></button>
+<button class="li" onclick="show('s','sec')"><span><b>Projects</b><br><span class="mute">1 project. No outcome yet.</span></span><span class="chip warn">Thin</span></button>
+<button class="li" onclick="show('s','sec')"><span><b>Achievements</b><br><span class="mute">Nothing added yet.</span></span><span class="chip bad">Empty</span></button>
+<button class="li" onclick="show('s','sec')"><span><b>Summary</b><br><span class="mute">Nothing added yet.</span></span><span class="chip bad">Empty</span></button>
+<button class="li" onclick="show('s','sec')"><span><b>Skills</b><br><span class="mute">8 skills, 5 shown in a job.</span></span><span class="chip ok">&#10003; Complete</span></button>
+<button class="li" onclick="show('s','sec')"><span><b>Education</b><br><span class="mute">BSc, Leeds, 2020.</span></span><span class="chip ok">&#10003; Complete</span></button>
+<button class="li" onclick="show('s','sec')"><span><b>Contact details</b><br><span class="mute">Name, email, phone.</span></span><span class="chip ok">&#10003; Complete</span></button>
+</div>
+<p><a class="lnk" href="#" onclick="show('s','skip');return false">2 skipped suggestions</a></p>
+<p class="mute">Complete, thin and empty are about what you've told us, not how good the job was. <a class="lnk" href="#">How we decide</a></p>
+<div class="row"><button class="btn">Delete resume</button></div></section>
+
+<section id="sec" data-g="s" class="hide"><p><a class="lnk" href="#" onclick="show('s','done');return false">&larr; Your resume</a></p>
+<h1>Experience <span class="chip warn">Thin</span></h1>
+<div class="card"><b>Why thin</b><ul><li>1 job listed: Acme Corp, 2021 to now.</li><li>Nothing before 2021, and you finished BSc in 2020.</li><li>Looks fine if Acme is your first job.</li></ul></div>
+<div class="card"><label for="a1"><b>Do you have other roles, internships or freelance work?</b></label>
+<textarea id="a1" style="min-height:110px;margin-top:8px" placeholder="e.g. Summer internship at Bolt, 2019, built a dashboard"></textarea>
+<div class="row" style="margin-top:8px"><button class="btn p">Add</button><button class="btn" onclick="show('s','none')">I don't have any</button><button class="btn" onclick="show('s','skip')">Skip for now</button></div></div>
+<h2>Weak spots in what you have</h2>
+<div class="card"><b>Acme Corp: Built billing API</b> <span class="chip warn">No result</span><p class="mute">Ask: what changed because of your work? Numbers help.</p><button class="btn" onclick="show('s','deep')">Answer</button> <button class="btn">Skip</button></div>
+<p class="mute">We only ask questions. Nothing is added until you write it.</p></section>
+
+<section id="deep" data-g="s" class="hide"><p><a class="lnk" href="#" onclick="show('s','sec');return false">&larr; Experience</a></p>
+<h1>Acme Corp: Built billing API</h1><p class="mute">You wrote: "Built billing API, cut errors a lot"</p>
+<div class="card"><label for="a2"><b>By how much did errors drop, and over what time?</b></label><p class="mute">A rough number is fine. Leave blank if you don't know.</p>
+<textarea id="a2" style="min-height:90px" placeholder="e.g. about 40% in 3 months"></textarea>
+<div class="row" style="margin-top:8px"><button class="btn p" onclick="show('s','done')">Save answer</button><button class="btn" onclick="show('s','sec')">Skip this one</button></div></div>
+<div class="card"><b>After you save</b> <span class="chip ok">Added</span><p class="mute">Experience now shows this result. We show the change before it replaces anything.</p></div></section>
+
+<section id="none" data-g="s" class="hide"><p><a class="lnk" href="#" onclick="show('s','done');return false">&larr; Your resume</a></p>
+<h1>Achievements <span class="chip ok">Marked: none</span></h1>
+<div class="card"><p>You said you don't have any. We won't ask about this again.</p><button class="btn" onclick="show('s','sec')">Undo, ask me again</button></div>
+<p class="mute">A section marked none counts as complete.</p></section>
+
+<section id="skip" data-g="s" class="hide"><p><a class="lnk" href="#" onclick="show('s','done');return false">&larr; Your resume</a></p>
+<h1>Skipped suggestions</h1><p class="mute">These won't come up again unless you bring them back.</p>
+<div class="card"><b>Experience: other roles?</b><div class="row" style="margin-top:8px"><button class="btn">Bring back</button></div></div>
+<div class="card"><b>Summary: add two lines about you</b><div class="row" style="margin-top:8px"><button class="btn">Bring back</button></div></div></section>
+
+<section id="back" data-g="s" class="hide"><h1>Welcome back</h1><p class="mute">Last time you added Acme Corp. 3 things are still open.</p>
+<div class="card"><b>Pick up where you left off</b><ul><li>Experience: other roles?</li><li>Acme billing API: what changed?</li><li>Achievements</li></ul><button class="btn p" onclick="show('s','sec')">Continue with Experience</button> <button class="btn" onclick="show('s','done')">See my resume</button></div>
+<p class="mute">Adding notes? New items show as <ins>added</ins> beside what's there. Nothing is replaced until you confirm.</p></section>
+
+<section id="nog" data-g="s" class="hide"><h1>Your resume</h1><p class="mute">Saved.</p>
+<div class="card" role="status"><b>Checklist isn't available right now.</b><br>Your resume is safe. Try again in a moment.<div class="row" style="margin-top:8px"><button class="btn p">Try again</button></div></div>
+<div class="card"><b>Acme Corp</b><ul><li>Built a billing API and cut errors by 40%</li></ul><b>Skills</b> Python, Postgres, AWS</div></section>
 </main><script>function show(g,id){document.querySelectorAll("[data-g=\""+g+"\"]").forEach(e=>e.classList.toggle("hide",e.id!==id));document.querySelectorAll("[data-b=\""+g+"\"]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===id))}</script></body></html>

@@ -4,8 +4,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { readUploadResponse } from "@/lib/upload-response";
+import { readUploadResponse, uploadedMessage } from "@/lib/upload-response";
 import { FileText, Upload, AlertCircle, CheckCircle } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -41,6 +42,7 @@ export default function ProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadedName, setUploadedName] = useState<string | undefined>();
 
   useEffect(() => {
     if (session?.user) {
@@ -72,8 +74,6 @@ export default function ProfilePage() {
       if (res.ok) {
         const data = await res.json();
         setResume(data);
-      } else if (res.status === 404) {
-        setResume(null);
       }
     } catch (err) {
       console.error("Failed to fetch resume:", err);
@@ -100,6 +100,7 @@ export default function ProfilePage() {
       const outcome = await readUploadResponse(res);
       if (!outcome.ok) throw new Error(outcome.error);
 
+      setUploadedName(outcome.fileName ?? file.name);
       setUploadSuccess(true);
       await fetchResume(); // Refresh resume data
 
@@ -191,12 +192,12 @@ export default function ProfilePage() {
                 <label htmlFor="headline" className="block text-sm font-medium text-gray-700">
                   Professional Headline
                 </label>
-                <input
+                <Input
                   type="text"
                   id="headline"
                   name="headline"
                   defaultValue={profile?.headline || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                   placeholder="Full Stack Developer | AI Enthusiast"
                 />
               </div>
@@ -205,12 +206,12 @@ export default function ProfilePage() {
                 <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
                   Bio
                 </label>
-                <textarea
+                <Textarea
                   id="bio"
                   name="bio"
                   rows={4}
                   defaultValue={profile?.bio || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -219,12 +220,12 @@ export default function ProfilePage() {
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700">
                   Location
                 </label>
-                <input
+                <Input
                   type="text"
                   id="location"
                   name="location"
                   defaultValue={profile?.location || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                   placeholder="City, Country"
                 />
               </div>
@@ -233,12 +234,12 @@ export default function ProfilePage() {
                 <label htmlFor="website" className="block text-sm font-medium text-gray-700">
                   Website
                 </label>
-                <input
+                <Input
                   type="url"
                   id="website"
                   name="website"
                   defaultValue={profile?.website || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                   placeholder="https://your-website.com"
                 />
               </div>
@@ -247,12 +248,12 @@ export default function ProfilePage() {
                 <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
                   LinkedIn
                 </label>
-                <input
+                <Input
                   type="url"
                   id="linkedin"
                   name="linkedin"
                   defaultValue={profile?.linkedin || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                   placeholder="https://linkedin.com/in/your-profile"
                 />
               </div>
@@ -261,12 +262,12 @@ export default function ProfilePage() {
                 <label htmlFor="github" className="block text-sm font-medium text-gray-700">
                   GitHub
                 </label>
-                <input
+                <Input
                   type="url"
                   id="github"
                   name="github"
                   defaultValue={profile?.github || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                   placeholder="https://github.com/your-username"
                 />
               </div>
@@ -275,12 +276,12 @@ export default function ProfilePage() {
                 <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
                   Skills
                 </label>
-                <input
+                <Input
                   type="text"
                   id="skills"
                   name="skills"
                   defaultValue={profile?.skills?.join(", ") || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2"
                   placeholder="React, Node.js, Python (comma separated)"
                 />
               </div>
@@ -321,19 +322,23 @@ export default function ProfilePage() {
 
                   <div className="flex gap-2">
                     <label className="cursor-pointer">
-                      <Button variant="outline" asChild>
+                      <input
+                        type="file"
+                        accept=".pdf,.docx,.txt"
+                        onChange={handleFileUpload}
+                        className="peer sr-only"
+                        disabled={isUploading}
+                      />
+                      <Button
+                        variant="outline"
+                        asChild
+                        className="peer-focus-visible:ring-ring peer-focus-visible:ring-[3px]"
+                      >
                         <span>
                           <Upload className="h-4 w-4 mr-2" />
                           Replace Resume
                         </span>
                       </Button>
-                      <input
-                        type="file"
-                        accept=".pdf,.docx,.txt"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        disabled={isUploading}
-                      />
                     </label>
                   </div>
                 </div>
@@ -342,19 +347,22 @@ export default function ProfilePage() {
                   <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-500 mb-4">No resume uploaded yet</p>
                   <label className="cursor-pointer">
-                    <Button asChild>
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.txt"
+                      onChange={handleFileUpload}
+                      className="peer sr-only"
+                      disabled={isUploading}
+                    />
+                    <Button
+                      asChild
+                      className="peer-focus-visible:ring-ring peer-focus-visible:ring-[3px]"
+                    >
                       <span>
                         <Upload className="h-4 w-4 mr-2" />
                         Upload Resume
                       </span>
                     </Button>
-                    <input
-                      type="file"
-                      accept=".pdf,.docx,.txt"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      disabled={isUploading}
-                    />
                   </label>
                 </div>
               )}
@@ -362,7 +370,9 @@ export default function ProfilePage() {
               {uploadSuccess && (
                 <Alert>
                   <CheckCircle className="h-4 w-4" />
-                  <AlertDescription>Resume uploaded successfully!</AlertDescription>
+                  <AlertDescription className="break-words">
+                    {uploadedMessage(uploadedName)}
+                  </AlertDescription>
                 </Alert>
               )}
 
