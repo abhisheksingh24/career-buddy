@@ -4,6 +4,7 @@ import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-anal
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input, Textarea } from "@/components/ui/input";
 import type { EnhancedAnalysisResult } from "@/lib/types/analysis";
 import { FileText, Upload, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -118,8 +119,8 @@ export default function AnalyzePage() {
                   Use My Uploaded Resume
                 </Button>
               )}
-              <textarea
-                className="w-full border rounded-lg p-3 min-h-32 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              <Textarea
+                className="w-full border rounded-lg p-3 min-h-32 resize-none"
                 placeholder="Paste your resume text here..."
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
@@ -141,9 +142,9 @@ export default function AnalyzePage() {
                     (Optional - leave blank for auto-detection)
                   </span>
                 </label>
-                <input
+                <Input
                   type="text"
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border rounded-lg p-2"
                   placeholder="e.g., Software Engineering, Healthcare, Finance, Marketing"
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
@@ -153,9 +154,9 @@ export default function AnalyzePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Job Title</label>
-                  <input
+                  <Input
                     type="text"
-                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border rounded-lg p-2"
                     placeholder="e.g., Software Engineer"
                     value={jobTitle}
                     onChange={(e) => setJobTitle(e.target.value)}
@@ -164,9 +165,9 @@ export default function AnalyzePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Company</label>
-                  <input
+                  <Input
                     type="text"
-                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full border rounded-lg p-2"
                     placeholder="e.g., Google"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
@@ -176,8 +177,8 @@ export default function AnalyzePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Job Description</label>
-                <textarea
-                  className="w-full border rounded-lg p-3 min-h-32 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                <Textarea
+                  className="w-full border rounded-lg p-3 min-h-32 resize-none"
                   placeholder="Paste the job description here..."
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
