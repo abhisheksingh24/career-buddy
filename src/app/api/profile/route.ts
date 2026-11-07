@@ -1,6 +1,6 @@
 import { MAX_PROFILE_BYTES, PROFILE_RATE_LIMIT, guard, readJson } from "@/lib/api-guard";
 import prisma from "@/lib/db";
-import { profileSchema } from "@/lib/profile-schema";
+import { EMPTY_PROFILE, describeProfileIssues, profileSchema } from "@/lib/profile-schema";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -9,16 +9,10 @@ export async function GET() {
   if ("response" in auth) return auth.response;
   const { userId } = auth;
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId },
-    include: { user: true },
-  });
+  const profile = await prisma.profile.findUnique({ where: { userId } });
 
-  if (!profile) {
-    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-  }
-
-  return NextResponse.json(profile);
+  // A new user has no profile row yet: that is a normal state, not an error.
+  return NextResponse.json(profile ?? EMPTY_PROFILE);
 }
 
 export async function PUT(req: NextRequest) {
@@ -46,7 +40,10 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(profile);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.issues }, { status: 400 });
+      return NextResponse.json(
+        { error: describeProfileIssues(error.issues), issues: error.issues },
+        { status: 400 },
+      );
     }
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
   }
