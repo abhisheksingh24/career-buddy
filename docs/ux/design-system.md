@@ -38,6 +38,20 @@ button is near-white, so a single grey cannot reach 3:1 against both it and
 the page; the outer edge on the page is what counts. `src/lib/focus-ring-contrast.test.ts`
 fails if a token change drops below 3:1.
 
+Every focusable control uses this one ring and no second outline: buttons,
+tabs, text fields (`Input`, `Textarea`), the header brand link and sign in/out
+button, and the file choosers. Never use `focus:ring-blue-*` or the browser's
+default outline.
+
+### Input and Textarea
+
+`src/components/ui/input.tsx`. Use for every text field and text area; it
+carries the focus ring (`focusRing` is exported for custom controls). Pass
+layout, border and size classes as usual. Do not use a raw `<input>` or
+`<textarea>` for text. File inputs stay native (hidden behind a Button, with
+`peer-focus-visible:ring-ring peer-focus-visible:ring-[3px]` on the Button, or
+visible with `focus-visible:ring-ring focus-visible:ring-[3px]`).
+
 ## Layout
 
 <!-- Width classes: compact < 600, medium 600-839, expanded 840+ (Material
