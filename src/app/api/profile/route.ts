@@ -1,4 +1,4 @@
-import { guard } from "@/lib/api-guard";
+import { MAX_PROFILE_BYTES, PROFILE_RATE_LIMIT, guard, readJson } from "@/lib/api-guard";
 import prisma from "@/lib/db";
 import { EMPTY_PROFILE, describeProfileIssues, profileSchema } from "@/lib/profile-schema";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,12 +16,16 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
-  const auth = await guard();
+  const auth = await guard({ rateLimit: PROFILE_RATE_LIMIT });
   if ("response" in auth) return auth.response;
   const { userId } = auth;
 
+  const body = await readJson(req, MAX_PROFILE_BYTES);
+  if (body === null) {
+    return NextResponse.json({ error: "Invalid or too large request" }, { status: 400 });
+  }
+
   try {
-    const body = await req.json();
     const data = profileSchema.parse(body);
 
     const profile = await prisma.profile.upsert({

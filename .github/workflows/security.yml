@@ -63,3 +63,19 @@ jobs:
           docker run --rm -v "$PWD:/src" -w /src \
             semgrep/semgrep:1.181.0@sha256:81474464c1f07483ba0682a44787fd93c91397419762a04abe2bafaae396304b \
             semgrep scan --config p/default --error --metrics off $base
+
+  # Weekly runs have no one watching; open (or update) one issue on failure.
+  # Pull-request, push and manual runs are unaffected.
+  notify-failure:
+    needs: [secrets, static-analysis]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: .github/scripts/notify-scheduled-failure.sh security
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

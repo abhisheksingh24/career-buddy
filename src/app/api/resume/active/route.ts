@@ -14,9 +14,9 @@ export async function GET(): Promise<NextResponse> {
       where: { userId, isDefault: true },
     });
 
-    if (!portfolio) {
-      return NextResponse.json({ error: "No portfolio found" }, { status: 404 });
-    }
+    // "No resume yet" is a normal state, not an error: answer 200 with null so
+    // the browser console does not log a failed request on every page load.
+    if (!portfolio) return NextResponse.json(null);
 
     // Get the most recent resume from the portfolio
     const resume = await prisma.resume.findFirst({
@@ -24,9 +24,7 @@ export async function GET(): Promise<NextResponse> {
       orderBy: { version: "desc" },
     });
 
-    if (!resume) {
-      return NextResponse.json({ error: "No resume found" }, { status: 404 });
-    }
+    if (!resume) return NextResponse.json(null);
 
     return NextResponse.json({
       id: resume.id,

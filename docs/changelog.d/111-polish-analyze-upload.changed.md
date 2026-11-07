@@ -1,0 +1,1 @@
+Polished the interactive analysis and upload pages: one main heading each, no failed request on load when you have no resume yet, a neutral "Not analysed yet" state before any analysis, one upload message ("Uploaded <file name>") on Upload and Profile, and a styled, phone-friendly file chooser.

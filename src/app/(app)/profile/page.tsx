@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PROFILE_LIMITS, type ProfileInput } from "@/lib/profile-schema";
-import { readUploadResponse } from "@/lib/upload-response";
+import { readUploadResponse, uploadedMessage } from "@/lib/upload-response";
 import { FileText, Upload, AlertCircle, CheckCircle } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
@@ -39,6 +39,7 @@ export default function ProfilePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadedName, setUploadedName] = useState<string | undefined>();
 
   useEffect(() => {
     return () => {
@@ -77,8 +78,6 @@ export default function ProfilePage() {
       if (res.ok) {
         const data = await res.json();
         setResume(data);
-      } else if (res.status === 404) {
-        setResume(null);
       }
     } catch (err) {
       console.error("Failed to fetch resume:", err);
@@ -105,6 +104,7 @@ export default function ProfilePage() {
       const outcome = await readUploadResponse(res);
       if (!outcome.ok) throw new Error(outcome.error);
 
+      setUploadedName(outcome.fileName ?? file.name);
       setUploadSuccess(true);
       await fetchResume(); // Refresh resume data
 
@@ -398,7 +398,9 @@ export default function ProfilePage() {
               {uploadSuccess && (
                 <Alert>
                   <CheckCircle className="h-4 w-4" />
-                  <AlertDescription>Resume uploaded successfully!</AlertDescription>
+                  <AlertDescription className="break-words">
+                    {uploadedMessage(uploadedName)}
+                  </AlertDescription>
                 </Alert>
               )}
 

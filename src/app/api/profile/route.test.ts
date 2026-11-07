@@ -13,12 +13,17 @@ vi.mock("@/lib/db", () => {
   return { prisma, default: prisma };
 });
 
+import { PROFILE_RATE_LIMIT } from "@/lib/api-guard";
+import { resetRateLimits } from "@/lib/rate-limit";
+
 import { GET, PUT } from "./route";
 
 const put = (body: unknown) =>
   new Request("http://x/", { method: "PUT", body: JSON.stringify(body) }) as never;
+const putRaw = (body: string) => new Request("http://x/", { method: "PUT", body }) as never;
 
 beforeEach(() => {
+  resetRateLimits();
   getServerSession.mockReset().mockResolvedValue({ user: { id: "u1" } });
   findUnique.mockReset();
   upsert.mockReset().mockImplementation(async (a: { update: unknown }) => a.update);
@@ -79,5 +84,23 @@ describe("profile route", () => {
       put({ headline: "x".repeat(200), bio: "x".repeat(3000), skills: ["x".repeat(50)] }),
     );
     expect(res.status).toBe(200);
+  });
+});
+
+describe("PUT /api/profile limits", () => {
+  it("refuses bodies over the size cap with 400", async () => {
+    const res = await PUT(putRaw(JSON.stringify({ bio: "x".repeat(60_000) })));
+    expect(res.status).toBe(400);
+  });
+
+  it("refuses invalid JSON with 400", async () => {
+    expect((await PUT(putRaw("{nope"))).status).toBe(400);
+  });
+
+  it("returns 429 with Retry-After past the limit", async () => {
+    for (let i = 0; i < PROFILE_RATE_LIMIT.limit; i++) await PUT(putRaw("{}"));
+    const res = await PUT(putRaw("{}"));
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBeTruthy();
   });
 });
