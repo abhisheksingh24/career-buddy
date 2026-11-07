@@ -253,7 +253,7 @@ export function InteractiveAnalysisLayout({
         <button
           onClick={() => setRightPanelOpen(!rightPanelOpen)}
           className="md:hidden w-full py-2 max-sm:min-h-11 bg-gray-100 hover:bg-gray-200 border-t text-sm font-medium"
-          aria-label="Toggle PDF viewer"
+          aria-expanded={rightPanelOpen}
         >
           {rightPanelOpen ? "Hide Resume Preview" : "Show Resume Preview"}
         </button>
