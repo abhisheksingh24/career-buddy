@@ -67,7 +67,7 @@ export function CategoryNavigation({
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-semibold text-gray-700 mb-4">Analysis Categories</h3>
+      <h2 className="text-sm font-semibold text-gray-700 mb-4">Analysis Categories</h2>
       {categories.map((category) => {
         const Icon = category.icon;
         const isActive = selectedCategoryId === category.id;

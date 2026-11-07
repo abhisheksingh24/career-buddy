@@ -46,6 +46,8 @@ tabs, text fields (`Input`, `Textarea`), the header brand link and sign in/out
 button, and the file choosers. Never use `focus:ring-blue-*` or the browser's
 default outline.
 
+Scrollable regions that take focus (the interactive analysis "Category details") use the same ring drawn inset (`focus-visible:ring-inset`), so the scroll container does not clip it.
+
 ### Input and Textarea
 
 `src/components/ui/input.tsx`. Use for every text field and text area; it
