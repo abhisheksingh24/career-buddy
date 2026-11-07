@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { readUploadResponse, UPLOAD_FALLBACK_ERROR, UPLOAD_SIGN_IN_ERROR } from "./upload-response";
+import {
+  readUploadResponse,
+  UPLOAD_FALLBACK_ERROR,
+  UPLOAD_SIGN_IN_ERROR,
+  uploadedMessage,
+} from "./upload-response";
+
+describe("uploadedMessage", () => {
+  it("names the file", () => {
+    expect(uploadedMessage("cv.pdf")).toBe("Uploaded cv.pdf");
+  });
+  it("still reads the same without a name", () => {
+    expect(uploadedMessage()).toBe("Uploaded your resume");
+  });
+});
 
 describe("readUploadResponse", () => {
   it("returns the server error text", async () => {
