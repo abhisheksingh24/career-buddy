@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
+import { scrollToCategoryDetails } from "@/lib/scroll-to-details";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
 import {
   TrendingUp,
@@ -43,6 +44,7 @@ const placeholderCategories: Category[] = [
     name: "Match Overview",
     icon: TrendingUp,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -50,6 +52,7 @@ const placeholderCategories: Category[] = [
     name: "Required Skills",
     icon: Target,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -57,6 +60,7 @@ const placeholderCategories: Category[] = [
     name: "Work Experience",
     icon: Briefcase,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -64,6 +68,7 @@ const placeholderCategories: Category[] = [
     name: "Education & Credentials",
     icon: GraduationCap,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -71,6 +76,7 @@ const placeholderCategories: Category[] = [
     name: "Impact & Achievements",
     icon: Award,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -78,6 +84,7 @@ const placeholderCategories: Category[] = [
     name: "ATS Compatibility",
     icon: FileCheck,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -85,6 +92,7 @@ const placeholderCategories: Category[] = [
     name: "Professional Quality",
     icon: FileText,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
 ];
@@ -130,6 +138,7 @@ export default function InteractiveAnalyzePage() {
       const response = await fetch("/api/resume/active");
       if (response.ok) {
         const data = await response.json();
+        if (!data) return;
         setUserResume(data.rawText || null);
         setResumeId(data.id || null);
         setResumeFileType(data.fileType || "text/plain");
@@ -179,11 +188,11 @@ export default function InteractiveAnalyzePage() {
       const resumeResponse = await fetch("/api/resume/active");
       if (resumeResponse.ok) {
         const resumeData = await resumeResponse.json();
-        if (resumeData.rawText) {
+        if (resumeData?.rawText) {
           setResumeText(resumeData.rawText);
         }
         // Update resume ID and file type from active resume
-        if (resumeData.id) {
+        if (resumeData?.id) {
           setResumeId(resumeData.id);
           setResumeFileType(resumeData.fileType || "text/plain");
         }
@@ -197,6 +206,8 @@ export default function InteractiveAnalyzePage() {
 
   const handleCategorySelect = (categoryId: CategoryId) => {
     setSelectedCategoryId(categoryId);
+    // On the stacked phone layout, bring the details on screen (#152).
+    requestAnimationFrame(() => scrollToCategoryDetails());
     // No loading state needed for category selection - data is already loaded
   };
 
@@ -312,8 +323,11 @@ export default function InteractiveAnalyzePage() {
                   <CardContent className="space-y-3">
                     {/* File Upload */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Upload Resume File</label>
+                      <label htmlFor="resume-file" className="block text-sm font-medium mb-2">
+                        Upload Resume File
+                      </label>
                       <input
+                        id="resume-file"
                         type="file"
                         accept=".pdf,.docx,.txt"
                         onChange={handleFileUpload}
@@ -474,7 +488,7 @@ export default function InteractiveAnalyzePage() {
       <InteractiveAnalysisLayout
         jobTitle={jobTitle || "Position"}
         company={company || "Company"}
-        overallScore={analysisResult?.overallScore || 0}
+        overallScore={analysisResult ? analysisResult.overallScore : null}
       >
         {{
           leftPanel: (
@@ -496,7 +510,7 @@ export default function InteractiveAnalyzePage() {
           ),
           rightPanel: (
             <div className="h-full flex flex-col">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h3>
+              <h2 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h2>
               <ResumePDFViewer
                 fileUrl={resumeId ? `/api/resume/${resumeId}/file` : null}
                 fileType={resumeFileType}
