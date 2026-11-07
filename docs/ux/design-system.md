@@ -61,3 +61,11 @@ loading / error states, confirmation and undo, progressive disclosure. -->
 <!-- Vocabulary (one term per concept), tone, number and unit formats,
 how errors and empty states are phrased. Short lines, no paragraph over two
 short lines, say it once. -->
+
+## Text inputs on phones
+
+Single-line text inputs are at least 44px high below 768px (global rule in
+`src/app/globals.css`, tested in `src/app/globals.test.ts`). Desktop height
+is unchanged. File, checkbox and radio inputs are excluded. Text areas grow
+with their rows, so the rule does not apply to them. New inputs get this
+without any class; do not add a per-input height.
