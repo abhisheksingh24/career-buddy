@@ -1456,3 +1456,10 @@ is capped at 40% of the viewport height and scrolls on its own, the details
 region keeps its natural height (it must never be a shrinkable flex child), and
 choosing a category scrolls the details into view (`scrollToCategoryDetails`).
 The laptop and tablet layouts are unchanged.
+
+## Unanalysed categories (#156)
+
+A category the analysis has not scored yet shows "Not analysed yet" in the
+categories list and the details panel. It never shows 0% or a Critical badge,
+because that would tell the user their resume is bad where we simply have no
+data. A genuinely analysed score of 0 still renders as 0% with its real status.
