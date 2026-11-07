@@ -1,11 +1,14 @@
 "use client";
 
 import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-analysis-results";
+import { RateLimitNotice } from "@/components/rate-limit-notice";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import { parseRetryAfter } from "@/lib/retry-wait";
 import type { EnhancedAnalysisResult } from "@/lib/types/analysis";
+import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import { FileText, Upload, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
@@ -23,6 +26,7 @@ export default function AnalyzePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userResume, setUserResume] = useState<string | null>(null);
+  const { remaining, start } = useRetryCountdown();
 
   // Fetch user's resume on component mount
   useEffect(() => {
@@ -64,6 +68,14 @@ export default function AnalyzePage() {
           domain: domain || undefined,
         }),
       });
+      if (res.status === 429) {
+        const wait = parseRetryAfter(res.headers.get("Retry-After"));
+        if (wait) {
+          start(wait);
+          setResult(null);
+          return;
+        }
+      }
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to analyze resume");
@@ -188,14 +200,20 @@ export default function AnalyzePage() {
             </CardContent>
           </Card>
 
-          <Button
-            onClick={run}
-            disabled={isLoading || !resumeText || !jobDescription}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? "Analyzing..." : "Analyze Resume"}
-          </Button>
+          <RateLimitNotice active={remaining > 0}>
+            <Button
+              onClick={run}
+              disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
+              className="w-full"
+              size="lg"
+            >
+              {isLoading
+                ? "Analyzing..."
+                : remaining > 0
+                  ? `Try again in ${remaining}s`
+                  : "Analyze Resume"}
+            </Button>
+          </RateLimitNotice>
         </div>
 
         {/* Results Section */}
@@ -211,7 +229,7 @@ export default function AnalyzePage() {
             <EnhancedResumeAnalysisResults analysis={result} />
           )}
 
-          {!result && !error && !isLoading && (
+          {!result && !error && !isLoading && remaining === 0 && (
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center text-gray-500">
