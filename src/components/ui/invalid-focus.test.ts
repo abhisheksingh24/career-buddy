@@ -22,7 +22,11 @@ function luminance(l: number, c: number, hDeg: number) {
   return 0.2126 * cl(r) + 0.7152 * cl(g) + 0.0722 * cl(bl);
 }
 const token = (b: string, name: string) => {
-  const m = b.match(new RegExp(`--${name}:\\s*oklch\\(([\\d.]+) ([\\d.]+) ([\\d.]+)\\)`));
+  const line = b
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.startsWith(`--${name}:`));
+  const m = line?.match(/oklch\(([\d.]+) ([\d.]+) ([\d.]+)\)/);
   if (!m) throw new Error(`${name} not an opaque oklch`);
   return luminance(Number(m[1]), Number(m[2]), Number(m[3]));
 };
