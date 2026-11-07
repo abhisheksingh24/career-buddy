@@ -8,13 +8,15 @@ export function AuthButtons() {
   const pathname = usePathname();
 
   if (status === "loading") {
-    return <button className="px-3 py-1.5 rounded bg-gray-200 text-gray-600">...</button>;
+    return (
+      <button className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-200 text-gray-600">...</button>
+    );
   }
 
   if (status === "authenticated") {
     return (
       <button
-        className="px-3 py-1.5 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
+        className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
         onClick={() => signOut()}
       >
         Sign out
@@ -27,7 +29,7 @@ export function AuthButtons() {
 
   return (
     <button
-      className="px-3 py-1.5 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
+      className="px-3 py-1.5 max-sm:min-h-11 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
       onClick={() => signIn("google")}
     >
       Sign in

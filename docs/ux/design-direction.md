@@ -24,7 +24,10 @@ emphasis on UX". Anything marked _(assumption)_ is inferred and open to change.
   overlays, fully rounded only for chips. Soft 1px borders over shadows;
   shadow only to lift overlays. One column on phone; on laptop a capped
   content width with an optional side panel for suggestions. Touch targets at
-  least 44px. Motion is short and gentle, off under reduced-motion.
+  least 44px. On phone this is done with
+  the `max-sm:` variant (44px minimum height on buttons, tabs and
+  auth controls), so laptop density is unchanged. `e2e/tap-targets.spec.ts`
+  guards it by measuring control heights on Home at phone width. Motion is short and gentle, off under reduced-motion.
 - **Tone of words:** Plain, warm, brief; speak to the user as "you", use job
   seeker words (resume, role, job description), not jargon. Say what to do next.
   - In tone: "Your resume matches 72% of this role. Three changes would help most."
