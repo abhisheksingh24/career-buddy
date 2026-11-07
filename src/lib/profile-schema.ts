@@ -1,13 +1,12 @@
 import { z } from "zod";
 
-export const PROFILE_LIMITS = {
-  headline: 200,
-  bio: 3000,
-  location: 200,
-  skill: 50,
-  skills: 50,
-  url: 2048,
-} as const;
+import { PROFILE_LIMITS } from "./profile-limits";
+
+// Zod's JIT compiler probes for eval with `new Function("")`, which raises a
+// script-src CSP violation on every page load (we forbid unsafe-eval, ADR
+// 0018). Parsing without the JIT is equally correct and fast enough here.
+z.config({ jitless: true });
+export { PROFILE_LIMITS };
 
 const FIELD_LABELS: Record<string, string> = {
   headline: "Headline",
