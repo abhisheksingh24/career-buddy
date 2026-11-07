@@ -33,7 +33,7 @@ export default function UploadPage() {
         <input
           name="file"
           type="file"
-          className="mt-2"
+          className="mt-2 max-sm:min-h-11 max-sm:file:min-h-11"
           accept=".pdf,.docx,.txt"
           onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
         />
