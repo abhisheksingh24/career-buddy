@@ -35,7 +35,10 @@ export default async function RootLayout({
         <Providers>
           <header className="w-full border-b">
             <div className="max-w-5xl mx-auto p-4 flex justify-between items-center">
-              <Link className="font-semibold" href="/">
+              <Link
+                className="font-semibold max-sm:inline-flex max-sm:min-h-11 max-sm:items-center rounded-sm outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
+                href="/"
+              >
                 Career Buddy
               </Link>
               <AuthButtons />

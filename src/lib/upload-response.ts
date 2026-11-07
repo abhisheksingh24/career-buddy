@@ -2,6 +2,11 @@ export const UPLOAD_FALLBACK_ERROR = "Upload failed. Please try again.";
 
 export const UPLOAD_SIGN_IN_ERROR = "Please sign in to upload your resume.";
 
+/** The one success line shown after an upload, on every page. */
+export function uploadedMessage(fileName?: string): string {
+  return fileName ? `Uploaded ${fileName}` : "Uploaded your resume";
+}
+
 export type UploadOutcome = { ok: true; fileName?: string } | { ok: false; error: string };
 
 /** Turn an upload reply into a plain outcome; never throws on non-JSON bodies. */
