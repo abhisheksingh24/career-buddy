@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
+import { scrollToCategoryDetails } from "@/lib/scroll-to-details";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
 import {
   TrendingUp,
@@ -205,6 +206,8 @@ export default function InteractiveAnalyzePage() {
 
   const handleCategorySelect = (categoryId: CategoryId) => {
     setSelectedCategoryId(categoryId);
+    // On the stacked phone layout, bring the details on screen (#152).
+    requestAnimationFrame(() => scrollToCategoryDetails());
     // No loading state needed for category selection - data is already loaded
   };
 
@@ -320,8 +323,11 @@ export default function InteractiveAnalyzePage() {
                   <CardContent className="space-y-3">
                     {/* File Upload */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Upload Resume File</label>
+                      <label htmlFor="resume-file" className="block text-sm font-medium mb-2">
+                        Upload Resume File
+                      </label>
                       <input
+                        id="resume-file"
                         type="file"
                         accept=".pdf,.docx,.txt"
                         onChange={handleFileUpload}
@@ -504,7 +510,7 @@ export default function InteractiveAnalyzePage() {
           ),
           rightPanel: (
             <div className="h-full flex flex-col">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h3>
+              <h2 className="text-sm font-semibold text-gray-700 mb-2">Resume Preview</h2>
               <ResumePDFViewer
                 fileUrl={resumeId ? `/api/resume/${resumeId}/file` : null}
                 fileType={resumeFileType}

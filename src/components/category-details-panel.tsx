@@ -222,7 +222,7 @@ export function CategoryDetailsPanel({
             <div className="text-center">
               <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-700 mb-2">No Category Selected</h3>
-              <p className="text-gray-500">
+              <p className="text-gray-600">
                 Choose a category from the left panel to begin analyzing your resume.
               </p>
             </div>
@@ -269,9 +269,9 @@ export function CategoryDetailsPanel({
   const description = getCategoryDescription(selectedCategory.id);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600 bg-green-50 border-green-200";
+    if (score >= 80) return "text-green-700 bg-green-50 border-green-200";
     if (score >= 60) return "text-blue-600 bg-blue-50 border-blue-200";
-    if (score >= 40) return "text-yellow-600 bg-yellow-50 border-yellow-200";
+    if (score >= 40) return "text-yellow-700 bg-yellow-50 border-yellow-200";
     return "text-red-600 bg-red-50 border-red-200";
   };
 
@@ -285,7 +285,7 @@ export function CategoryDetailsPanel({
   // Helper function to render suggestions list
   const renderSuggestionsList = (suggestions: string[], icon?: "check" | "arrow" | "lightbulb") => {
     if (!suggestions || suggestions.length === 0) {
-      return <p className="text-gray-500 text-sm italic">No suggestions available.</p>;
+      return <p className="text-gray-600 text-sm italic">No suggestions available.</p>;
     }
     return (
       <ol className="space-y-3 list-none">
@@ -305,7 +305,7 @@ export function CategoryDetailsPanel({
   const renderActionItems = (actionItems: ActionItem[] | undefined) => {
     if (!actionItems || actionItems.length === 0) {
       return (
-        <p className="text-gray-500 text-sm italic">No action items available for this category.</p>
+        <p className="text-gray-600 text-sm italic">No action items available for this category.</p>
       );
     }
 
@@ -369,7 +369,7 @@ export function CategoryDetailsPanel({
                 >
                   {selectedCategory.score}
                 </div>
-                <div className="text-sm text-gray-500 mt-1">Overall Match</div>
+                <div className="text-sm text-gray-600 mt-1">Overall Match</div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
@@ -516,7 +516,7 @@ export function CategoryDetailsPanel({
                     <ul className="space-y-2">
                       {fullCategoryData.topStrengths.map((strength, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <span className="text-green-600 mt-1">✓</span>
+                          <span className="text-green-700 mt-1">✓</span>
                           <span className="text-gray-700">{strength}</span>
                         </li>
                       ))}
@@ -534,7 +534,7 @@ export function CategoryDetailsPanel({
                       <ul className="space-y-2">
                         {fullCategoryData.topImprovements.map((improvement, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="text-yellow-600 mt-1">⚠</span>
+                            <span className="text-yellow-700 mt-1">⚠</span>
                             <span className="text-gray-700">{improvement}</span>
                           </li>
                         ))}
@@ -605,7 +605,7 @@ export function CategoryDetailsPanel({
                                 <Badge className="bg-green-100 text-green-800 border-green-300">
                                   High Relevance
                                 </Badge>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-600">
                                   ({highRelevance.length})
                                 </span>
                               </div>
@@ -628,7 +628,7 @@ export function CategoryDetailsPanel({
                                 <Badge className="bg-blue-100 text-blue-800 border-blue-300">
                                   Medium Relevance
                                 </Badge>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-600">
                                   ({mediumRelevance.length})
                                 </span>
                               </div>
@@ -651,7 +651,7 @@ export function CategoryDetailsPanel({
                                 <Badge className="bg-gray-100 text-gray-800 border-gray-300">
                                   Low Relevance
                                 </Badge>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-600">
                                   ({lowRelevance.length})
                                 </span>
                               </div>
@@ -699,7 +699,7 @@ export function CategoryDetailsPanel({
                                 <Badge className="bg-red-100 text-red-800 border-red-300">
                                   Critical
                                 </Badge>
-                                <span className="text-xs text-gray-500">({critical.length})</span>
+                                <span className="text-xs text-gray-600">({critical.length})</span>
                               </div>
                               <ul className="space-y-2">
                                 {critical.map((skill, idx) => (
@@ -717,7 +717,7 @@ export function CategoryDetailsPanel({
                                 <Badge className="bg-orange-100 text-orange-800 border-orange-300">
                                   Important
                                 </Badge>
-                                <span className="text-xs text-gray-500">({important.length})</span>
+                                <span className="text-xs text-gray-600">({important.length})</span>
                               </div>
                               <ul className="space-y-2">
                                 {important.map((skill, idx) => (
@@ -735,12 +735,12 @@ export function CategoryDetailsPanel({
                                 <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
                                   Nice to Have
                                 </Badge>
-                                <span className="text-xs text-gray-500">({niceToHave.length})</span>
+                                <span className="text-xs text-gray-600">({niceToHave.length})</span>
                               </div>
                               <ul className="space-y-2">
                                 {niceToHave.map((skill, idx) => (
                                   <li key={idx} className="flex items-start gap-2">
-                                    <span className="text-yellow-600 mt-1">•</span>
+                                    <span className="text-yellow-700 mt-1">•</span>
                                     <span className="text-gray-700">{skill.skill}</span>
                                   </li>
                                 ))}
@@ -844,7 +844,7 @@ export function CategoryDetailsPanel({
                             soft.length === 0 &&
                             tools.length === 0 &&
                             certifications.length === 0 && (
-                              <p className="text-sm text-gray-500 col-span-2">
+                              <p className="text-sm text-gray-600 col-span-2">
                                 No skill category breakdown available.
                               </p>
                             )}
@@ -982,7 +982,7 @@ export function CategoryDetailsPanel({
                       <ul className="space-y-2">
                         {fullCategoryData.relevantExperiences.map((exp, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="text-green-600 mt-1">✓</span>
+                            <span className="text-green-700 mt-1">✓</span>
                             <span className="text-gray-700">{exp}</span>
                           </li>
                         ))}
@@ -1014,7 +1014,7 @@ export function CategoryDetailsPanel({
                 <Card className="border-green-200 bg-green-50/50">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Briefcase className="h-5 w-5 text-green-600" />
+                      <Briefcase className="h-5 w-5 text-green-700" />
                       Suggestions for Reframing Experience
                     </CardTitle>
                   </CardHeader>
@@ -1149,7 +1149,7 @@ export function CategoryDetailsPanel({
                       <ul className="space-y-2">
                         {fullCategoryData.currentAchievements.map((achievement, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="text-green-600 mt-1">✓</span>
+                            <span className="text-green-700 mt-1">✓</span>
                             <span className="text-gray-700">{achievement}</span>
                           </li>
                         ))}
@@ -1167,7 +1167,7 @@ export function CategoryDetailsPanel({
                       <ul className="space-y-2">
                         {fullCategoryData.missingMetrics.map((metric, idx) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="text-yellow-600 mt-1">⚠</span>
+                            <span className="text-yellow-700 mt-1">⚠</span>
                             <span className="text-gray-700">{metric}</span>
                           </li>
                         ))}
@@ -1436,7 +1436,7 @@ export function CategoryDetailsPanel({
       {!hasRealData && (
         <Card className="border-dashed">
           <CardContent className="p-6">
-            <div className="text-center text-gray-500">
+            <div className="text-center text-gray-600">
               <p className="text-sm">
                 Detailed analysis and improvement suggestions will be available in the next
                 iteration.
