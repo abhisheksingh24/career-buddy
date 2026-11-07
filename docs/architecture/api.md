@@ -32,6 +32,7 @@ All routes are Next.js App Router handlers under `src/app/api`. Every handler (e
 - GET /api/resume/[id]/file
   - Session required (401); 404 if the resume does not exist, 403 if it belongs to another user
   - Serves the original PDF (`application/pdf`, from the database, or local disk for older uploads) with `Content-Disposition`, `X-Content-Type-Options: nosniff`, `Cache-Control: private, max-age=3600`
+  - `Content-Disposition` is built by `contentDisposition` (`src/lib/content-disposition.ts`) from the stored name: lone surrogates are replaced with U+FFFD, control characters are stripped, the name is cut to 150 code points (never splitting a surrogate pair) and trimmed, falling back to `resume.pdf` if empty. It sends an ASCII `filename` (non-ASCII, quotes, backslash, `;` and `%` become `_`) plus an RFC 5987 `filename*=UTF-8''...`
   - 404 when there is no stored file (text-only or placeholder resume) or it is missing on disk; 400 when the resume is not a PDF; 500 on failure
 
 - POST /api/resume/analyze
