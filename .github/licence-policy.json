@@ -30,6 +30,18 @@
       "licenses": "BSD*",
       "reason": "Scanner could not classify; BSD-style licence text confirmed in ADR 0013.",
       "adr": "0013"
+    },
+    {
+      "package": "elkjs",
+      "licenses": "EPL-2.0",
+      "reason": "Graph layout library used only by Prisma Studio inside the prisma CLI (a devDependency that npm still lists in the production tree via an optional peer). Unmodified, weak file-level copyleft, never bundled into the app or run in production.",
+      "adr": "0020"
+    },
+    {
+      "package": "@visx/vendor",
+      "licenses": "MIT and ISC",
+      "reason": "Compound expression of two allowlisted permissive licences, pulled in by Prisma Studio inside the prisma CLI; not run in production.",
+      "adr": "0020"
     }
   ]
 }

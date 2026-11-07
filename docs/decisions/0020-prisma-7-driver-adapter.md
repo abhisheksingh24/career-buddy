@@ -19,7 +19,9 @@ Prisma 7.10.1 with `@prisma/adapter-pg` (MIT/Apache-2.0, as Prisma). The connect
 
 ## Licence finding and outcome
 
-Prisma 7's CLI pulls `@prisma/studio-core`, which brings `elkjs@0.11.1` (EPL-2.0) and `@visx/vendor@4.0.0-alpha.0` ("MIT and ISC"). Neither is on the allowlist and we chose not to add exceptions or allow EPL-2.0. `prisma` and `dotenv` are therefore `devDependencies` (CI and the build run `npx prisma generate` after `npm ci`; `instance.sh` runs `migrate deploy` where devDependencies are installed). Caveat found while verifying: `@prisma/client` declares `prisma` as an optional peer, so npm still places the CLI subtree in a production-flagged scan (`devOptional` in the lockfile, and even `npm ci --omit=dev` installs it). The `licence-scan` check therefore still reports the two packages; see the PR for the open decision.
+Prisma 7's CLI pulls `@prisma/studio-core`, which brings `elkjs@0.11.1` (EPL-2.0) and `@visx/vendor@4.0.0-alpha.0` ("MIT and ISC"). Neither is on the allowlist. `prisma` and `dotenv` are `devDependencies` (CI and the build run `npx prisma generate` after `npm ci`; `instance.sh` runs `migrate deploy` where devDependencies are installed). That alone does not clear the scan: `@prisma/client` declares `prisma` as an optional peer, so npm keeps the CLI subtree in the production-flagged tree (`devOptional` in the lockfile; even `npm ci --omit=dev` installs it).
+
+Outcome: two reasoned exceptions in `.github/licence-policy.json`. `elkjs` (EPL-2.0) is weak, file-level copyleft; it is unmodified, used only by Prisma Studio inside the CLI, and never bundled into the app or run in production, so its obligations are not triggered. `@visx/vendor` ("MIT and ISC") is two allowlisted permissive licences that the scanner cannot read as a compound. EPL-2.0 is not added to the allowlist. Revisit if either ever ships in the app.
 
 A future production deploy that runs `prisma migrate deploy` must install the CLI (it is not in a production-only install by design).
 
