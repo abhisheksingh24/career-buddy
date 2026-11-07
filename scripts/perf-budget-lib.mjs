@@ -36,6 +36,11 @@ export function sharedExtras(htmlScripts, statsScripts) {
   return htmlScripts.filter((s) => !known.has(s));
 }
 
+/** Polyfill scripts every page loads, from `.next/build-manifest.json`. */
+export function polyfillScripts(manifest) {
+  return (manifest.polyfillFiles ?? []).map((p) => `/_next/${p}`);
+}
+
 /** Gzipped size in bytes of the given `/_next/...` script URLs. */
 export function gzipBytes(scripts, distDir = ".next") {
   if (scripts.length === 0) throw new Error("no scripts to measure");

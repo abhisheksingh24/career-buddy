@@ -19,6 +19,11 @@ const SAFE_STRING_KEYS = new Set([
   "model",
   "category",
   "reason",
+  // CSP report fields, already stripped of query/fragment and capped by the route.
+  "directive",
+  "blockedUri",
+  "documentUri",
+  "sourceFile",
 ]);
 
 const MAX_SAFE_STRING = 80;

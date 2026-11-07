@@ -31,6 +31,32 @@ export async function guard(options: GuardOptions = {}): Promise<GuardResult> {
   return { userId };
 }
 
+/**
+ * The narrow exception to `guard()`: for the few endpoints that must work
+ * signed out because the caller is a browser, not a user (today only
+ * `/api/csp-report`). With no user to count, it applies one shared limit to the
+ * whole endpoint (a forwarded address header is spoofable, so it is not used)
+ * and refuses a body whose declared Content-Length is over the cap. A chunked body has no declared
+ * length, so the route must also read it with `readBodyLimited()`. Returns the
+ * response to send when refused, or null to continue. The limiter is in memory per
+ * instance (ADR 0015).
+ */
+export function publicGuard(
+  req: Request,
+  options: { bucket: string; limit: number; windowMs: number; maxBytes: number },
+): NextResponse | null {
+  const declared = Number(req.headers.get("content-length") ?? 0);
+  if (declared > options.maxBytes) return new NextResponse(null, { status: 413 });
+  const result = rateLimit(`public:${options.bucket}`, options.limit, options.windowMs);
+  if (!result.ok) {
+    return new NextResponse(null, {
+      status: 429,
+      headers: { "Retry-After": String(result.retryAfterSeconds) },
+    });
+  }
+  return null;
+}
+
 /** Limits for the routes that call OpenAI. */
 export const AI_RATE_LIMIT = { bucket: "ai", limit: 10, windowMs: 60_000 } as const;
 

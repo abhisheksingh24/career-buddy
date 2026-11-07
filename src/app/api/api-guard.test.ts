@@ -94,6 +94,12 @@ describe("every API route uses the shared guard", () => {
 
   it.each(entries)("%s", (rel, src) => {
     if (rel.includes("/auth/")) return; // NextAuth's own handler
+    // The one signed-out endpoint (browsers post CSP reports without cookies)
+    // must use publicGuard (size cap and shared rate limit) instead.
+    if (rel.includes("/csp-report/")) {
+      expect(src).toMatch(/publicGuard\(/);
+      return;
+    }
     expect(src).toMatch(/await guard\(/);
   });
 });

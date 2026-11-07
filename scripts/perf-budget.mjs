@@ -3,25 +3,14 @@
 // docs/quality/profile.md; raise one only with a reason in the PR (ADR 0012).
 import { existsSync, readFileSync } from "node:fs";
 
-import {
-  firstLoadBytes,
-  gzipBytes,
-  overBudget,
-  scriptsFromHtml,
-  scriptsFromRouteStats,
-  sharedExtras,
-} from "./perf-budget-lib.mjs";
+import { gzipBytes, overBudget, polyfillScripts, scriptsFromRouteStats } from "./perf-budget-lib.mjs";
 
-// Prerendered pages: scripts are read from the built HTML.
-const PAGES = {
-  "/": ".next/server/app/index.html",
-  "/profile": ".next/server/app/profile.html",
-};
-
-// Server-rendered pages (behind the sign-in guard) have no built HTML, so their
-// scripts come from Next's own per-route list in route-bundle-stats.json.
+// Every page is rendered per request (the root layout calls connection() so the
+// CSP nonce can be stamped, ADR 0018), so there is no built HTML to read. Scripts
+// come from Next's own per-route list in route-bundle-stats.json.
 const STATS_FILE = ".next/diagnostics/route-bundle-stats.json";
-const DYNAMIC_PAGES = ["/upload", "/analyze", "/analyze/interactive"];
+const MANIFEST_FILE = ".next/build-manifest.json";
+const PAGES = ["/", "/profile", "/upload", "/analyze", "/analyze/interactive"];
 
 // kB gzipped. Set about 10% above the size measured on 2026-11-01
 // (/ 183, /profile 230, /upload 183, /analyze 203, /analyze/interactive 206).
@@ -34,25 +23,17 @@ const BUDGET_KB = {
   "/analyze/interactive": 230,
 };
 
-const missing = [...Object.values(PAGES), STATS_FILE].filter((f) => !existsSync(f));
+const missing = [STATS_FILE, MANIFEST_FILE].filter((f) => !existsSync(f));
 if (missing.length) {
   console.error(`Build output missing (${missing.join(", ")}). Run npm run build first.`);
   process.exit(1);
 }
 
-const measured = {};
-for (const [page, file] of Object.entries(PAGES)) measured[page] = firstLoadBytes(file);
-
 const stats = scriptsFromRouteStats(JSON.parse(readFileSync(STATS_FILE, "utf8")));
-// Next's list leaves out scripts every page loads (polyfills). Add them back so
-// server-rendered pages are measured the same way as prerendered ones.
-const home = stats.get("/");
-if (!home) {
-  console.error(`No "/" entry in ${STATS_FILE}; cannot work out the shared scripts.`);
-  process.exit(1);
-}
-const extras = sharedExtras(scriptsFromHtml(readFileSync(PAGES["/"], "utf8")), home);
-for (const page of DYNAMIC_PAGES) {
+// Next's per-route list leaves out the polyfills every page loads. Add them back.
+const extras = polyfillScripts(JSON.parse(readFileSync(MANIFEST_FILE, "utf8")));
+const measured = {};
+for (const page of PAGES) {
   const scripts = stats.get(page);
   if (!scripts?.length) {
     console.error(`No bundle stats for ${page} in ${STATS_FILE}. Is the route still built?`);

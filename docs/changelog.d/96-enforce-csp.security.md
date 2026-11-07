@@ -1,0 +1,1 @@
+The Content Security Policy is now enforced: scripts run only with a per-request nonce (no inline scripts allowed) and violations are reported to a logged endpoint. Pages are now rendered per request.
