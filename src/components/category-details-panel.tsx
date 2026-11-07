@@ -211,7 +211,7 @@ export function CategoryDetailsPanel({
     return (
       <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-bold mb-2">Interactive Resume Analysis</h1>
+          <h2 className="text-2xl font-bold mb-2">Select a category</h2>
           <p className="text-gray-600">
             Select a category from the left panel to view detailed analysis and improvement
             suggestions.
@@ -351,7 +351,7 @@ export function CategoryDetailsPanel({
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           {Icon && <Icon className="h-7 w-7 text-gray-700" />}
-          <h1 className="text-2xl font-bold text-gray-900">{selectedCategory.name}</h1>
+          <h2 className="text-2xl font-bold text-gray-900">{selectedCategory.name}</h2>
         </div>
         <p className="text-gray-600">{description}</p>
 

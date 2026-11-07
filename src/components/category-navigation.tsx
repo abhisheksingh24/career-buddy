@@ -19,6 +19,8 @@ export interface Category {
   name: string;
   icon: React.ComponentType<{ className?: string }>;
   score: number;
+  /** False before any analysis has run: show a neutral state, not a score. */
+  analysed?: boolean;
   actionItemsCount: number;
 }
 
@@ -69,7 +71,8 @@ export function CategoryNavigation({
       {categories.map((category) => {
         const Icon = category.icon;
         const isActive = selectedCategoryId === category.id;
-        const isLowScore = category.score < 50;
+        const isAnalysed = category.analysed !== false;
+        const isLowScore = isAnalysed && category.score < 50;
 
         return (
           <Card
@@ -92,10 +95,18 @@ export function CategoryNavigation({
                     </h4>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    {getStatusIndicator(category.score)}
-                    <span className={cn("text-lg font-bold", getScoreColor(category.score))}>
-                      {category.score}
-                    </span>
+                    {isAnalysed ? (
+                      <>
+                        {getStatusIndicator(category.score)}
+                        <span className={cn("text-lg font-bold", getScoreColor(category.score))}>
+                          {category.score}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm text-gray-400" aria-hidden="true">
+                        --
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -104,11 +115,13 @@ export function CategoryNavigation({
                   <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
                     <div
                       className={cn("h-full transition-all", getProgressColor(category.score))}
-                      style={{ width: `${category.score}%` }}
+                      style={{ width: isAnalysed ? `${category.score}%` : "0%" }}
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{getStatusLabel(category.score)}</span>
+                    <span className="text-xs text-gray-500">
+                      {isAnalysed ? getStatusLabel(category.score) : "Not analysed yet"}
+                    </span>
                     {category.actionItemsCount > 0 && (
                       <Badge
                         variant="outline"
