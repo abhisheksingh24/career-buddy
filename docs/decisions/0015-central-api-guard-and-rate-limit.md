@@ -1,6 +1,6 @@
 # 0015. Central API guard and in-memory rate limit
 
-Status: Accepted
+Status: Accepted (limits extended by ADR 0022)
 Date: 2026-11-01
 
 ## Context
@@ -34,3 +34,7 @@ OpenAI budget. Nothing limited request rate or body size.
   database or Redis) before scaling out; recorded in the threat model.
 - Signed-out use of analyze is gone; the analyze pages are now gated server-side (`(app)/analyze/layout.tsx` redirects signed-out visitors to sign-in, as the dashboard does).
 - Limits of 10 per minute are generous for a person and can be tuned in `AI_RATE_LIMIT`.
+
+## Update (#112)
+
+Limits now also cover upload (10 a minute), profile writes (30 a minute, body 50 kB) and sign-in POSTs (20 a minute per address). How the sign-in address is chosen and why anonymous limits have their own store is in ADR 0022.
