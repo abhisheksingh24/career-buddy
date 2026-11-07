@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 export const runtime = "nodejs";
-import { guard } from "@/lib/api-guard";
+import { UPLOAD_RATE_LIMIT, guard } from "@/lib/api-guard";
 import { prisma } from "@/lib/db";
 import { logError } from "@/lib/logger";
 import { extractText } from "@/lib/parse";
@@ -16,7 +16,7 @@ import {
 } from "@/lib/upload-validation";
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const auth = await guard();
+  const auth = await guard({ rateLimit: UPLOAD_RATE_LIMIT });
   if ("response" in auth) return auth.response;
   const { userId } = auth;
 

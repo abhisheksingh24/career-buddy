@@ -44,6 +44,7 @@ const placeholderCategories: Category[] = [
     name: "Match Overview",
     icon: TrendingUp,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -51,6 +52,7 @@ const placeholderCategories: Category[] = [
     name: "Required Skills",
     icon: Target,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -58,6 +60,7 @@ const placeholderCategories: Category[] = [
     name: "Work Experience",
     icon: Briefcase,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -65,6 +68,7 @@ const placeholderCategories: Category[] = [
     name: "Education & Credentials",
     icon: GraduationCap,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -72,6 +76,7 @@ const placeholderCategories: Category[] = [
     name: "Impact & Achievements",
     icon: Award,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -79,6 +84,7 @@ const placeholderCategories: Category[] = [
     name: "ATS Compatibility",
     icon: FileCheck,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
   {
@@ -86,6 +92,7 @@ const placeholderCategories: Category[] = [
     name: "Professional Quality",
     icon: FileText,
     score: 0,
+    analysed: false,
     actionItemsCount: 0,
   },
 ];
@@ -131,6 +138,7 @@ export default function InteractiveAnalyzePage() {
       const response = await fetch("/api/resume/active");
       if (response.ok) {
         const data = await response.json();
+        if (!data) return;
         setUserResume(data.rawText || null);
         setResumeId(data.id || null);
         setResumeFileType(data.fileType || "text/plain");
@@ -180,11 +188,11 @@ export default function InteractiveAnalyzePage() {
       const resumeResponse = await fetch("/api/resume/active");
       if (resumeResponse.ok) {
         const resumeData = await resumeResponse.json();
-        if (resumeData.rawText) {
+        if (resumeData?.rawText) {
           setResumeText(resumeData.rawText);
         }
         // Update resume ID and file type from active resume
-        if (resumeData.id) {
+        if (resumeData?.id) {
           setResumeId(resumeData.id);
           setResumeFileType(resumeData.fileType || "text/plain");
         }
@@ -480,7 +488,7 @@ export default function InteractiveAnalyzePage() {
       <InteractiveAnalysisLayout
         jobTitle={jobTitle || "Position"}
         company={company || "Company"}
-        overallScore={analysisResult?.overallScore || 0}
+        overallScore={analysisResult ? analysisResult.overallScore : null}
       >
         {{
           leftPanel: (

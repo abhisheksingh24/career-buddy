@@ -35,7 +35,7 @@ export default function AnalyzePage() {
       const response = await fetch("/api/resume/active");
       if (response.ok) {
         const data = await response.json();
-        setUserResume(data.rawText || null);
+        setUserResume(data?.rawText || null);
       }
     } catch (error) {
       console.error("Failed to fetch user resume:", error);
