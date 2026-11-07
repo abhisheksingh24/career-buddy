@@ -16,7 +16,10 @@ export function AuthButtons() {
 
   if (status === "authenticated") {
     return (
-      <button className="px-3 py-1.5 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]" onClick={() => signOut()}>
+      <button
+        className="px-3 py-1.5 rounded bg-gray-900 text-white outline-none focus-visible:ring-ring focus-visible:ring-[3px]"
+        onClick={() => signOut()}
+      >
         Sign out
       </button>
     );

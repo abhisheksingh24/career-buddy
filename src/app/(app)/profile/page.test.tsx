@@ -22,6 +22,6 @@ describe("/profile when signed out", () => {
   it("starts Google sign-in when the button is clicked", () => {
     render(<ProfilePage />);
     fireEvent.click(screen.getByRole("button", { name: "Sign in with Google" }));
-    expect(signIn).toHaveBeenCalledWith("google");
+    expect(signIn).toHaveBeenCalledWith("google", { callbackUrl: "/profile" });
   });
 });
