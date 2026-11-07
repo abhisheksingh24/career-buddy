@@ -4,6 +4,7 @@
 // Refuses unless every guard in test-login-lib.mjs passes. See ADR 0016.
 import { randomBytes } from "node:crypto";
 
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
 import {
@@ -20,7 +21,9 @@ try {
   process.exit(1);
 }
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 try {
   const user = await prisma.user.upsert({
     where: { email: TEST_USER_EMAIL },
