@@ -1,10 +1,11 @@
 "use client";
 
 import { EnhancedResumeAnalysisResults } from "@/components/enhanced-resume-analysis-results";
+import { RateLimitNotice } from "@/components/rate-limit-notice";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
+import { parseRetryAfter } from "@/lib/retry-wait";
 import type { EnhancedAnalysisResult } from "@/lib/types/analysis";
 import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import { FileText, Upload, AlertCircle } from "lucide-react";
@@ -198,25 +199,20 @@ export default function AnalyzePage() {
             </CardContent>
           </Card>
 
-          <Button
-            onClick={run}
-            disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading
-              ? "Analyzing..."
-              : remaining > 0
-                ? `Try again in ${remaining}s`
-                : "Analyze Resume"}
-          </Button>
-
-          {remaining > 0 && (
-            <Alert variant="destructive" role="status">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{rateLimitMessage()}</AlertDescription>
-            </Alert>
-          )}
+          <RateLimitNotice active={remaining > 0}>
+            <Button
+              onClick={run}
+              disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
+              className="w-full"
+              size="lg"
+            >
+              {isLoading
+                ? "Analyzing..."
+                : remaining > 0
+                  ? `Try again in ${remaining}s`
+                  : "Analyze Resume"}
+            </Button>
+          </RateLimitNotice>
         </div>
 
         {/* Results Section */}

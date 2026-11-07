@@ -18,3 +18,18 @@ export function parseRetryAfter(value: string | null): number | null {
 export function secondsLeft(deadline: number, now: number): number {
   return Math.max(0, Math.ceil((deadline - now) / 1000));
 }
+
+/**
+ * Brings the rate-limit alert and its button (one wrapper element) into view if
+ * they are off screen, for example on a phone where the form is taller than the
+ * screen. Does nothing when already visible. Respects reduced motion by jumping
+ * instead of animating. The wrapper's scroll margin keeps the button off the
+ * screen edge.
+ */
+export function revealAlert(
+  el: Pick<HTMLElement, "scrollIntoView"> | null,
+  prefersReducedMotion: boolean,
+): void {
+  if (!el || typeof el.scrollIntoView !== "function") return;
+  el.scrollIntoView({ block: "nearest", behavior: prefersReducedMotion ? "auto" : "smooth" });
+}

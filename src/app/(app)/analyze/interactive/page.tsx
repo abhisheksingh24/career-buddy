@@ -7,12 +7,13 @@ import {
   type CategoryId,
 } from "@/components/category-navigation";
 import { InteractiveAnalysisLayout } from "@/components/interactive-analysis-layout";
+import { RateLimitNotice } from "@/components/rate-limit-notice";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transformCategoriesToNavigation } from "@/lib/category-utils";
-import { parseRetryAfter, rateLimitMessage } from "@/lib/retry-wait";
+import { parseRetryAfter } from "@/lib/retry-wait";
 import type { EnhancedAnalysisResult, CategoryAnalysisResponse } from "@/lib/types/analysis";
 import { useRetryCountdown } from "@/lib/use-retry-countdown";
 import {
@@ -447,31 +448,26 @@ export default function InteractiveAnalyzePage() {
                 </Alert>
               )}
 
-              {/* Start Analysis Button */}
-              <Button
-                onClick={handleStartAnalysis}
-                disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
-                className="w-full"
-                size="lg"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Analyzing...
-                  </>
-                ) : remaining > 0 ? (
-                  `Try again in ${remaining}s`
-                ) : (
-                  "Start Analysis"
-                )}
-              </Button>
-
-              {remaining > 0 && (
-                <Alert variant="destructive" role="status">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{rateLimitMessage()}</AlertDescription>
-                </Alert>
-              )}
+              <RateLimitNotice active={remaining > 0}>
+                {/* Start Analysis Button */}
+                <Button
+                  onClick={handleStartAnalysis}
+                  disabled={isLoading || remaining > 0 || !resumeText || !jobDescription}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Analyzing...
+                    </>
+                  ) : remaining > 0 ? (
+                    `Try again in ${remaining}s`
+                  ) : (
+                    "Start Analysis"
+                  )}
+                </Button>
+              </RateLimitNotice>
             </div>
           )}
 
