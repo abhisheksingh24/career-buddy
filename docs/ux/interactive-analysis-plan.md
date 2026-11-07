@@ -81,7 +81,10 @@ This document outlines the design, features, and implementation plan for an inte
 **Behavior:**
 
 - Clicking a category updates the center panel
+- Category cards are buttons: Tab moves between them, Enter or Space selects one, and `aria-pressed` marks the active one
+- Keyboard focus shows a visible focus ring
 - Active category is highlighted
+- The setup form's resume file input has a visible label so assistive technology announces it
 - Categories with low scores are visually emphasized
 - Progress indicator shows completion status
 
