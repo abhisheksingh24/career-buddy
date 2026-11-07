@@ -20,6 +20,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [bioLength, setBioLength] = useState(0);
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -60,13 +61,15 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       setIsLoading(true);
+      setLoadFailed(false);
+      setError(null);
       const res = await fetch("/api/profile");
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
       setProfile(data);
       setBioLength(data?.bio?.length ?? 0);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load profile");
+    } catch {
+      setLoadFailed(true);
     } finally {
       setIsLoading(false);
     }
@@ -164,6 +167,16 @@ export default function ProfilePage() {
     }
   };
 
+  const isFirstRun =
+    !!profile &&
+    !profile.headline &&
+    !profile.bio &&
+    !profile.location &&
+    !profile.website &&
+    !profile.linkedin &&
+    !profile.github &&
+    !profile.skills?.length;
+
   if (isLoading) {
     return <div className="p-6">Loading...</div>;
   }
@@ -191,143 +204,165 @@ export default function ProfilePage() {
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6">
-          <form onSubmit={handleSubmit} onChange={clearSaved} className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="headline" className="block text-sm font-medium text-gray-700">
-                  Professional Headline
-                </label>
-                <input
-                  type="text"
-                  id="headline"
-                  name="headline"
-                  maxLength={PROFILE_LIMITS.headline}
-                  defaultValue={profile?.headline || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Full Stack Developer | AI Enthusiast"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-                  Bio
-                </label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  rows={4}
-                  maxLength={PROFILE_LIMITS.bio}
-                  onChange={(e) => setBioLength(e.target.value.length)}
-                  defaultValue={profile?.bio || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Tell us about yourself..."
-                />
-                <p className="mt-1 text-xs text-gray-500 text-right">
-                  {bioLength >= PROFILE_LIMITS.bio
-                    ? `Limit reached: ${PROFILE_LIMITS.bio} characters. Extra text is cut off.`
-                    : `${bioLength} / ${PROFILE_LIMITS.bio}`}
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  maxLength={PROFILE_LIMITS.location}
-                  defaultValue={profile?.location || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="City, Country"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="website" className="block text-sm font-medium text-gray-700">
-                  Website
-                </label>
-                <input
-                  type="url"
-                  id="website"
-                  name="website"
-                  defaultValue={profile?.website || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://your-website.com"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
-                  LinkedIn
-                </label>
-                <input
-                  type="url"
-                  id="linkedin"
-                  name="linkedin"
-                  defaultValue={profile?.linkedin || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://linkedin.com/in/your-profile"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="github" className="block text-sm font-medium text-gray-700">
-                  GitHub
-                </label>
-                <input
-                  type="url"
-                  id="github"
-                  name="github"
-                  defaultValue={profile?.github || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://github.com/your-username"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
-                  Skills
-                </label>
-                <input
-                  type="text"
-                  id="skills"
-                  name="skills"
-                  aria-describedby="skills-hint"
-                  defaultValue={profile?.skills?.join(", ") || ""}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="React, Node.js, Python"
-                />
-                <p id="skills-hint" className="mt-1 text-xs text-gray-500">
-                  Separate skills with commas (up to {PROFILE_LIMITS.skills}, {PROFILE_LIMITS.skill}{" "}
-                  characters each).
-                </p>
-              </div>
-            </div>
-
+          {loadFailed ? (
             <div className="space-y-3">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {saved && (
-                <Alert role="status">
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertDescription>Profile saved</AlertDescription>
-                </Alert>
-              )}
-            </div>
-
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isSaving} className="px-6 min-h-11">
-                {isSaving ? "Saving..." : "Save Profile"}
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  We could not load your profile. Your saved details are safe; try again before
+                  editing.
+                </AlertDescription>
+              </Alert>
+              <Button onClick={() => fetchProfile()} className="min-h-11">
+                Retry
               </Button>
             </div>
-          </form>
+          ) : (
+            <>
+              {isFirstRun && (
+                <p className="text-sm text-gray-600">
+                  Welcome! Add a few details below, or upload a resume in the Resume Management tab.
+                </p>
+              )}
+              <form onSubmit={handleSubmit} onChange={clearSaved} className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="headline" className="block text-sm font-medium text-gray-700">
+                      Professional Headline
+                    </label>
+                    <input
+                      type="text"
+                      id="headline"
+                      name="headline"
+                      maxLength={PROFILE_LIMITS.headline}
+                      defaultValue={profile?.headline || ""}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Full Stack Developer | AI Enthusiast"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                      Bio
+                    </label>
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      rows={4}
+                      maxLength={PROFILE_LIMITS.bio}
+                      onChange={(e) => setBioLength(e.target.value.length)}
+                      defaultValue={profile?.bio || ""}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Tell us about yourself..."
+                    />
+                    <p className="mt-1 text-xs text-gray-500 text-right">
+                      {bioLength >= PROFILE_LIMITS.bio
+                        ? `Limit reached: ${PROFILE_LIMITS.bio} characters. Extra text is cut off.`
+                        : `${bioLength} / ${PROFILE_LIMITS.bio}`}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      id="location"
+                      name="location"
+                      maxLength={PROFILE_LIMITS.location}
+                      defaultValue={profile?.location || ""}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="City, Country"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+                      Website
+                    </label>
+                    <input
+                      type="url"
+                      id="website"
+                      name="website"
+                      defaultValue={profile?.website || ""}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="https://your-website.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
+                      LinkedIn
+                    </label>
+                    <input
+                      type="url"
+                      id="linkedin"
+                      name="linkedin"
+                      defaultValue={profile?.linkedin || ""}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="https://linkedin.com/in/your-profile"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="github" className="block text-sm font-medium text-gray-700">
+                      GitHub
+                    </label>
+                    <input
+                      type="url"
+                      id="github"
+                      name="github"
+                      defaultValue={profile?.github || ""}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="https://github.com/your-username"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
+                      Skills
+                    </label>
+                    <input
+                      type="text"
+                      id="skills"
+                      name="skills"
+                      aria-describedby="skills-hint"
+                      defaultValue={profile?.skills?.join(", ") || ""}
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="React, Node.js, Python"
+                    />
+                    <p id="skills-hint" className="mt-1 text-xs text-gray-500">
+                      Separate skills with commas (up to {PROFILE_LIMITS.skills},{" "}
+                      {PROFILE_LIMITS.skill} characters each).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {saved && (
+                    <Alert role="status">
+                      <CheckCircle className="h-4 w-4" />
+                      <AlertDescription>Profile saved</AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isSaving} className="px-6 min-h-11">
+                    {isSaving ? "Saving..." : "Save Profile"}
+                  </Button>
+                </div>
+              </form>
+            </>
+          )}
         </TabsContent>
 
         <TabsContent value="resume" className="space-y-6">
