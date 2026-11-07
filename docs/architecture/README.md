@@ -56,6 +56,7 @@ erDiagram
 
 - Deploy: none in the repo.
 - PDF viewer: `src/components/resume-pdf-viewer.tsx` (react-pdf / pdf.js) needs browser globals such as `DOMMatrix`, so the interactive analysis page loads it with `next/dynamic` and `ssr: false` (skeleton while loading). See ADR 0007.
+- Interactive analysis outline and focus (#154): one `h1` (the layout header), then `h2` for the setup, categories, category details and resume preview panels, and `h3` for items inside details (action card titles). The scrollable "Category details" region (four responsive variants) takes `DETAILS_FOCUS` from `interactive-analysis-layout.tsx`: the `--ring` token, solid 3px, inset so overflow does not clip it. Guarded by `interactive-layout-mobile.test.ts` and, with a session, `e2e/a11y-interactive.spec.ts`.
 - Security headers: `next.config.ts` `headers()` applies `src/lib/security-headers.ts` to every path (nosniff, referrer, frame denial, permissions policy, HSTS in production only, and a report-only CSP; tested in `security-headers.test.ts`). Enforcing the CSP is a follow-up.
 - Node: `^22.22.2 || ^24.15 || >=26` (`engines`; `.nvmrc` tracks 22), required by jsdom 30 and lint-staged 17.
 - Decisions: `docs/decisions/0001` to `0007`.

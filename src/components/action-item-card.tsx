@@ -58,9 +58,9 @@ export function ActionItemCard({ actionItem, className }: ActionItemCardProps) {
           </div>
 
           {/* Title */}
-          <h4 className="text-base font-semibold text-gray-900 leading-tight">
+          <h3 className="text-base font-semibold text-gray-900 leading-tight">
             {actionItem.title}
-          </h4>
+          </h3>
 
           {/* Description */}
           <p className="text-sm text-gray-600 leading-relaxed">{actionItem.description}</p>

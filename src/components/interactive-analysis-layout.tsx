@@ -15,6 +15,12 @@ interface InteractiveAnalysisLayoutProps {
   };
 }
 
+// Keyboard focus on the scrollable details region: the shared --ring token, solid
+// 3px (docs/ux/design-system.md, "Focus ring"). Inset so the scroll container's
+// own overflow does not clip it (#154).
+export const DETAILS_FOCUS =
+  "outline-none focus-visible:ring-ring focus-visible:ring-[3px] focus-visible:ring-inset";
+
 export function InteractiveAnalysisLayout({
   jobTitle = "Position",
   company = "Company",
@@ -91,7 +97,7 @@ export function InteractiveAnalysisLayout({
           aria-label="Category details"
           tabIndex={0}
           data-category-details
-          className="flex-[1.5] overflow-y-auto bg-white min-w-0"
+          className={`flex-[1.5] overflow-y-auto bg-white min-w-0 ${DETAILS_FOCUS}`}
           style={{ minWidth: "300px" }}
         >
           <div className="p-4 md:p-6">{children.centerPanel}</div>
@@ -135,7 +141,7 @@ export function InteractiveAnalysisLayout({
           aria-label="Category details"
           tabIndex={0}
           data-category-details
-          className="flex-[1.5] overflow-y-auto bg-white min-w-0"
+          className={`flex-[1.5] overflow-y-auto bg-white min-w-0 ${DETAILS_FOCUS}`}
           style={{ minWidth: "300px" }}
         >
           <div className="p-4 md:p-6">{children.centerPanel}</div>
@@ -188,7 +194,7 @@ export function InteractiveAnalysisLayout({
             aria-label="Category details"
             tabIndex={0}
             data-category-details
-            className="flex-[1.5] overflow-y-auto bg-white min-w-0"
+            className={`flex-[1.5] overflow-y-auto bg-white min-w-0 ${DETAILS_FOCUS}`}
             style={{ minWidth: "250px" }}
           >
             <div className="p-4 md:p-6">{children.centerPanel}</div>
@@ -234,7 +240,7 @@ export function InteractiveAnalysisLayout({
           aria-label="Category details"
           tabIndex={0}
           data-category-details
-          className="bg-white min-w-0 flex-shrink-0 scroll-mt-2"
+          className={`bg-white min-w-0 flex-shrink-0 scroll-mt-2 ${DETAILS_FOCUS}`}
         >
           <div className="p-4">{children.centerPanel}</div>
         </div>
