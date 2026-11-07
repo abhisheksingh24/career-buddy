@@ -79,6 +79,10 @@ loading / error states, confirmation and undo, progressive disclosure. -->
 how errors and empty states are phrased. Short lines, no paragraph over two
 short lines, say it once. -->
 
+## Accessible names
+
+A control with visible text takes its accessible name from that text: no `aria-label` that replaces it (WCAG 2.5.3 Label in Name). Where a name is needed and no text is visible, say the same words people see elsewhere. Toggles that show or hide a region expose `aria-expanded` (example: the Show/Hide Resume Preview bar on `/analyze/interactive`).
+
 ## Text inputs on phones
 
 Single-line text inputs are at least 44px high below 768px (global rule in
