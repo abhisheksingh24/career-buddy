@@ -81,9 +81,13 @@ export function InteractiveAnalysisLayout({
         </aside>
 
         {/* Center Panel - Category Details */}
-        <main className="flex-[1.5] overflow-y-auto bg-white min-w-0" style={{ minWidth: "300px" }}>
+        <section
+          aria-label="Category details"
+          className="flex-[1.5] overflow-y-auto bg-white min-w-0"
+          style={{ minWidth: "300px" }}
+        >
           <div className="p-4 md:p-6">{children.centerPanel}</div>
-        </main>
+        </section>
 
         {/* Right Panel - PDF Viewer (~40% width) */}
         <aside
@@ -115,9 +119,13 @@ export function InteractiveAnalysisLayout({
         </aside>
 
         {/* Center Panel - Category Details */}
-        <main className="flex-[1.5] overflow-y-auto bg-white min-w-0" style={{ minWidth: "300px" }}>
+        <section
+          aria-label="Category details"
+          className="flex-[1.5] overflow-y-auto bg-white min-w-0"
+          style={{ minWidth: "300px" }}
+        >
           <div className="p-4 md:p-6">{children.centerPanel}</div>
-        </main>
+        </section>
 
         {/* Right Panel Toggle Button */}
         <button
@@ -154,12 +162,13 @@ export function InteractiveAnalysisLayout({
           )}
 
           {/* Center Panel */}
-          <main
+          <section
+            aria-label="Category details"
             className="flex-[1.5] overflow-y-auto bg-white min-w-0"
             style={{ minWidth: "250px" }}
           >
             <div className="p-4 md:p-6">{children.centerPanel}</div>
-          </main>
+          </section>
 
           {/* Right Panel Toggle Button */}
           <button
