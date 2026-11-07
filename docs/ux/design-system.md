@@ -24,7 +24,10 @@ Path to the tokens file. -->
 The keyboard focus ring is the `--ring` token in `src/app/globals.css`, drawn
 as a solid 3px ring (`focus-visible:ring-[3px] ring-ring`, no opacity) on
 buttons, badges and tabs. Rule: at least 3:1 against the surface it sits on
-(WCAG 2.2 1.4.11). Measured:
+(WCAG 2.2 1.4.11). Buttons and badges that are focused and marked invalid
+(`aria-invalid`) use the full-strength destructive ring
+(`focus-visible:aria-invalid:ring-destructive`, no opacity) instead; the
+faint `/20` ring applies only when unfocused. Measured:
 
 | Mode  | Ring               | Against               | Ratio |
 | ----- | ------------------ | --------------------- | ----- |
