@@ -17,7 +17,7 @@ Rules screens are checked against, on top of the baseline in
 
 ## Signed-out screens
 
-A signed-out screen shows exactly one sign-in action, and every tap target (including sign-in) is at least 44px. Upload shows the chosen file name once (the file input is visually hidden behind the "Choose file" button, so the "Selected" line is the only place the name appears).
+A signed-out screen shows exactly one sign-in action, and every tap target (including sign-in) is at least 44px.
 
 ## One main landmark per page
 
