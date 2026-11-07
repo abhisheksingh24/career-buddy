@@ -7,7 +7,7 @@ import { ReactNode, useState } from "react";
 interface InteractiveAnalysisLayoutProps {
   jobTitle?: string;
   company?: string;
-  overallScore?: number;
+  overallScore?: number | null;
   children: {
     leftPanel: ReactNode;
     centerPanel: ReactNode;
@@ -18,16 +18,16 @@ interface InteractiveAnalysisLayoutProps {
 export function InteractiveAnalysisLayout({
   jobTitle = "Position",
   company = "Company",
-  overallScore = 0,
+  overallScore = null,
   children,
 }: InteractiveAnalysisLayoutProps) {
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
+    if (score >= 80) return "text-green-700";
     if (score >= 60) return "text-blue-600";
-    if (score >= 40) return "text-yellow-600";
+    if (score >= 40) return "text-yellow-700";
     return "text-red-600";
   };
 
@@ -38,18 +38,22 @@ export function InteractiveAnalysisLayout({
         <div className="flex items-center justify-between px-4 md:px-6 py-3">
           <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
             <div className="min-w-0">
-              <h2 className="text-base md:text-lg font-semibold truncate">
-                {jobTitle} @ {company}
-              </h2>
+              <h1 className="text-base md:text-lg font-semibold truncate">
+                {overallScore === null ? "Interactive Resume Analysis" : `${jobTitle} @ ${company}`}
+              </h1>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <TrendingUp className="h-4 w-4 text-gray-500" />
+              <TrendingUp className="h-4 w-4 text-gray-600" />
               <span className="text-xs md:text-sm text-gray-600 hidden sm:inline">
                 Overall Match:
               </span>
-              <span className={`text-base md:text-lg font-bold ${getScoreColor(overallScore)}`}>
-                {overallScore}%
-              </span>
+              {overallScore === null ? (
+                <span className="text-sm text-gray-500">Not analysed yet</span>
+              ) : (
+                <span className={`text-base md:text-lg font-bold ${getScoreColor(overallScore)}`}>
+                  {overallScore}%
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -69,6 +73,8 @@ export function InteractiveAnalysisLayout({
       <div className="hidden xl:flex flex-1 overflow-hidden">
         {/* Left Panel - Category Navigation */}
         <aside
+          aria-label="Analysis categories"
+          tabIndex={leftPanelOpen ? 0 : -1}
           className={`
             ${leftPanelOpen ? "w-[280px]" : "w-0"} 
             border-r bg-gray-50 
@@ -81,12 +87,20 @@ export function InteractiveAnalysisLayout({
         </aside>
 
         {/* Center Panel - Category Details */}
-        <main className="flex-[1.5] overflow-y-auto bg-white min-w-0" style={{ minWidth: "300px" }}>
+        <section
+          aria-label="Category details"
+          tabIndex={0}
+          data-category-details
+          className="flex-[1.5] overflow-y-auto bg-white min-w-0"
+          style={{ minWidth: "300px" }}
+        >
           <div className="p-4 md:p-6">{children.centerPanel}</div>
-        </main>
+        </section>
 
         {/* Right Panel - PDF Viewer (~40% width) */}
         <aside
+          aria-label="Resume preview"
+          tabIndex={rightPanelOpen ? 0 : -1}
           className={`
             ${rightPanelOpen ? "flex-[1.2] min-w-[450px]" : "w-0"} 
             border-l bg-gray-50 
@@ -103,6 +117,8 @@ export function InteractiveAnalysisLayout({
       <div className="hidden lg:flex xl:hidden flex-1 overflow-hidden relative">
         {/* Left Panel - Category Navigation */}
         <aside
+          aria-label="Analysis categories"
+          tabIndex={leftPanelOpen ? 0 : -1}
           className={`
             ${leftPanelOpen ? "w-[280px]" : "w-0"} 
             border-r bg-gray-50 
@@ -115,9 +131,15 @@ export function InteractiveAnalysisLayout({
         </aside>
 
         {/* Center Panel - Category Details */}
-        <main className="flex-[1.5] overflow-y-auto bg-white min-w-0" style={{ minWidth: "300px" }}>
+        <section
+          aria-label="Category details"
+          tabIndex={0}
+          data-category-details
+          className="flex-[1.5] overflow-y-auto bg-white min-w-0"
+          style={{ minWidth: "300px" }}
+        >
           <div className="p-4 md:p-6">{children.centerPanel}</div>
-        </main>
+        </section>
 
         {/* Right Panel Toggle Button */}
         <button
@@ -129,7 +151,11 @@ export function InteractiveAnalysisLayout({
         </button>
 
         {rightPanelOpen && (
-          <aside className="flex-[1.2] min-w-[400px] border-l bg-gray-50 overflow-y-auto flex-shrink-0">
+          <aside
+            aria-label="Resume preview"
+            tabIndex={0}
+            className="flex-[1.2] min-w-[400px] border-l bg-gray-50 overflow-y-auto flex-shrink-0"
+          >
             <div className="p-4 h-full">{children.rightPanel}</div>
           </aside>
         )}
@@ -148,18 +174,25 @@ export function InteractiveAnalysisLayout({
           </button>
 
           {leftPanelOpen && (
-            <aside className="w-[260px] border-r bg-gray-50 overflow-y-auto flex-shrink-0">
+            <aside
+              aria-label="Analysis categories"
+              tabIndex={0}
+              className="w-[260px] border-r bg-gray-50 overflow-y-auto flex-shrink-0"
+            >
               <div className="p-4">{children.leftPanel}</div>
             </aside>
           )}
 
           {/* Center Panel */}
-          <main
+          <section
+            aria-label="Category details"
+            tabIndex={0}
+            data-category-details
             className="flex-[1.5] overflow-y-auto bg-white min-w-0"
             style={{ minWidth: "250px" }}
           >
             <div className="p-4 md:p-6">{children.centerPanel}</div>
-          </main>
+          </section>
 
           {/* Right Panel Toggle Button */}
           <button
@@ -171,34 +204,55 @@ export function InteractiveAnalysisLayout({
           </button>
 
           {rightPanelOpen && (
-            <aside className="flex-[1.2] min-w-[350px] border-l bg-gray-50 overflow-y-auto flex-shrink-0">
+            <aside
+              aria-label="Resume preview"
+              tabIndex={0}
+              className="flex-[1.2] min-w-[350px] border-l bg-gray-50 overflow-y-auto flex-shrink-0"
+            >
               <div className="p-4 h-full">{children.rightPanel}</div>
             </aside>
           )}
         </div>
       </div>
 
-      {/* Mobile: Stacked Layout (< 768px) */}
-      <div className="flex md:hidden flex-col flex-1 overflow-hidden">
+      {/* Mobile: Stacked Layout (< 768px). The whole stack scrolls; the
+          categories list is capped so the details are never squeezed out (#152). */}
+      <div className="flex md:hidden flex-col flex-1 overflow-y-auto">
         {/* Category Navigation - Mobile */}
-        <div className="border-b bg-gray-50 overflow-x-auto flex-shrink-0">
-          <div className="p-4 min-w-max">{children.leftPanel}</div>
+        <div
+          role="region"
+          aria-label="Analysis categories"
+          tabIndex={0}
+          className="border-b bg-gray-50 overflow-y-auto max-h-[40vh] flex-shrink-0"
+        >
+          <div className="p-4">{children.leftPanel}</div>
         </div>
 
         {/* Center Panel - Mobile */}
-        <div className="flex-1 overflow-y-auto bg-white min-w-0">
+        <div
+          role="region"
+          aria-label="Category details"
+          tabIndex={0}
+          data-category-details
+          className="bg-white min-w-0 flex-shrink-0 scroll-mt-2"
+        >
           <div className="p-4">{children.centerPanel}</div>
         </div>
 
         {/* PDF Viewer - Mobile (Collapsible) */}
         {rightPanelOpen && (
-          <div className="border-t bg-gray-50 overflow-y-auto max-h-[40vh] flex-shrink-0">
+          <div
+            role="region"
+            aria-label="Resume preview"
+            tabIndex={0}
+            className="border-t bg-gray-50 overflow-y-auto max-h-[40vh] flex-shrink-0"
+          >
             <div className="p-4">{children.rightPanel}</div>
           </div>
         )}
         <button
           onClick={() => setRightPanelOpen(!rightPanelOpen)}
-          className="md:hidden w-full py-2 bg-gray-100 hover:bg-gray-200 border-t text-sm font-medium"
+          className="md:hidden w-full py-2 max-sm:min-h-11 bg-gray-100 hover:bg-gray-200 border-t text-sm font-medium"
           aria-label="Toggle PDF viewer"
         >
           {rightPanelOpen ? "Hide Resume Preview" : "Show Resume Preview"}

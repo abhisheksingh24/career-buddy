@@ -1,0 +1,1 @@
+Keyboard focus now looks the same everywhere: text boxes on Profile and Analyze, the header "Career Buddy" link and Sign in/out button, and the file choosers show the same clear grey ring as buttons and tabs, with no second outline.

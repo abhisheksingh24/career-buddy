@@ -95,3 +95,12 @@ Ambient type declarations (NextAuth session augmentation). Shared analysis types
 3. Follow the file organization pattern when adding new features
 4. Add documentation for new directories or significant files
 5. Keep related files close together in the directory structure
+
+## Pre-commit hook (`scripts/pre-commit.sh`)
+
+`.husky/pre-commit` calls `scripts/pre-commit.sh`, which runs `lint-staged`
+from the current worktree's own `node_modules`. If that is missing (a fresh
+git worktree) or is a symlink to another checkout, the script removes the
+symlink and runs `npm ci --ignore-scripts` in the worktree first. We install
+instead of bypassing with `--no-verify` (which skips lint) or symlinking
+(eslint then resolves `eslint-config-next` from the wrong checkout).

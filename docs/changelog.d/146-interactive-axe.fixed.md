@@ -1,0 +1,1 @@
+The interactive analysis page now passes the accessibility check: the side panels are named ("Analysis categories", "Resume preview"), every scrollable area can be reached with the keyboard, the green and yellow scores and grey hints meet the contrast minimum, and the Resume Preview heading no longer skips a level.

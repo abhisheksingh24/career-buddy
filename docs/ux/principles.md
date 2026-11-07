@@ -14,3 +14,14 @@ Rules screens are checked against, on top of the baseline in
 | Tailoring starts from the base resume and leaves it untouched; a tailored version is a separate copy. _(assumption)_                                                                   | Daily per-role tailoring, occasional base edits                       | 2026-11-01 |
 | Works on phone and laptop: every task is completable at 390px; writing-heavy steps may be easier on laptop but are never blocked.                                                      | Phone and laptop                                                      | 2026-11-01 |
 | Never type what we can look up or already know (skills, dates, job text from the saved resume or pasted posting).                                                                      | Derived from "only the thinking part"                                 | 2026-11-01 |
+
+## Signed-out screens
+
+A signed-out screen shows exactly one sign-in action, and every tap target (including sign-in) is at least 44px.
+
+## One main landmark per page
+
+The root layout (`src/app/layout.tsx`) renders the only `<main>`. Pages and
+components must not render another, because screen readers expect a single
+main landmark. `src/components/main-landmark.test.ts` scans `src/**/*.tsx`
+and fails if any other file renders `<main` (#139).

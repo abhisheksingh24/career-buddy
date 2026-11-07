@@ -30,3 +30,19 @@ jobs:
       - name: npm audit (production dependencies)
         timeout-minutes: 5
         run: node scripts/audit.mjs
+
+  # Weekly runs have no one watching; open (or update) one issue on failure.
+  # Pull-request, push and manual runs are unaffected.
+  notify-failure:
+    needs: [npm-audit]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: .github/scripts/notify-scheduled-failure.sh audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
